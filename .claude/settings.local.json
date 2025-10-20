@@ -6,7 +6,8 @@
       "Bash(npm run build)",
       "Bash(code:*)",
       "Bash(findstr:*)",
-      "Bash(where code)"
+      "Bash(where code)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import { AuthProvider, useAuth } from './services/auth/authContext';
+import { ToastProvider } from './contexts/ToastContext';
 import { Login } from './pages/Login';
 import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';
@@ -109,13 +110,15 @@ const ConfigChecker: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 function App() {
   return (
     <ConfigChecker>
-      <AuthProvider>
-        <Router>
-          <div className="App">
-            <AppRoutes />
-          </div>
-        </Router>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <Router>
+            <div className="App">
+              <AppRoutes />
+            </div>
+          </Router>
+        </AuthProvider>
+      </ToastProvider>
     </ConfigChecker>
   );
 }

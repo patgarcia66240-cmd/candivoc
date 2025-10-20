@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Key, Save, Eye, EyeOff, AlertCircle, CheckCircle,   TestTube, User,  Briefcase
+  Key, Save, Eye, EyeOff, AlertCircle, CheckCircle, TestTube, User, Briefcase
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../services/auth/authContext';
+import { useToastContext } from '../contexts/ToastContext';
 import { audioService } from '../services/audio/audioService';
 import { aiService } from '../services/ai/aiService';
 import { SettingsManager } from '../services/settings/SettingsManager';
 
 export const Settings: React.FC = () => {
   const { user, updateProfile } = useAuth();
+  const toast = useToastContext();
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -34,11 +36,7 @@ export const Settings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTestingVolume, setIsTestingVolume] = useState(false);
   const [isTestingAI, setIsTestingAI] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error' | null; text: string }>({
-    type: null,
-    text: ''
-  });
-
+  
   // Initialiser le formulaire avec les données de l'utilisateur
   useEffect(() => {
     if (user) {
@@ -72,7 +70,6 @@ export const Settings: React.FC = () => {
 
   const handleSaveProfile = async () => {
     setIsLoading(true);
-    setMessage({ type: null, text: '' });
 
     try {
       console.log('💾 Settings - Saving profile data:', formData);
@@ -81,10 +78,10 @@ export const Settings: React.FC = () => {
       // Le useEffect de synchronisation va automatiquement mettre à jour le formulaire
       console.log('✅ Settings - Profile saved, form will sync automatically via useEffect');
 
-      setMessage({ type: 'success', text: 'Profil mis à jour avec succès!' });
+      toast.success('Profil mis à jour avec succès!');
     } catch (error) {
       console.error('Error updating profile:', error);
-      setMessage({ type: 'error', text: 'Erreur lors de la mise à jour du profil' });
+      toast.error('Erreur lors de la mise à jour du profil');
     } finally {
       setIsLoading(false);
     }
@@ -92,18 +89,17 @@ export const Settings: React.FC = () => {
 
   const handleApiKeySave = async () => {
     if (!formData.openai_api_key.trim()) {
-      setMessage({ type: 'error', text: 'Veuillez entrer une clé API valide' });
+      toast.error('Veuillez entrer une clé API valide');
       return;
     }
 
     setIsLoading(true);
-    setMessage({ type: null, text: '' });
 
     try {
       await updateProfile({ openai_api_key: formData.openai_api_key.trim() });
-      setMessage({ type: 'success', text: 'Clé API sauvegardée avec succès!' });
+      toast.success('Clé API sauvegardée avec succès!');
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erreur lors de la sauvegarde de la clé API' });
+      toast.error('Erreur lors de la sauvegarde de la clé API');
     } finally {
       setIsLoading(false);
     }
@@ -122,9 +118,9 @@ export const Settings: React.FC = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      setMessage({ type: 'success', text: 'Settings exportés avec succès!' });
+      toast.success('Settings exportés avec succès!');
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erreur lors de l\'export des settings' });
+      toast.error('Erreur lors de l\'export des settings');
     }
   };
 
@@ -137,9 +133,9 @@ export const Settings: React.FC = () => {
       try {
         const jsonContent = e.target?.result as string;
         SettingsManager.importSettings(jsonContent);
-        setMessage({ type: 'success', text: 'Settings importés avec succès!' });
+        toast.success('Settings importés avec succès!');
       } catch (error) {
-        setMessage({ type: 'error', text: 'Fichier de settings invalide' });
+        toast.error('Fichier de settings invalide');
       }
     };
     reader.readAsText(file);
@@ -163,7 +159,7 @@ export const Settings: React.FC = () => {
       });
     } catch (error) {
       console.error('Error testing volume:', error);
-      setMessage({ type: 'error', text: 'Erreur lors du test du volume' });
+      toast.error('Erreur lors du test du volume');
     } finally {
       setIsTestingVolume(false);
     }
@@ -173,7 +169,6 @@ export const Settings: React.FC = () => {
     if (isTestingAI) return;
 
     setIsTestingAI(true);
-    setMessage({ type: null, text: '' });
 
     try {
       // Mettre à jour la clé API dans le service IA
@@ -184,13 +179,13 @@ export const Settings: React.FC = () => {
       const result = await aiService.testConnection();
 
       if (result.success) {
-        setMessage({ type: 'success', text: result.message });
+        toast.success(result.message);
       } else {
-        setMessage({ type: 'error', text: result.message });
+        toast.error(result.message);
       }
     } catch (error) {
       console.error('Error testing AI:', error);
-      setMessage({ type: 'error', text: 'Erreur lors du test de l\'IA' });
+      toast.error('Erreur lors du test de l\'IA');
     } finally {
       setIsTestingAI(false);
     }
@@ -217,9 +212,9 @@ export const Settings: React.FC = () => {
           openai_api_key: ''
         };
         setFormData(prev => ({ ...prev, ...defaultProfile }));
-        setMessage({ type: 'success', text: 'Profil réinitialisé aux valeurs par défaut!' });
+        toast.success('Profil réinitialisé aux valeurs par défaut!');
       } catch (error) {
-        setMessage({ type: 'error', text: 'Erreur lors de la réinitialisation' });
+        toast.error('Erreur lors de la réinitialisation');
       }
     }
   };
@@ -588,25 +583,6 @@ export const Settings: React.FC = () => {
             </div>
           </div>
 
-          {/* Messages */}
-          {message.text && (
-            <div className={`flex items-center p-4 rounded-lg ${
-              message.type === 'success'
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-red-50 border border-red-200'
-            }`}>
-              {message.type === 'success' ? (
-                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-              ) : (
-                <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-              )}
-              <p className={`text-sm ${
-                message.type === 'success' ? 'text-green-800' : 'text-red-800'
-              }`}>
-                {message.text}
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </>

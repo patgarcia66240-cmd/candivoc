@@ -6,6 +6,7 @@ import { audioService } from '../services/audio/audioService';
 import { Button } from '../components/ui/Button';
 import { ApiKeyAlert } from '../components/chat/ApiKeyAlert';
 import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../services/auth/authContext';
 import { aiService } from '../services/ai/aiService';
 
 // Interfaces locales pour éviter les problèmes d'export
@@ -72,6 +73,7 @@ export const SessionPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { settings } = useSettings();
+  const { user } = useAuth();
 
   const [session, setSession] = useState<Session | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -80,15 +82,21 @@ export const SessionPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showScenarioBriefing, setShowScenarioBriefing] = useState(false);
 
-  // Vérifier si la clé API est configurée
-  const hasApiKey = settings.apiKey && settings.apiKey.trim().length > 0;
+  // Vérifier si la clé API est configurée (priorité au profil utilisateur, sinon settings locaux)
+  const userApiKey = user?.openai_api_key;
+  const localApiKey = settings.apiKey;
+  const apiKey = userApiKey || localApiKey;
+  const hasApiKey = apiKey && apiKey.trim().length > 0;
 
   // Debug log pour vérifier l'état de la clé API
   console.log('🔑 API Key Status:', {
-    hasKey: !!settings.apiKey,
-    keyLength: settings.apiKey?.length || 0,
+    hasUserKey: !!userApiKey,
+    hasLocalKey: !!localApiKey,
+    userKeyLength: userApiKey?.length || 0,
+    localKeyLength: localApiKey?.length || 0,
     hasApiKey,
-    settings
+    apiKeyLength: apiKey?.length || 0,
+    user: user?.email
   });
 
   useEffect(() => {
@@ -101,6 +109,13 @@ export const SessionPage: React.FC = () => {
       }
     }
   }, [sessionId]);
+
+  // Configurer la clé API dans le service IA quand elle change
+  useEffect(() => {
+    if (apiKey) {
+      aiService.setApiKey(apiKey);
+    }
+  }, [apiKey]);
 
   const createDemoSession = async (demoId: string) => {
     try {
