@@ -13,19 +13,10 @@ import { Chat } from './pages/Chat';
 import { ConfigError } from './pages/ConfigError';
 import { Layout } from './components/ui/Layout';
 
-const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, loading, user } = useAuth();
-
-  // Debug pour voir ce que PrivateRoute voit
-  console.log('🛡️ PrivateRoute check:', {
-    isAuthenticated,
-    loading,
-    hasUser: !!user,
-    userEmail: user?.email
-  });
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    console.log('🔄 PrivateRoute - Loading, affichage spinner');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -37,13 +28,11 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }
 
   if (isAuthenticated) {
-    console.log('✅ PrivateRoute - Authentifié, affichage Dashboard');
     return <Layout>{children}</Layout>;
   } else {
-    console.log('❌ PrivateRoute - Non authentifié, redirection vers login');
     return <Navigate to="/login" replace />;
   }
-};
+});
 
 const AppRoutes: React.FC = () => {
   return (

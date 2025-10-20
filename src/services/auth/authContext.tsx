@@ -576,14 +576,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Mettre à jour l'utilisateur dans l'état avec le profil transformé
       const updatedUser = transformProfileToUser(profile);
-      dispatch({ type: 'UPDATE_USER', payload: updatedUser });
-      console.log('✅ Profile updated successfully:', updatedUser.email);
-      console.log('🔄 Dispatched UPDATE_USER with new user data:', {
-        first_name: updatedUser.first_name,
-        last_name: updatedUser.last_name,
-        phone: updatedUser.phone,
-        email: updatedUser.email
-      });
+
+      // Vérifier si les données ont réellement changé avant de dispatcher
+      const hasChanged = JSON.stringify(state.user) !== JSON.stringify(updatedUser);
+
+      if (hasChanged) {
+        dispatch({ type: 'UPDATE_USER', payload: updatedUser });
+        console.log('✅ Profile updated successfully:', updatedUser.email);
+        console.log('🔄 Dispatched UPDATE_USER with new user data:', {
+          first_name: updatedUser.first_name,
+          last_name: updatedUser.last_name,
+          phone: updatedUser.phone,
+          email: updatedUser.email
+        });
+      } else {
+        console.log('ℹ️ Profile data unchanged, skipping UPDATE_USER dispatch');
+      }
     } catch (error) {
       console.error('❌ Profile update exception:', error);
       dispatch({ type: 'AUTH_FAILURE', payload: 'Profile update failed' });

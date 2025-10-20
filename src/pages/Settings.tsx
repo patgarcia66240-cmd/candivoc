@@ -62,39 +62,7 @@ export const Settings: React.FC = () => {
     }
   }, [user]);
 
-  // Synchroniser le formulaire avec les changements de l'utilisateur (après sauvegarde)
-  useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        // Toujours prendre les nouvelles valeurs de l'utilisateur, même si elles sont vides
-        first_name: user.first_name !== undefined ? (user.first_name || '') : prev.first_name,
-        last_name: user.last_name !== undefined ? (user.last_name || '') : prev.last_name,
-        email: user.email !== undefined ? (user.email || '') : prev.email,
-        phone: user.phone !== undefined ? (user.phone || '') : prev.phone,
-        address: user.address !== undefined ? (user.address || '') : prev.address,
-        postal_code: user.postal_code !== undefined ? (user.postal_code || '') : prev.postal_code,
-        city: user.city !== undefined ? (user.city || '') : prev.city,
-        country: user.country !== undefined ? (user.country || '') : prev.country,
-        date_of_birth: user.date_of_birth !== undefined ? (user.date_of_birth || '') : prev.date_of_birth,
-        nationality: user.nationality !== undefined ? (user.nationality || '') : prev.nationality,
-        linkedin: user.linkedin !== undefined ? (user.linkedin || '') : prev.linkedin,
-        website: user.website !== undefined ? (user.website || '') : prev.website,
-        profession: user.profession !== undefined ? (user.profession || '') : prev.profession,
-        company: user.company !== undefined ? (user.company || '') : prev.company,
-        openai_api_key: user.openai_api_key !== undefined ? (user.openai_api_key || '') : prev.openai_api_key,
-      }));
-      console.log('🔄 Settings - Form synchronized with NEW user data');
-      console.log('📋 New user data received:', {
-        first_name: user.first_name,
-        last_name: user.last_name,
-        phone: user.phone,
-        email: user.email,
-        // ... autres champs
-      });
-    }
-  }, [user]);
-
+  
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({
       ...prev,

@@ -530,6 +530,7 @@ export const SessionPage: React.FC = () => {
                   {isRecording ? '🎤 Enregistrement en cours' : 'Prêt à enregistrer'}
                 </p>
                 {(() => {
+                  if (!session?.id) return null;
                   const scenarioNumber = session.id.replace('demo-', '').replace(/\D/g, '');
                   const scenariosData = getScenariosData();
                   const scenarioData = scenariosData[scenarioNumber];
