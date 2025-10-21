@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Key, Save, Eye, EyeOff, AlertCircle, CheckCircle, TestTube, User, Briefcase
+  Key, Save, Eye, EyeOff, AlertCircle,  TestTube, User, Briefcase
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../services/auth/authContext';
 import { useToastContext } from '../contexts/ToastContext';
+/*import { useNavigate } from 'react-router-dom';*/
 import { audioService } from '../services/audio/audioService';
 import { aiService } from '../services/ai/aiService';
 import { SettingsManager } from '../services/settings/SettingsManager';
@@ -13,6 +14,7 @@ import { SettingsManager } from '../services/settings/SettingsManager';
 export const Settings: React.FC = () => {
   const { user, updateProfile } = useAuth();
   const toast = useToastContext();
+  /*const navigate = useNavigate();*/
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -36,10 +38,26 @@ export const Settings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTestingVolume, setIsTestingVolume] = useState(false);
   const [isTestingAI, setIsTestingAI] = useState(false);
-  
+  const [forceRefresh, setForceRefresh] = useState(0);
+
   // Initialiser le formulaire avec les données de l'utilisateur
   useEffect(() => {
+    console.log('🔄 Settings useEffect - User changed:', {
+      userId: user?.id,
+      userEmail: user?.email,
+      hasUser: !!user,
+      userUpdatedAt: user?.updatedAt
+    });
+
     if (user) {
+      console.log('📝 Settings - Updating form data with user profile:', {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone: user.phone,
+        postal_code: user.postal_code,
+        openai_api_key_length: user.openai_api_key?.length || 0
+      });
+
       setFormData({
         first_name: user.first_name || '',
         last_name: user.last_name || '',
@@ -57,10 +75,20 @@ export const Settings: React.FC = () => {
         company: user.company || '',
         openai_api_key: user.openai_api_key || ''
       });
+    } else {
+      console.log('⚠️ Settings - No user available, form not initialized');
     }
-  }, [user]);
+  }, [user, forceRefresh]);
 
-  
+  // Forcer le rafraîchissement des données au chargement de la page
+  useEffect(() => {
+    if (user) {
+      console.log('🔃 Settings - Forcing profile data refresh on page load');
+      setForceRefresh(prev => prev + 1);
+    }
+  }, []); // Seulement au montage du composant
+
+
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -79,7 +107,14 @@ export const Settings: React.FC = () => {
       console.log('✅ Settings - Profile saved, form will sync automatically via useEffect');
 
       toast.success('Profil mis à jour avec succès!');
-    } catch (error) {
+
+      // Attendre un peu plus longtemps pour s'assurer que le contexte est mis à jour
+      // et que les données sont bien synchronisées avant la redirection
+      /* setTimeout(() => {
+        console.log('🚀 Settings - Redirecting to dashboard after profile update');
+        navigate('/dashboard');
+      }, 2000); // Délai augmenté à 2 secondes pour laisser le temps à la synchronisation
+ */    } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Erreur lors de la mise à jour du profil');
     } finally {
