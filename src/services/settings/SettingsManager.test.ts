@@ -3,7 +3,7 @@
  * Ces tests peuvent être exécutés avec Jest ou un framework similaire
  */
 
-import { SettingsManager, AppSettings } from './SettingsManager';
+import { SettingsManager } from './SettingsManager';
 
 // Mock localStorage pour les tests
 const localStorageMock = (() => {
@@ -12,7 +12,7 @@ const localStorageMock = (() => {
   return {
     getItem: jest.fn((key: string) => store[key] || null),
     setItem: jest.fn((key: string, value: string) => {
-      store[key] value;
+      store[key] = value;
     }),
     removeItem: jest.fn((key: string) => {
       delete store[key];

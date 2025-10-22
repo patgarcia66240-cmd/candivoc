@@ -1,7 +1,7 @@
 import { ScenariosService } from '../supabase/scenarios';
-import type { Scenario, ScenarioWithCriteria } from '../../types/scenarios';
+import type { Scenario, ScenarioWithCriteria, CreateScenarioInput, UpdateScenarioInput } from '../../types/scenarios';
 
-interface APIResponse<T = any> {
+interface APIResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -74,7 +74,7 @@ export const scenariosService = {
     return this.getAllScenarios({ difficulty });
   },
 
-  async createScenario(scenario: any): Promise<APIResponse<Scenario>> {
+  async createScenario(scenario: CreateScenarioInput): Promise<APIResponse<Scenario>> {
     try {
       const { data, error } = await ScenariosService.createScenario(scenario);
 
@@ -99,7 +99,7 @@ export const scenariosService = {
     }
   },
 
-  async updateScenario(id: string, scenario: any): Promise<APIResponse<Scenario>> {
+  async updateScenario(id: string, scenario: UpdateScenarioInput): Promise<APIResponse<Scenario>> {
     try {
       const { data, error } = await ScenariosService.updateScenario(id, scenario);
 

@@ -1,6 +1,6 @@
 import { supabase } from './client';
 import type { User, Session } from '@supabase/supabase-js';
-import type { Database, Profile, UserRole } from '../../types/supabase';
+import type { Profile, UserRole } from '../../types/supabase';
 
 export interface AuthUser extends User {
   profile?: Profile;
@@ -70,7 +70,7 @@ export class SupabaseAuth {
   }
 
   // Récupérer l'utilisateur actuel avec son profil
-  static async getCurrentUser(): Promise<{ user: AuthUser | null; error: any }> {
+  static async getCurrentUser(): Promise<{ user: AuthUser | null; error: Error | null }> {
     const { data, error } = await supabase.auth.getUser();
 
     if (error || !data.user) {
@@ -126,7 +126,7 @@ export class SupabaseAuth {
   }
 
   // Récupérer la session actuelle
-  static async getCurrentSession(): Promise<{ session: AuthSession | null; error: any }> {
+  static async getCurrentSession(): Promise<{ session: AuthSession | null; error: Error | null }> {
     const { data, error } = await supabase.auth.getSession();
     return { session: data.session, error };
   }
@@ -137,7 +137,7 @@ export class SupabaseAuth {
   }
 
   // Mettre à jour le dernier login
-  static async updateLastLogin(userId: string): Promise<{ error: any }> {
+  static async updateLastLogin(userId: string): Promise<{ error: Error | null }> {
     try {
       const { error } = await supabase
         .from('profiles')
@@ -151,7 +151,7 @@ export class SupabaseAuth {
   }
 
   // Vérifier si l'utilisateur est actif
-  static async isUserActive(userId: string): Promise<{ isActive: boolean; error: any }> {
+  static async isUserActive(userId: string): Promise<{ isActive: boolean; error: Error | null }> {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -170,7 +170,7 @@ export class SupabaseAuth {
   }
 
   // Récupérer le rôle de l'utilisateur
-  static async getUserRole(userId: string): Promise<{ role: UserRole | null; error: any }> {
+  static async getUserRole(userId: string): Promise<{ role: UserRole | null; error: Error | null }> {
     try {
       const { data, error } = await supabase
         .from('profiles')

@@ -75,7 +75,7 @@ export const Chat: React.FC = () => {
     };
 
     initChat();
-  }, [sessionId]);
+  }, [sessionId, hasApiKey, messages.length]);
 
   const handleSendMessage = (content: string) => {
     const newMessage = {

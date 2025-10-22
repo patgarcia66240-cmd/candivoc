@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../services/auth/authContext';
+import { useAuth } from '../services/auth/useAuth';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 
@@ -18,7 +18,7 @@ export const Register: React.FC = () => {
       await register(email, password, first_name, last_name);
       // Redirection immédiate vers login avec les identifiants pré-remplis
       navigate(`/login?email=${encodeURIComponent(email)}&registered=true`);
-    } catch (error) {
+    } catch {
       // Erreur gérée par le contexte d'authentification
     }
   };

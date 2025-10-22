@@ -4,13 +4,12 @@ import type {
   ScenarioWithCriteria,
   CreateScenarioInput,
   UpdateScenarioInput,
-  ScenarioFilters,
-  ScenarioListResponse
+  ScenarioFilters
 } from '../../types/scenarios';
 
 export class ScenariosService {
   // Récupérer tous les scénarios (avec filtres optionnels)
-  static async getScenarios(filters?: ScenarioFilters): Promise<{ data: Scenario[] | null; error: any }> {
+  static async getScenarios(filters?: ScenarioFilters): Promise<{ data: Scenario[] | null; error: Error | null }> {
     let query = supabase
       .from('scenarios')
       .select('*')
@@ -39,7 +38,7 @@ export class ScenariosService {
   }
 
   // Récupérer un scénario par son ID avec ses critères d'évaluation
-  static async getScenarioById(id: string): Promise<{ data: ScenarioWithCriteria | null; error: any }> {
+  static async getScenarioById(id: string): Promise<{ data: ScenarioWithCriteria | null; error: Error | null }> {
     const { data, error } = await supabase
       .from('scenarios')
       .select(`
@@ -54,7 +53,7 @@ export class ScenariosService {
   }
 
   // Récupérer les scénarios créés par un utilisateur
-  static async getUserScenarios(userId: string, filters?: ScenarioFilters): Promise<{ data: Scenario[] | null; error: any }> {
+  static async getUserScenarios(userId: string, filters?: ScenarioFilters): Promise<{ data: Scenario[] | null; error: Error | null }> {
     let query = supabase
       .from('scenarios')
       .select('*')
@@ -78,7 +77,7 @@ export class ScenariosService {
   }
 
   // Créer un nouveau scénario avec ses critères d'évaluation
-  static async createScenario(scenario: CreateScenarioInput): Promise<{ data: Scenario | null; error: any }> {
+  static async createScenario(scenario: CreateScenarioInput): Promise<{ data: Scenario | null; error: Error | null }> {
     // Créer le scénario principal
     const { data: scenarioData, error: scenarioError } = await supabase
       .from('scenarios')
@@ -130,7 +129,7 @@ export class ScenariosService {
   }
 
   // Mettre à jour un scénario
-  static async updateScenario(id: string, updates: UpdateScenarioInput): Promise<{ data: Scenario | null; error: any }> {
+  static async updateScenario(id: string, updates: UpdateScenarioInput): Promise<{ data: Scenario | null; error: Error | null }> {
     // Mettre à jour le scénario principal
     const { data: scenarioData, error: scenarioError } = await supabase
       .from('scenarios')
@@ -191,7 +190,7 @@ export class ScenariosService {
   }
 
   // Supprimer un scénario (désactiver)
-  static async deleteScenario(id: string): Promise<{ error: any }> {
+  static async deleteScenario(id: string): Promise<{ error: Error | null }> {
     const { error } = await supabase
       .from('scenarios')
       .update({ is_active: false })
@@ -201,7 +200,7 @@ export class ScenariosService {
   }
 
   // Supprimer définitivement un scénario
-  static async hardDeleteScenario(id: string): Promise<{ error: any }> {
+  static async hardDeleteScenario(id: string): Promise<{ error: Error | null }> {
     // Supprimer d'abord les critères d'évaluation (à cause de la contrainte de clé étrangère)
     const { error: criteriaError } = await supabase
       .from('evaluation_criteria')
@@ -222,7 +221,7 @@ export class ScenariosService {
   }
 
   // Dupliquer un scénario
-  static async duplicateScenario(id: string, newTitle?: string): Promise<{ data: Scenario | null; error: any }> {
+  static async duplicateScenario(id: string, newTitle?: string): Promise<{ data: Scenario | null; error: Error | null }> {
     // Récupérer le scénario original avec ses critères
     const { data: originalScenario, error: fetchError } = await this.getScenarioById(id);
 
@@ -258,7 +257,7 @@ export class ScenariosService {
   }
 
   // Compter les scénarios par catégorie
-  static async getScenariosCountByCategory(): Promise<{ data: Record<string, number> | null; error: any }> {
+  static async getScenariosCountByCategory(): Promise<{ data: Record<string, number> | null; error: Error | null }> {
     const { data, error } = await supabase
       .from('scenarios')
       .select('category')

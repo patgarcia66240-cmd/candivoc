@@ -28,23 +28,23 @@ interface SpeechRecognition extends EventTarget {
   start(): void;
   stop(): void;
   abort(): void;
-  onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onaudiostart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onaudioend: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null;
   onerror:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void)
     | null;
   onnomatch:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
     | null;
   onresult:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
     | null;
-  onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onspeechstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onspeechend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onsoundstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onsoundend: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onspeechstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onspeechend: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -75,7 +75,7 @@ interface SpeechRecognitionAlternative {
   readonly confidence: number;
 }
 
-declare var SpeechRecognition: {
+declare const SpeechRecognition: {
   prototype: SpeechRecognition;
   new (): SpeechRecognition;
 };
@@ -215,7 +215,7 @@ export class AudioService {
   async playAudio(audioBlob: Blob): Promise<void> {
     try {
       const audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+        (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)();
       const arrayBuffer = await audioBlob.arrayBuffer();
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
@@ -428,7 +428,7 @@ export class AudioService {
         const handleVoicesChanged = () => {
           voices = this.speechSynthesis?.getVoices() || [];
           this.speechSynthesis!.onvoiceschanged = null;
-          this.speakWithVoice(voices, cleanedText, options, resolve, reject);
+          this.speakWithVoice(voices, cleanedText, resolve, reject, options);
         };
         this.speechSynthesis.onvoiceschanged = handleVoicesChanged;
         // Trigger voice loading on some browsers
@@ -436,16 +436,16 @@ export class AudioService {
         return;
       }
 
-      this.speakWithVoice(voices, cleanedText, options, resolve, reject);
+      this.speakWithVoice(voices, cleanedText, resolve, reject, options);
     });
   }
 
   private speakWithVoice(
     voices: SpeechSynthesisVoice[],
     cleanedText: string,
-    options: any,
     resolve: () => void,
-    reject: (error: Error) => void
+    reject: (error: Error) => void,
+    options?: { voice?: string; rate?: number; pitch?: number; volume?: number; lang?: string }
   ): void {
     // Create new utterance
     this.currentUtterance = new SpeechSynthesisUtterance(cleanedText);

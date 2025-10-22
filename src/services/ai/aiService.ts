@@ -120,7 +120,7 @@ export class AIService {
       }
 
       return null;
-    } catch (error) {
+    } catch {
       console.log('Local AI API not available, trying external API');
       return null;
     }
@@ -280,7 +280,7 @@ export class AIService {
         content: 'Bonjour, ceci est un test de connexion.'
       };
 
-      const response = await this.generateResponse([testMessage], {
+      await this.generateResponse([testMessage], {
         maxTokens: 50
       });
 

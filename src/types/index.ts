@@ -111,7 +111,7 @@ export interface AudioSettings {
 
 export interface WebSocketMessage {
   type: 'audio_chunk' | 'transcript' | 'ai_response' | 'session_start' | 'session_end' | 'error';
-  data: any;
+  data: unknown;
   timestamp: Date;
 }
 

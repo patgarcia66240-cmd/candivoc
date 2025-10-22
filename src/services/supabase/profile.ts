@@ -24,7 +24,7 @@ export class ProfileService {
     openai_api_key?: string;
     stripe_customer_id?: string;
     createdBy?: string;
-  }): Promise<{ profile: Profile | null; error: any }> {
+  }): Promise<{ profile: Profile | null; error: Error | null }> {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -119,9 +119,9 @@ export class ProfileService {
       is_active?: boolean;
       last_login?: string;
     }
-  ): Promise<{ profile: Profile | null; error: any }> {
+  ): Promise<{ profile: Profile | null; error: Error | null }> {
     try {
-      const updateData: any = {};
+      const updateData: Record<string, unknown> = {};
       if ('first_name' in data) updateData.first_name = data.first_name;
       if ('last_name' in data) updateData.last_name = data.last_name;
       if ('email' in data) updateData.email = data.email;
@@ -193,7 +193,7 @@ export class ProfileService {
   }
 
   // Récupérer un profil par ID
-  static async getProfileById(userId: string): Promise<{ profile: Profile | null; error: any }> {
+  static async getProfileById(userId: string): Promise<{ profile: Profile | null; error: Error | null }> {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -241,7 +241,7 @@ export class ProfileService {
   }
 
   // Supprimer un profil utilisateur
-  static async deleteProfile(userId: string): Promise<{ error: any }> {
+  static async deleteProfile(userId: string): Promise<{ error: Error | null }> {
     try {
       const { error } = await supabase
         .from('profiles')
@@ -255,7 +255,7 @@ export class ProfileService {
   }
 
   // Lister tous les profils (pour les admins)
-  static async getAllProfiles(): Promise<{ profiles: Profile[] | null; error: any }> {
+  static async getAllProfiles(): Promise<{ profiles: Profile[] | null; error: Error | null }> {
     try {
       const { data: profiles, error } = await supabase
         .from('profiles')
@@ -306,7 +306,7 @@ export class ProfileService {
     userId: string,
     subscriptionId: string,
     status: string
-  ): Promise<{ profile: Profile | null; error: any }> {
+  ): Promise<{ profile: Profile | null; error: Error | null }> {
     return this.updateProfile(userId, {
       subscription_id: subscriptionId,
       subscription_status: status,
@@ -317,7 +317,7 @@ export class ProfileService {
   static async updateOpenAIKey(
     userId: string,
     apiKey: string
-  ): Promise<{ profile: Profile | null; error: any }> {
+  ): Promise<{ profile: Profile | null; error: Error | null }> {
     return this.updateProfile(userId, {
       openai_api_key: apiKey,
     });
@@ -327,7 +327,7 @@ export class ProfileService {
   static async toggleUserActive(
     userId: string,
     is_active: boolean
-  ): Promise<{ profile: Profile | null; error: any }> {
+  ): Promise<{ profile: Profile | null; error: Error | null }> {
     return this.updateProfile(userId, {
       is_active: is_active,
       last_login: new Date().toISOString(),
@@ -341,7 +341,7 @@ export class ProfileService {
     city?: string;
     profession?: string;
     company?: string;
-  }): Promise<{ profiles: Profile[] | null; error: any }> {
+  }): Promise<{ profiles: Profile[] | null; error: Error | null }> {
     try {
       let query = supabase.from('profiles').select('*');
 

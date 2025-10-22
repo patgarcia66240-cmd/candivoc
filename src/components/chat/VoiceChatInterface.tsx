@@ -63,7 +63,9 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({
         }, 2000);
 
         // Mettre à jour visuellement les messages pour indiquer que l'IA a été interrompue
-        onTranscriptUpdate && onTranscriptUpdate(transcript, isFinal);
+        if (onTranscriptUpdate) {
+          onTranscriptUpdate(transcript, isFinal);
+        }
         return;
       }
     }

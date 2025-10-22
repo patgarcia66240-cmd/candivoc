@@ -8,7 +8,7 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
-import { useAuth } from '../../services/auth/authContext';
+import { useAuth } from '../../services/auth/useAuth';
 import { cn } from '../../utils/cn';
 
 interface SidebarItem {

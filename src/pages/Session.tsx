@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { VoiceChatInterface } from "../components/chat/VoiceChatInterface";
 import { sessionsService } from "../services/api/sessions";
@@ -6,7 +6,7 @@ import { audioService } from "../services/audio/audioService";
 import { Button } from "../components/ui/Button";
 import { ApiKeyAlert } from "../components/chat/ApiKeyAlert";
 import { useSettings } from "../hooks/useSettings";
-import { useAuth } from "../services/auth/authContext";
+import { useAuth } from "../services/auth/useAuth";
 import { aiService } from "../services/ai/aiService";
 import { cleanTextForSpeech, createVoiceText } from "../utils/textCleaner";
 import { ScenariosService } from "../services/supabase/scenarios";
@@ -114,7 +114,7 @@ export const SessionPage: React.FC = () => {
         fetchSession(sessionId);
       }
     }
-  }, [sessionId]);
+  }, [sessionId, loadScenariosData]);
 
   // Configurer la clé API dans le service IA quand elle change
   useEffect(() => {
@@ -124,10 +124,10 @@ export const SessionPage: React.FC = () => {
   }, [apiKey]);
 
   // Charger les données des scénarios depuis Supabase
-  const loadScenariosData = async () => {
+  const loadScenariosData = useCallback(async () => {
     const data = await getScenariosData();
     setScenariosData(data);
-  };
+  }, []);
 
   const createDemoSession = async (demoId: string) => {
     try {

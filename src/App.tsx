@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
-import { AuthProvider, useAuth } from './services/auth/authContext';
-import { ToastProvider } from './contexts/ToastContext';
+import { AuthProvider } from './services/auth/authContext';
+import { useAuth } from './services/auth/useAuth';
+import { ToastProvider } from './contexts/ToastProvider';
 import { Login } from './pages/Login';
 import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';

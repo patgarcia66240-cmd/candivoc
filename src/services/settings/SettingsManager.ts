@@ -170,7 +170,7 @@ export class SettingsManager {
   /**
    * Vérifie si les settings sont valides et les corrige si nécessaire
    */
-  private static validateAndCorrectSettings(settings: any): AppSettings {
+  private static validateAndCorrectSettings(settings: unknown): AppSettings {
     const corrected: AppSettings = { ...DEFAULT_SETTINGS };
 
     // Validation et correction pour chaque champ

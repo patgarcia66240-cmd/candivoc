@@ -12,7 +12,7 @@ interface User {
   updatedAt: Date;
 }
 
-interface APIResponse<T = any> {
+interface APIResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;

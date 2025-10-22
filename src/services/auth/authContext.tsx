@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useReducer, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { SupabaseAuth } from '../supabase/auth';
 import type { Profile, UserRole } from '../../types/supabase';
@@ -6,7 +7,7 @@ import type { Profile, UserRole } from '../../types/supabase';
 // Extension de l'interface Window pour le client Supabase
 declare global {
   interface Window {
-    supabase?: any;
+    supabase?: unknown;
   }
 }
 
@@ -55,7 +56,7 @@ interface AuthContextType extends AuthState {
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 type AuthAction =
   | { type: 'AUTH_START' }
@@ -234,7 +235,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initTimeout = setTimeout(initAuth, 100);
 
     // Écouter les changements d'état d'authentification
-    let subscription: any;
+    let subscription: { data: { subscription: { unsubscribe: () => void } } };
     try {
       const { data } = SupabaseAuth.onAuthStateChange(
         async (event, session) => {
@@ -348,7 +349,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
         } else if (error.message.includes('Invalid email')) {
           errorMessage = 'Adresse email invalide';
-        } else if ((error as any)?.status === 422) {
+        } else if ((error as { status?: number })?.status === 422) {
           errorMessage = 'Données invalides. Vérifiez les champs obligatoires.';
         } else {
           errorMessage = error.message || 'Registration failed';
@@ -424,7 +425,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       // Transformer les données User en format Profile pour Supabase
-      const profileData: any = {};
+      const profileData: Record<string, unknown> = {};
 
       // Inclure TOUS les champs même s'ils sont vides - CRUCIAL pour les mises à jour
       if ('first_name' in data) profileData.first_name = data.first_name;
@@ -610,10 +611,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};

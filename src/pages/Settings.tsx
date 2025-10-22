@@ -4,8 +4,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { useAuth } from '../services/auth/authContext';
-import { useToastContext } from '../contexts/ToastContext';
+import { useAuth } from '../services/auth/useAuth';
+import { useToastContext } from '../contexts/useToastContext';
 import { useSettings } from '../hooks/useSettings';
 import { audioService } from '../services/audio/audioService';
 import { aiService } from '../services/ai/aiService';
@@ -87,7 +87,7 @@ export const Settings: React.FC = () => {
       console.log('🔃 Settings - Forcing profile data refresh on page load');
       setForceRefresh(prev => prev + 1);
     }
-  }, []); // Seulement au montage du composant
+  }, [user]); // Seulement au montage du composant ou quand user change
 
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -134,7 +134,7 @@ export const Settings: React.FC = () => {
     try {
       await updateProfile({ openai_api_key: formData.openai_api_key.trim() });
       toast.success('Clé API sauvegardée avec succès!');
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors de la sauvegarde de la clé API');
     } finally {
       setIsLoading(false);
@@ -155,7 +155,7 @@ export const Settings: React.FC = () => {
       URL.revokeObjectURL(url);
 
       toast.success('Settings exportés avec succès!');
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors de l\'export des settings');
     }
   };
@@ -170,7 +170,7 @@ export const Settings: React.FC = () => {
         const jsonContent = e.target?.result as string;
         SettingsManager.importSettings(jsonContent);
         toast.success('Settings importés avec succès!');
-      } catch (error) {
+      } catch {
         toast.error('Fichier de settings invalide');
       }
     };
@@ -269,7 +269,7 @@ export const Settings: React.FC = () => {
         };
         setFormData(prev => ({ ...prev, ...defaultProfile }));
         toast.success('Profil réinitialisé aux valeurs par défaut!');
-      } catch (error) {
+      } catch {
         toast.error('Erreur lors de la réinitialisation');
       }
     }

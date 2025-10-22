@@ -1,5 +1,5 @@
 // Interface API locale pour éviter les problèmes d'export
-interface APIResponse<T = any> {
+interface APIResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -21,7 +21,7 @@ class ApiClient {
   ): Promise<APIResponse<T>> {
     // Si le mode mock est activé, utiliser directement les données mockées
     if (this.useMock) {
-      return this.getMockResponse<T>(endpoint, options);
+      return this.getMockResponse<T>(endpoint);
     }
 
     const url = `${this.baseURL}${endpoint}`;
@@ -55,7 +55,7 @@ class ApiClient {
     } catch (error) {
       // Si la connexion échoue, utiliser les données mockées silencieusement
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        return this.getMockResponse<T>(endpoint, options);
+        return this.getMockResponse<T>(endpoint);
       }
 
       console.error('API Error:', error);
@@ -63,7 +63,7 @@ class ApiClient {
     }
   }
 
-  private getMockResponse<T>(endpoint: string, _options: RequestInit): Promise<APIResponse<T>> {
+  private getMockResponse<T>(endpoint: string): Promise<APIResponse<T>> {
     return new Promise((resolve) => {
       setTimeout(() => {
         if (endpoint.includes('/auth/login')) {
@@ -130,14 +130,14 @@ class ApiClient {
     return this.request<T>(endpoint, { method: 'GET' });
   }
 
-  async post<T>(endpoint: string, data?: any): Promise<APIResponse<T>> {
+  async post<T>(endpoint: string, data?: unknown): Promise<APIResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
-  async put<T>(endpoint: string, data?: any): Promise<APIResponse<T>> {
+  async put<T>(endpoint: string, data?: unknown): Promise<APIResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,

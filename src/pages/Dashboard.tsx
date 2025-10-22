@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Calendar, TrendingUp, Play } from 'lucide-react';
-import { useAuth } from '../services/auth/authContext';
+import { useAuth } from '../services/auth/useAuth';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';

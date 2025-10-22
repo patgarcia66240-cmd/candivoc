@@ -14,7 +14,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ limit = 3 }) => 
 
   return (
     <>
-      {visibleToasts.map((toast, index) => (
+      {visibleToasts.map((toast) => (
         <Toast
           key={toast.id}
           message={toast.message}

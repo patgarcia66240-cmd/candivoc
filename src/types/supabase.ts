@@ -131,8 +131,8 @@ export interface Database {
           email_change: string | null;
           email_change_sent_at: string | null;
           last_sign_in_at: string | null;
-          raw_app_meta_data: Record<string, any> | null;
-          raw_user_meta_data: Record<string, any> | null;
+          raw_app_meta_data: Record<string, unknown> | null;
+          raw_user_meta_data: Record<string, unknown> | null;
           is_super_admin: boolean | null;
           created_at: string | null;
           updated_at: string | null;
@@ -188,8 +188,8 @@ export interface Database {
           email_change: string | null;
           email_change_sent_at: string | null;
           last_sign_in_at: string | null;
-          raw_app_meta_data: Record<string, any> | null;
-          raw_user_meta_data: Record<string, any> | null;
+          raw_app_meta_data: Record<string, unknown> | null;
+          raw_user_meta_data: Record<string, unknown> | null;
           is_super_admin: boolean | null;
           created_at: string | null;
           updated_at: string | null;
@@ -313,8 +313,8 @@ export interface SupabaseAuthUser {
   email_change: string | null;
   email_change_sent_at: string | null;
   last_sign_in_at: string | null;
-  raw_app_meta_data: Record<string, any> | null;
-  raw_user_meta_data: Record<string, any> | null;
+  raw_app_meta_data: Record<string, unknown> | null;
+  raw_user_meta_data: Record<string, unknown> | null;
   is_super_admin: boolean | null;
   created_at: string | null;
   updated_at: string | null;
@@ -352,7 +352,7 @@ export type EmailConfirmationStatus = 0 | 1 | 2; // 0: pending, 1: confirmed, 2:
 export interface AuthMetadata {
   provider?: string;
   providers?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface UserActivity {
