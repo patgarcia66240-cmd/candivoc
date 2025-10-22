@@ -2,3 +2,8 @@
 .App {
   min-height: 100vh;
 }
+
+.text-sm2 {
+  font-size: 0.805rem; /* 13px */
+  line-height: 1.25rem; /* 20px */
+}

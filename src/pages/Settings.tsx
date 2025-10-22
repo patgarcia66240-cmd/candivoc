@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Key, Save, Eye, EyeOff, AlertCircle,  TestTube, User, Briefcase
+  Key, Save, Eye, EyeOff, AlertCircle, TestTube, User, Briefcase, Volume2, Volume1, VolumeX
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../services/auth/authContext';
 import { useToastContext } from '../contexts/ToastContext';
-/*import { useNavigate } from 'react-router-dom';*/
+import { useSettings } from '../hooks/useSettings';
 import { audioService } from '../services/audio/audioService';
 import { aiService } from '../services/ai/aiService';
 import { SettingsManager } from '../services/settings/SettingsManager';
+import { cleanTextForSpeech } from '../utils/textCleaner';
 
 export const Settings: React.FC = () => {
   const { user, updateProfile } = useAuth();
+  const { settings, updateSetting } = useSettings();
   const toast = useToastContext();
-  /*const navigate = useNavigate();*/
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -186,10 +187,10 @@ export const Settings: React.FC = () => {
     const testMessage = "Bonjour! Ceci est un test du volume de la voix de l'IA. Vous pouvez ajuster le volume avec le curseur ci-dessus.";
 
     try {
-      await audioService.speakText(testMessage, {
+      await audioService.speakText(cleanTextForSpeech(testMessage), {
         rate: 0.9,
         pitch: 1.0,
-        volume: SettingsManager.getSetting('aiVoiceVolume') || 0.8,
+        volume: getCurrentVolume(),
         lang: 'fr-FR'
       });
     } catch (error) {
@@ -198,6 +199,26 @@ export const Settings: React.FC = () => {
     } finally {
       setIsTestingVolume(false);
     }
+  };
+
+  const getVolumeIcon = () => {
+    const volume = settings.aiVoiceVolume ?? 0.9;
+    if (volume === 0) return <VolumeX className="w-5 h-5" />;
+    if (volume < 0.5) return <Volume1 className="w-5 h-5" />;
+    return <Volume2 className="w-5 h-5" />;
+  };
+
+  const getVolumeColor = () => {
+    const volume = settings.aiVoiceVolume ?? 0.9;
+    if (volume === 0) return 'bg-red-100 text-red-600 border-red-200';
+    if (volume < 0.5) return 'bg-yellow-100 text-yellow-600 border-yellow-200';
+    if (volume === 0.6) return 'bg-blue-100 text-blue-600 border-blue-200';
+    if (volume === 1) return 'bg-purple-100 text-purple-600 border-purple-200';
+    return 'bg-green-100 text-green-600 border-green-200';
+  };
+
+  const getCurrentVolume = () => {
+    return settings.aiVoiceVolume ?? 0.9;
   };
 
   const handleTestAI = async () => {
@@ -256,6 +277,63 @@ export const Settings: React.FC = () => {
 
   return (
     <>
+      {/* Styles personnalisés pour le slider */}
+      <style>{`
+        .volume-slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          background: #6b7280;
+          border-radius: 50%;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          transition: all 0.2s ease;
+          margin-top: -5px; /* Centrer le thumb sur la piste */
+        }
+        .volume-slider::-webkit-slider-thumb:hover {
+          background: #4b5563;
+          transform: scale(1.1);
+          box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        .volume-slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          background: #6b7280;
+          border-radius: 50%;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          transition: all 0.2s ease;
+        }
+        .volume-slider::-moz-range-thumb:hover {
+          background: #4b5563;
+          transform: scale(1.1);
+          box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        .volume-slider::-webkit-slider-runnable-track {
+          height: 10px;
+          background: #e5e7eb;
+          border-radius: 5px;
+          border: none;
+        }
+        .volume-slider::-moz-range-track {
+          height: 10px;
+          background: #e5e7eb;
+          border-radius: 5px;
+          border: none;
+        }
+        .volume-slider:focus {
+          outline: none;
+        }
+        .volume-slider:focus::-webkit-slider-thumb {
+          box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.3);
+        }
+        .volume-slider:focus::-moz-range-thumb {
+          box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.3);
+        }
+      `}</style>
+
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -267,12 +345,12 @@ export const Settings: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="space-y-4">
 
           {/* Profile Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center mb-6">
+            <div className="flex items-center mb-2">
               <User className="w-6 h-6 text-slate-600 mr-3" />
               <h2 className="text-xl font-semibold text-gray-900">
                 Informations personnelles
@@ -354,7 +432,7 @@ export const Settings: React.FC = () => {
                 placeholder="Paris"
               />
 
-              <div className="md:col-span-2">
+              <div className="md:col-span-1">
                 <Input
                   label="Pays"
                   type="text"
@@ -368,7 +446,7 @@ export const Settings: React.FC = () => {
 
           {/* Professional Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center mb-6">
+            <div className="flex items-center mb-2">
               <Briefcase className="w-6 h-6 text-slate-600 mr-3" />
               <h2 className="text-xl font-semibold text-gray-900">
                 Informations professionnelles
@@ -419,13 +497,13 @@ export const Settings: React.FC = () => {
               </h2>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* API Key Section */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Clé API OpenAI
                 </label>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm2 text-gray-500 mb-4">
                   Configurez votre clé API pour permettre au système IA de fonctionner correctement.
                 </p>
 
@@ -489,52 +567,133 @@ export const Settings: React.FC = () => {
                 </div>
               </div>
 
-              {/* Voice Volume Section */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Volume de la voix IA
-                </label>
-                <p className="text-sm text-gray-500 mb-4">
-                  Ajustez le volume de la voix de l'assistant IA.
-                </p>
-
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={SettingsManager.getSetting('aiVoiceVolume') || 0.8}
-                      onChange={(e) => {
-                        const volume = parseFloat(e.target.value);
-                        SettingsManager.updateSetting('aiVoiceVolume', volume);
-                      }}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <span className="text-sm text-gray-600 min-w-[3rem]">
-                      {Math.round((SettingsManager.getSetting('aiVoiceVolume') || 0.8) * 100)}%
+              {/* Voice Volume Section - Améliorée */}
+              <div className="border-t pt-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Volume de la voix IA
+                    </label>
+                    <p className="text-sm2 text-gray-500">
+                      Ajustez le volume de la voix de l'assistant IA pour une expérience optimale.
+                    </p>
+                  </div>
+                  <div className={`flex items-center space-x-2 px-3 py-2 rounded-full border ${getVolumeColor()}`}>
+                    {getVolumeIcon()}
+                    <span className="text-sm font-medium">
+                      {Math.round(getCurrentVolume() * 100)}%
                     </span>
                   </div>
+                </div>
 
-                  <Button
-                    variant="outline"
-                    onClick={handleTestVolume}
-                    disabled={isTestingVolume}
-                    className="w-full sm:w-auto"
-                  >
-                    {isTestingVolume ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                        Test en cours...
-                      </>
-                    ) : (
-                      <>
-                        <TestTube className="w-4 h-4 mr-2" />
-                        Tester le volume
-                      </>
-                    )}
-                  </Button>
+                <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+                  {/* Curseur de volume principal */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm text-gray-600">Volume principal</span>
+                      <div className="flex items-center space-x-3">
+                        <VolumeX className="w-4 h-4 text-gray-400" />
+                        <div className="flex-1 max-w-xs relative">
+                          <div
+                            className="absolute top-1/2 left-0 h-2 bg-gray-400 rounded-l-lg transform -translate-y-1/2 transition-all duration-200"
+                            style={{ width: `${getCurrentVolume() * 100}%` }}
+                          />
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={getCurrentVolume()}
+                            onChange={(e) => {
+                              const volume = parseFloat(e.target.value);
+                              updateSetting('aiVoiceVolume', volume);
+                            }}
+                            className="volume-slider w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer relative z-10"
+                          />
+                        </div>
+                        <Volume2 className="w-4 h-4 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Préréglages rapides */}
+                    <div className="flex space-x-2 mt-4">
+                      <button
+                        onClick={() => updateSetting('aiVoiceVolume', 0)}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          getCurrentVolume() === 0
+                            ? 'bg-red-100 text-red-700 border border-red-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                      >
+                        Muet
+                      </button>
+                      <button
+                        onClick={() => updateSetting('aiVoiceVolume', 0.3)}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          getCurrentVolume() === 0.3
+                            ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                      >
+                        30%
+                      </button>
+                      <button
+                        onClick={() => updateSetting('aiVoiceVolume', 0.6)}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          getCurrentVolume() === 0.6
+                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                      >
+                        60%
+                      </button>
+                      <button
+                        onClick={() => updateSetting('aiVoiceVolume', 0.9)}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          getCurrentVolume() === 0.9
+                            ? 'bg-green-100 text-green-700 border border-green-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                      >
+                        90% (Recommandé)
+                      </button>
+                      <button
+                        onClick={() => updateSetting('aiVoiceVolume', 1)}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          getCurrentVolume() === 1
+                            ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                      >
+                        100%
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bouton de test */}
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                      Cliquez sur le bouton pour tester le volume avec la voix actuelle de l'IA
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={handleTestVolume}
+                      disabled={isTestingVolume}
+                      className="px-6"
+                    >
+                      {isTestingVolume ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                          Test en cours...
+                        </>
+                      ) : (
+                        <>
+                          {getVolumeIcon()}
+                          <span className="ml-2">Tester le volume</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -581,14 +740,14 @@ export const Settings: React.FC = () => {
                 <Button
                   variant="outline"
                   onClick={handleResetSettings}
-                  className="flex-1 sm:flex-none text-red-600 border-red-200 hover:bg-red-50"
+                  className="flex-1 sm:flex-none text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 focus:ring-red-500"
                 >
                   <AlertCircle className="w-4 h-4 mr-2" />
                   Réinitialiser le profil
                 </Button>
               </div>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm2 text-gray-500">
                 Exportez vos paramètres pour les sauvegarder ou les importer sur un autre appareil. Utilisez la réinitialisation pour remettre votre profil aux valeurs par défaut.
               </p>
             </div>

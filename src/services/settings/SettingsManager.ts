@@ -37,7 +37,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   maxSessions: 50,
   sessionTimeout: 30,
   autoBackup: true,
-  aiVoiceVolume: 0.8, // Volume par défaut à 80%
+  aiVoiceVolume: 0.9, // Volume par défaut à 90% (recommandé pour une voix naturelle)
   lastUpdated: new Date().toISOString(),
   version: '1.0.0'
 };

@@ -1,31 +1,5 @@
-import { apiClient } from './client';
-import { mockScenarios } from '../../data/mockData';
-
-// Interfaces locales pour éviter les problèmes d'export
-interface Scenario {
-  id: string;
-  title: string;
-  description: string;
-  category: 'technical' | 'commercial' | 'presentation' | 'problem-solving' | 'communication';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  duration: number;
-  language: string;
-  instructions: string;
-  aiPersonality: string;
-  evaluationCriteria: EvaluationCriteria[];
-  createdBy: string;
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface EvaluationCriteria {
-  id: string;
-  name: string;
-  description: string;
-  weight: number;
-  type: 'semantic' | 'emotional' | 'fluency' | 'relevance' | 'timing';
-}
+import { ScenariosService } from '../supabase/scenarios';
+import type { Scenario, ScenarioWithCriteria } from '../../types/scenarios';
 
 interface APIResponse<T = any> {
   success: boolean;
@@ -35,73 +9,142 @@ interface APIResponse<T = any> {
 }
 
 export const scenariosService = {
-  async getAllScenarios(): Promise<APIResponse<Scenario[]>> {
+  async getAllScenarios(filters?: { category?: string; difficulty?: string; is_public?: boolean }): Promise<APIResponse<Scenario[]>> {
     try {
-      return await apiClient.get<Scenario[]>('/scenarios');
-    } catch (error) {
-      console.log('Using mock scenarios data');
+      const { data, error } = await ScenariosService.getScenarios(filters);
+
+      if (error) {
+        console.error('Error fetching scenarios:', error);
+        return {
+          success: false,
+          error: error.message
+        };
+      }
+
       return {
         success: true,
-        data: mockScenarios
+        data: data || []
+      };
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      return {
+        success: false,
+        error: 'Failed to fetch scenarios'
       };
     }
   },
 
-  async getScenarioById(id: string): Promise<APIResponse<Scenario>> {
+  async getScenarioById(id: string): Promise<APIResponse<ScenarioWithCriteria>> {
     try {
-      return await apiClient.get<Scenario>(`/scenarios/${id}`);
-    } catch (error) {
-      console.log('Using mock scenario data');
-      const scenario = mockScenarios.find(s => s.id === id);
-      if (scenario) {
+      const { data, error } = await ScenariosService.getScenarioById(id);
+
+      if (error) {
+        console.error('Error fetching scenario:', error);
         return {
-          success: true,
-          data: scenario
+          success: false,
+          error: error.message
         };
-      } else {
+      }
+
+      if (!data) {
         return {
           success: false,
           error: 'Scenario not found'
         };
       }
+
+      return {
+        success: true,
+        data
+      };
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      return {
+        success: false,
+        error: 'Failed to fetch scenario'
+      };
     }
   },
 
   async getScenariosByCategory(category: string): Promise<APIResponse<Scenario[]>> {
-    try {
-      return await apiClient.get<Scenario[]>(`/scenarios?category=${category}`);
-    } catch (error) {
-      console.log('Using mock scenarios by category');
-      const filteredScenarios = mockScenarios.filter(s => s.category === category);
-      return {
-        success: true,
-        data: filteredScenarios
-      };
-    }
+    return this.getAllScenarios({ category });
   },
 
   async getScenariosByDifficulty(difficulty: string): Promise<APIResponse<Scenario[]>> {
+    return this.getAllScenarios({ difficulty });
+  },
+
+  async createScenario(scenario: any): Promise<APIResponse<Scenario>> {
     try {
-      return await apiClient.get<Scenario[]>(`/scenarios?difficulty=${difficulty}`);
-    } catch (error) {
-      console.log('Using mock scenarios by difficulty');
-      const filteredScenarios = mockScenarios.filter(s => s.difficulty === difficulty);
+      const { data, error } = await ScenariosService.createScenario(scenario);
+
+      if (error) {
+        console.error('Error creating scenario:', error);
+        return {
+          success: false,
+          error: error.message
+        };
+      }
+
       return {
         success: true,
-        data: filteredScenarios
+        data: data!
+      };
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      return {
+        success: false,
+        error: 'Failed to create scenario'
       };
     }
   },
 
-  async createScenario(scenario: Omit<Scenario, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<Scenario>> {
-    return apiClient.post<Scenario>('/scenarios', scenario);
-  },
+  async updateScenario(id: string, scenario: any): Promise<APIResponse<Scenario>> {
+    try {
+      const { data, error } = await ScenariosService.updateScenario(id, scenario);
 
-  async updateScenario(id: string, scenario: Partial<Scenario>): Promise<APIResponse<Scenario>> {
-    return apiClient.put<Scenario>(`/scenarios/${id}`, scenario);
+      if (error) {
+        console.error('Error updating scenario:', error);
+        return {
+          success: false,
+          error: error.message
+        };
+      }
+
+      return {
+        success: true,
+        data: data!
+      };
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      return {
+        success: false,
+        error: 'Failed to update scenario'
+      };
+    }
   },
 
   async deleteScenario(id: string): Promise<APIResponse<void>> {
-    return apiClient.delete<void>(`/scenarios/${id}`);
+    try {
+      const { error } = await ScenariosService.deleteScenario(id);
+
+      if (error) {
+        console.error('Error deleting scenario:', error);
+        return {
+          success: false,
+          error: error.message
+        };
+      }
+
+      return {
+        success: true
+      };
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      return {
+        success: false,
+        error: 'Failed to delete scenario'
+      };
+    }
   }
 };

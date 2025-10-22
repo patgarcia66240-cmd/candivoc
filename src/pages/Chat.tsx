@@ -7,6 +7,7 @@ import { ApiKeyAlert } from '../components/chat/ApiKeyAlert';
 import { audioService } from '../services/audio/audioService';
 import { useSettings } from '../hooks/useSettings';
 import { aiService } from '../services/ai/aiService';
+import { cleanTextForSpeech } from '../utils/textCleaner';
 
 interface Message {
   id: string;
@@ -155,8 +156,11 @@ export const Chat: React.FC = () => {
         msg.id === thinkingMessage.id ? aiMessage : msg
       ));
 
+      // Nettoyer le texte pour la synthèse vocale
+      const cleanSpeechText = cleanTextForSpeech(aiResponse.content);
+
       // Lire la réponse vocalement
-      await audioService.speakText(aiResponse.content, {
+      await audioService.speakText(cleanSpeechText, {
         rate: 0.9,
         pitch: 1.0,
         volume: settings.aiVoiceVolume || 0.8

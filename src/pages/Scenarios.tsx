@@ -1,33 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScenarioList } from '../components/scenarios/ScenarioList';
-import { mockScenarios } from '../data/mockData';
-
-// Interface locale pour éviter les problèmes d'export
-interface Scenario {
-  id: string;
-  title: string;
-  description: string;
-  category: 'technical' | 'commercial' | 'presentation' | 'problem-solving' | 'communication';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  duration: number;
-  language: string;
-  instructions: string;
-  aiPersonality: string;
-  evaluationCriteria: EvaluationCriteria[];
-  createdBy: string;
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface EvaluationCriteria {
-  id: string;
-  name: string;
-  description: string;
-  weight: number;
-  type: 'semantic' | 'emotional' | 'fluency' | 'relevance' | 'timing';
-}
+import { scenariosService } from '../services/api/scenarios';
+import type { Scenario } from '../../types/scenarios';
 
 export const Scenarios: React.FC = () => {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
@@ -35,14 +10,20 @@ export const Scenarios: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Utiliser les données de démonstration pour le MVP
+    // Charger les scénarios depuis Supabase
     const loadScenarios = async () => {
       try {
-        // Simuler un chargement
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setScenarios(mockScenarios);
+        console.log('📚 Loading scenarios from Supabase...');
+        const result = await scenariosService.getAllScenarios({ is_public: true });
+
+        if (result.success && result.data) {
+          console.log(`✅ Loaded ${result.data.length} scenarios`);
+          setScenarios(result.data);
+        } else {
+          console.error('❌ Failed to load scenarios:', result.error);
+        }
       } catch (error) {
-        console.error('Error loading scenarios:', error);
+        console.error('❌ Error loading scenarios:', error);
       } finally {
         setLoading(false);
       }

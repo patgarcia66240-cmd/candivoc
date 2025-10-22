@@ -2,33 +2,7 @@ import React, { useState } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { ScenarioCard } from './ScenarioCard';
 import { Input } from '../ui/Input';
-
-
-// Interface locale pour éviter les problèmes d'export
-interface Scenario {
-  id: string;
-  title: string;
-  description: string;
-  category: 'technical' | 'commercial' | 'presentation' | 'problem-solving' | 'communication';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  duration: number;
-  language: string;
-  instructions: string;
-  aiPersonality: string;
-  evaluationCriteria: EvaluationCriteria[];
-  createdBy: string;
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface EvaluationCriteria {
-  id: string;
-  name: string;
-  description: string;
-  weight: number;
-  type: 'semantic' | 'emotional' | 'fluency' | 'relevance' | 'timing';
-}
+import type { Scenario } from '../../../types/scenarios';
 
 interface ScenarioListProps {
   scenarios: Scenario[];

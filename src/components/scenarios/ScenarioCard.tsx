@@ -1,32 +1,7 @@
 import React from 'react';
 import { Clock, Users, Star, Play } from 'lucide-react';
 import { Button } from '../ui/Button';
-
-// Interface locale pour éviter les problèmes d'export
-interface Scenario {
-  id: string;
-  title: string;
-  description: string;
-  category: 'technical' | 'commercial' | 'presentation' | 'problem-solving' | 'communication';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  duration: number;
-  language: string;
-  instructions: string;
-  aiPersonality: string;
-  evaluationCriteria: EvaluationCriteria[];
-  createdBy: string;
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface EvaluationCriteria {
-  id: string;
-  name: string;
-  description: string;
-  weight: number;
-  type: 'semantic' | 'emotional' | 'fluency' | 'relevance' | 'timing';
-}
+import type { Scenario } from '../../../types/scenarios';
 
 interface ScenarioCardProps {
   scenario: Scenario;
@@ -107,7 +82,7 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
           </div>
           <div className="flex items-center space-x-1">
             <Users className="w-4 h-4" />
-            <span>{scenario.isPublic ? 'Public' : 'Privé'}</span>
+            <span>{scenario.is_public ? 'Public' : 'Privé'}</span>
           </div>
         </div>
         <div className="flex items-center space-x-1">
