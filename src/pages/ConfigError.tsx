@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, Settings, ExternalLink, Copy } from 'lucide-react';
+import { AlertTriangle, Settings, ExternalLink, Copy, TestTube } from 'lucide-react';
 
 export const ConfigError: React.FC = () => {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -25,9 +25,16 @@ export const ConfigError: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
         {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full">
-            <AlertTriangle className="w-8 h-8 text-red-600" />
+        <div className="text-center space-y-6">
+          <div className="relative">
+            <img
+              src="/images/supabase2.png"
+              alt="Supabase Configuration"
+              className="w-32 h-32 mx-auto object-contain"
+            />
+            <div className="absolute -top-2 -right-2 bg-red-100 rounded-full p-2">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">
             Configuration Supabase requise
@@ -163,6 +170,14 @@ export const ConfigError: React.FC = () => {
           >
             <Settings className="w-5 h-5" />
             Guide de configuration
+          </button>
+
+          <button
+            onClick={() => window.location.href = '/test-supabase'}
+            className="px-6 py-3 border border-purple-300 bg-purple-50 text-purple-700 rounded-lg font-medium hover:bg-purple-100 transition-colors flex items-center gap-2"
+          >
+            <TestTube className="w-5 h-5" />
+            Tester la connexion
           </button>
 
           <button

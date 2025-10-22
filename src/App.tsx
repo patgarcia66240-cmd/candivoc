@@ -12,7 +12,8 @@ import { Sessions } from './pages/Sessions';
 import { SessionPage } from './pages/Session';
 import { Settings } from './pages/Settings';
 import { Chat } from './pages/Chat';
-import { ConfigError } from './pages/ConfigError';
+import { ConfigErrorSimple } from './pages/ConfigErrorSimple';
+import { TestSupabase } from './pages/TestSupabase';
 import { Layout } from './components/ui/Layout';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
@@ -40,6 +41,8 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/test-supabase" element={<TestSupabase />} />
+      <Route path="/config-error" element={<ConfigErrorSimple />} />
       <Route
         path="/dashboard"
         element={
@@ -94,32 +97,88 @@ const AppRoutes: React.FC = () => {
 };
 
 const ConfigChecker: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  try {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  const isUrlMissing = !supabaseUrl || supabaseUrl === 'votre_supabase_url';
-  const isKeyMissing = !supabaseKey || supabaseKey === 'votre_supabase_anon_key';
-  const hasConfigIssues = isUrlMissing || isKeyMissing;
+    // Validation de l'URL plus robuste
+    const isValidUrl = (url: string) => {
+      if (!url || url.length < 8) return false;
+      try {
+        const urlObj = new URL(url);
+        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    };
 
-  if (hasConfigIssues) {
-    return <ConfigError />;
+    // Validation plus stricte de l'URL
+    const isUrlInvalid = !supabaseUrl ||
+                      supabaseUrl === 'votre_supabase_url' ||
+                      supabaseUrl.includes('localhost') && !supabaseUrl.includes('http') ||
+                      !isValidUrl(supabaseUrl);
+
+    const isKeyMissing = !supabaseKey || supabaseKey === 'votre_supabase_anon_key' || supabaseKey.length < 50;
+    const hasConfigIssues = isUrlInvalid || isKeyMissing;
+
+    // Logging pour le debug
+    console.log('🔍 ConfigChecker - Configuration check:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseKey,
+      isUrlValid: supabaseUrl ? isValidUrl(supabaseUrl) : false,
+      isUrlInvalid,
+      isKeyMissing,
+      hasConfigIssues,
+      urlPreview: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'none',
+      keyLength: supabaseKey ? supabaseKey.length : 0
+    });
+
+    // Si la configuration est correcte, afficher l'application avec authentification
+    if (!hasConfigIssues) {
+      console.log('✅ Supabase configuration OK - Loading main app');
+      return (
+        <ToastProvider>
+          <AuthProvider>
+            <Router>
+              <div className="App">
+                {children}
+              </div>
+            </Router>
+          </AuthProvider>
+        </ToastProvider>
+      );
+    }
+
+    // Par défaut, afficher ConfigErrorSimple (si la configuration est incorrecte)
+    console.log('❌ Supabase configuration invalid - Showing ConfigErrorSimple');
+    return (
+      <ToastProvider>
+        <Router>
+          <div className="App">
+            <ConfigErrorSimple />
+          </div>
+        </Router>
+      </ToastProvider>
+    );
+  } catch (error) {
+    console.error('❌ ConfigChecker error:', error);
+    // En cas d'erreur dans le ConfigChecker, afficher ConfigErrorSimple par défaut
+    return (
+      <ToastProvider>
+        <Router>
+          <div className="App">
+            <ConfigErrorSimple />
+          </div>
+        </Router>
+      </ToastProvider>
+    );
   }
-
-  return <>{children}</>;
 };
 
 function App() {
   return (
     <ConfigChecker>
-      <ToastProvider>
-        <AuthProvider>
-          <Router>
-            <div className="App">
-              <AppRoutes />
-            </div>
-          </Router>
-        </AuthProvider>
-      </ToastProvider>
+      <AppRoutes />
     </ConfigChecker>
   );
 }

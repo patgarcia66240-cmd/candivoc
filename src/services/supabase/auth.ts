@@ -2,6 +2,9 @@ import { supabase } from './client';
 import type { User, Session } from '@supabase/supabase-js';
 import type { Profile, UserRole } from '../../types/supabase';
 
+// Vérifier si le client Supabase est disponible
+const isSupabaseAvailable = () => supabase !== null;
+
 export interface AuthUser extends User {
   profile?: Profile;
 }
@@ -19,7 +22,14 @@ export class SupabaseAuth {
     last_name: string,
     role: UserRole = 'user'
   ) {
-    const { data, error } = await supabase.auth.signUp({
+    if (!isSupabaseAvailable()) {
+      return {
+        data: null,
+        error: new Error('Service d\'authentification indisponible. Veuillez vérifier votre configuration Supabase.')
+      };
+    }
+
+    const { data, error } = await supabase!.auth.signUp({
       email,
       password,
       options: {
@@ -33,7 +43,7 @@ export class SupabaseAuth {
 
     if (!error && data.user) {
       // Créer le profil utilisateur dans la table public.profiles
-      const { error: profileError } = await supabase
+      const { error: profileError } = await supabase!
         .from('profiles')
         .insert({
           id: data.user.id,
@@ -46,7 +56,7 @@ export class SupabaseAuth {
       if (profileError) {
         console.error('Profile creation error:', profileError);
         // Tenter de supprimer l'utilisateur auth créé si le profil échoue
-        await supabase.auth.admin.deleteUser(data.user.id);
+        await supabase!.auth.admin.deleteUser(data.user.id);
         return { data: null, error: profileError };
       }
     }
@@ -56,7 +66,14 @@ export class SupabaseAuth {
 
   // Connexion
   static async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    if (!isSupabaseAvailable()) {
+      return {
+        data: null,
+        error: new Error('Service d\'authentification indisponible. Veuillez vérifier votre configuration Supabase.')
+      };
+    }
+
+    const { data, error } = await supabase!.auth.signInWithPassword({
       email,
       password,
     });
@@ -65,20 +82,31 @@ export class SupabaseAuth {
 
   // Déconnexion
   static async signOut() {
-    const { error } = await supabase.auth.signOut();
+    if (!isSupabaseAvailable()) {
+      return { error: new Error('Service d\'authentification indisponible.') };
+    }
+
+    const { error } = await supabase!.auth.signOut();
     return { error };
   }
 
   // Récupérer l'utilisateur actuel avec son profil
   static async getCurrentUser(): Promise<{ user: AuthUser | null; error: Error | null }> {
-    const { data, error } = await supabase.auth.getUser();
+    if (!isSupabaseAvailable()) {
+      return {
+        user: null,
+        error: new Error('Service d\'authentification indisponible.')
+      };
+    }
+
+    const { data, error } = await supabase!.auth.getUser();
 
     if (error || !data.user) {
       return { user: null, error };
     }
 
     // Récupérer le profil utilisateur
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabase!
       .from('profiles')
       .select('*')
       .eq('id', data.user.id)
@@ -127,13 +155,31 @@ export class SupabaseAuth {
 
   // Récupérer la session actuelle
   static async getCurrentSession(): Promise<{ session: AuthSession | null; error: Error | null }> {
-    const { data, error } = await supabase.auth.getSession();
+    if (!isSupabaseAvailable()) {
+      return {
+        session: null,
+        error: new Error('Service d\'authentification indisponible.')
+      };
+    }
+
+    const { data, error } = await supabase!.auth.getSession();
     return { session: data.session, error };
   }
 
   // Écouter les changements d'authentification
   static onAuthStateChange(callback: (event: string, session: AuthSession | null) => void) {
-    return supabase.auth.onAuthStateChange(callback);
+    if (!isSupabaseAvailable()) {
+      // Retourner un mock qui ne fait rien pour éviter les erreurs
+      return {
+        data: {
+          subscription: {
+            unsubscribe: () => {}
+          }
+        }
+      };
+    }
+
+    return supabase!.auth.onAuthStateChange(callback);
   }
 
   // Mettre à jour le dernier login

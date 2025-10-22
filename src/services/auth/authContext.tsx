@@ -130,6 +130,12 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Navigation sécurisée avec fallback
+  const safeNavigate = (path: string) => {
+    console.log('🔄 Navigating to:', path);
+    window.location.href = path;
+  };
+
   // Fonction utilitaire pour transformer Profile en User
   const transformProfileToUser = (profile: Profile): User => ({
     id: profile.id,
@@ -182,6 +188,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userEmail: user?.email
         });
 
+        // Si erreur d'authentification (service indisponible), rediriger vers ConfigError
+        if (error && error.message.includes('Service d\'authentification indisponible')) {
+          console.log('🔧 Auth service unavailable - redirecting to ConfigError');
+          safeNavigate('/config-error');
+          return;
+        }
+
         if (mounted) {
           if (user && user.profile) {
             const transformedUser = transformProfileToUser(user.profile);
@@ -226,7 +239,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('❌ Auth initialization error:', error);
         if (mounted) {
-          dispatch({ type: 'LOGOUT' });
+          // Vérifier si c'est une erreur de configuration Supabase
+          if (error instanceof Error && error.message.includes('Service d\'authentification indisponible')) {
+            console.log('🔧 Auth service unavailable - redirecting to ConfigError');
+            safeNavigate('/config-error');
+          } else {
+            console.error('❌ Auth initialization error:', error);
+            dispatch({ type: 'LOGOUT' });
+          }
         }
       }
     };
@@ -235,9 +255,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initTimeout = setTimeout(initAuth, 100);
 
     // Écouter les changements d'état d'authentification
-    let subscription: { data: { subscription: { unsubscribe: () => void } } };
+    // Le client Supabase peut retourner soit { data: { subscription } } soit la subscription directement,
+    // donc on accepte les deux formes et on normalise vers un objet avec unsubscribe().
+    let subscription: { unsubscribe: () => void } | null = null;
     try {
-      const { data } = SupabaseAuth.onAuthStateChange(
+      const res = SupabaseAuth.onAuthStateChange(
         async (event, session) => {
           console.log('🔄 Auth state change:', event, !!session?.user);
 
@@ -253,7 +275,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
       );
-      subscription = data.subscription;
+
+      // Normaliser la valeur renvoyée selon sa forme
+      if (res && typeof res === 'object' && 'data' in res && (res as any).data?.subscription) {
+        subscription = (res as any).data.subscription as { unsubscribe: () => void };
+      } else if (res && typeof res === 'object' && 'unsubscribe' in res) {
+        subscription = res as unknown as { unsubscribe: () => void };
+      }
     } catch (error) {
       console.error('❌ Error setting up auth listener:', error);
       if (mounted) dispatch({ type: 'LOGOUT' });
@@ -278,7 +306,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         console.error('❌ Login error:', error);
         dispatch({ type: 'AUTH_FAILURE', payload: error.message || 'Login failed' });
-      } else if (data.user) {
+      } else if (data && data.user) {
         console.log('✅ Login successful for:', data.user.email);
 
         // Simple et direct - utilisateur minimaliste
@@ -475,7 +503,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       error = updateResult.error;
 
       // Si la mise à jour échoue parce que le profil n'existe pas, le créer
-      if (error && error?.code === 'PGRST116') {
+      if (error && (error as { code?: string })?.code === 'PGRST116') {
         console.log('📝 Profile not found, creating new profile...');
         const createResult = await ProfileService.createProfile({
           id: state.user.id,
@@ -504,8 +532,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('📊 ProfileService operation result:', {
         hasProfile: !!profile,
         error: error?.message,
-        errorCode: error?.code,
-        errorDetails: error?.details
+        errorCode: (error as { code?: string })?.code,
+        errorDetails: (error as { details?: unknown })?.details
       });
 
       // Si ProfileService échoue, essayer directement avec Supabase client
@@ -513,6 +541,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔄 ProfileService failed, trying direct Supabase update...');
         try {
           const { supabase } = await import('../supabase/client');
+          if (!supabase) {
+            // Stopper et remonter une erreur explicite si le client Supabase n'est pas initialisé
+            throw new Error('Supabase client not initialized');
+          }
+
           const { data: directResult, error: directError } = await supabase
             .from('profiles')
             .upsert({
@@ -610,4 +643,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
