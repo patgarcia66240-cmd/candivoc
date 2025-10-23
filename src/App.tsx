@@ -4,7 +4,6 @@ import './App.css';
 import { AuthProvider } from './services/auth/authContext';
 import { useAuth } from './services/auth/useAuth';
 import { ToastProvider } from './contexts/ToastProvider';
-import { Login } from './pages/Login';
 import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';
 import { Scenarios } from './pages/Scenarios';
@@ -33,7 +32,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ chil
   if (isAuthenticated) {
     return <Layout>{children}</Layout>;
   } else {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 });
 

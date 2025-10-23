@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/auth/useAuth';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { OAuthButtons } from '../components/ui/OAuthButtons';
+import { supabase } from '../services/supabase/client';
 
 export const Landing: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false); // État local pour le vrai loading
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { user, login, register, loading, error, clearError } = useAuth();
+  const navigate = useNavigate();
 
   // Debug pour suivre l'état sur la landing
   useEffect(() => {
@@ -26,7 +29,7 @@ export const Landing: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    setIsSubmitting(true); // Activer le loading local
+    setIsSubmitting(true);
 
     console.log('🔑 Landing - Tentative de connexion:', { email, isLogin });
 
@@ -43,7 +46,27 @@ export const Landing: React.FC = () => {
         await register(email, password, 'John', 'Doe', 'user');
       }
     } finally {
-      setIsSubmitting(false); // Désactiver le loading local
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOAuthLogin = async (provider: 'google' | 'linkedin_oidc' | 'github') => {
+    try {
+      if (!supabase) {
+        console.error('❌ Supabase client is not initialized.');
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (error) throw error;
+      console.log('🔑 OAuth login triggered:', provider, data);
+    } catch (err) {
+      console.error('❌ OAuth login error:', err);
     }
   };
 
@@ -157,7 +180,7 @@ export const Landing: React.FC = () => {
                   type="submit"
                   variant="gradient"
                   className="w-full py-4 text-lg font-semibold"
-                  disabled={isSubmitting} // Utiliser seulement l'état local de soumission
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center">
@@ -173,26 +196,31 @@ export const Landing: React.FC = () => {
                 </Button>
               </form>
 
+              {/* --- Bloc OAuth --- */}
               <div className="mt-8">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500">Ou</span>
+                    <span className="px-4 bg-white text-gray-500">Ou continuez avec</span>
                   </div>
                 </div>
 
-                <div className="mt-6 text-center">
-                  <button
-                    onClick={() => setIsLogin(!isLogin)}
-                    className="text-primary-600 hover:text-primary-500 text-sm font-medium"
-                  >
-                    {isLogin
-                      ? 'Pas de compte ? Inscrivez-vous'
-                      : 'Déjà un compte ? Connectez-vous'}
-                  </button>
+                <div className="mt-6">
+                  <OAuthButtons onOAuthLogin={handleOAuthLogin} />
                 </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-primary-600 hover:text-primary-500 text-sm font-medium"
+                >
+                  {isLogin
+                    ? 'Pas de compte ? Inscrivez-vous'
+                    : 'Déjà un compte ? Connectez-vous'}
+                </button>
               </div>
 
               {/* Demo account info */}
