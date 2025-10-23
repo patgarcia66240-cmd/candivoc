@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { ScenarioCard } from './ScenarioCard';
 import { Input } from '../ui/Input';
+import { CustomSelect } from '../ui/CustomSelect';
 import type { Scenario } from '../../../types/scenarios';
 
 interface ScenarioListProps {
@@ -21,6 +22,16 @@ export const ScenarioList: React.FC<ScenarioListProps> = ({
 
   const categories = ['all', 'technical', 'commercial', 'presentation', 'problem-solving', 'communication'];
   const difficulties = ['all', 'beginner', 'intermediate', 'advanced'];
+
+  const categoryOptions = categories.map(category => ({
+    value: category,
+    label: category === 'all' ? 'Toutes catégories' : category
+  }));
+
+  const difficultyOptions = difficulties.map(difficulty => ({
+    value: difficulty,
+    label: difficulty === 'all' ? 'Tous niveaux' : difficulty
+  }));
 
   const filteredScenarios = scenarios.filter((scenario) => {
     const matchesSearch = scenario.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -48,30 +59,18 @@ export const ScenarioList: React.FC<ScenarioListProps> = ({
           </div>
 
           {/* Category Filter */}
-          <select
+          <CustomSelect
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category === 'all' ? 'Toutes catégories' : category}
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedCategory}
+            options={categoryOptions}
+          />
 
           {/* Difficulty Filter */}
-          <select
+          <CustomSelect
             value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {difficulties.map((difficulty) => (
-              <option key={difficulty} value={difficulty}>
-                {difficulty === 'all' ? 'Tous niveaux' : difficulty}
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedDifficulty}
+            options={difficultyOptions}
+          />
         </div>
       </div>
 

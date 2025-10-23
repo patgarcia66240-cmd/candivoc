@@ -3,7 +3,6 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/auth/useAuth';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import OAuthButton from '../components/ui/OAuthButton';
 import { OAuthButtons } from '../components/ui/OAuthButtons';
 import { supabase } from '../services/supabase/client';
 
@@ -12,6 +11,7 @@ export const Landing: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const { user, login, register, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
@@ -79,23 +79,22 @@ export const Landing: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-100">
       <div className="container mx-auto px-4 py-16">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
           {/* Hero Section */}
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-                Préparez-vous aux entretiens d'embauche
-                <span className="text-primary-600 block">
-                  avec l'IA
-                </span>
-              </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Améliorez vos compétences en conversation professionnelle,
-                utilisez des scénarios réalistes et recevez des feedbacks personnalisés.
-              </p>
+          <div className="flex flex-col">
+            <div
+              className="relative overflow-hidden rounded-2xl shadow-2xl flex-1"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <img
+                src={isHovered ? "/images/landing2.png" : "/images/landing.png"}
+                alt="Préparez-vous aux entretiens d'embauche avec l'IA"
+                className="w-full h-full object-cover transition-all duration-500 ease-in-out transform hover:scale-105"
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
               <div className="text-center">
                 <div className="bg-white rounded-xl p-6 shadow-lg">
                   <div className="text-3xl font-bold text-primary-600 mb-2">50+</div>
@@ -116,7 +115,7 @@ export const Landing: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-lg">
+            <div className="bg-white rounded-xl p-6 shadow-lg mt-8">
               <h3 className="text-lg font-semibold mb-3">Pourquoi CandiVoc ?</h3>
               <ul className="space-y-2 text-secondary-600">
                 <li className="flex items-center">
@@ -136,8 +135,8 @@ export const Landing: React.FC = () => {
           </div>
 
           {/* Login/Signup Form */}
-          <div className="lg:pl-8">
-            <div className="bg-white rounded-2xl p-8 shadow-xl">
+          <div className="lg:pl-8 flex flex-col">
+            <div className="bg-white rounded-2xl p-8 shadow-xl flex-1 flex flex-col justify-center">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
                   {isLogin ? 'Connexion' : 'Inscription'}
@@ -227,9 +226,14 @@ export const Landing: React.FC = () => {
               {/* Demo account info */}
               <div className="mt-6 p-4 bg-primary-50 border border-primary-200 rounded-lg">
                 <p className="text-sm text-primary-800">
-                  <strong>Compte démo :</strong><br />
-                  Email: demo@candivoc.com<br />
-                  Mot de passe: demo123
+                  <strong>Pas de compte ?</strong><br />
+                  Essayez notre version d'essai gratuite<br />
+                  ou <span
+                  onClick={() => window.location.href = 'mailto:contact@candivoc.com'}
+                  className="text-gray-600 hover:text-gray-800 underline font-bold cursor-pointer"
+                >
+                  contactez-nous
+                </span> pour une démo
                 </p>
               </div>
             </div>

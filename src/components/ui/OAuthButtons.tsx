@@ -40,12 +40,12 @@ export const OAuthButtons: React.FC<OAuthButtonsProps> = ({
           key={provider.name}
           variant="outline"
           onClick={() => onOAuthLogin(provider.name)}
-          className="flex items-center"
+          className="flex items-center py-3 px-6 text-base font-semibold"
         >
           <img
             src={provider.icon}
             alt={provider.alt}
-            className="w-5 h-5 mr-2"
+            className="w-6 h-6 mr-3"
           />
           {showLabel && provider.label}
         </Button>
