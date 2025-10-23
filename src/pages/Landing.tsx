@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/auth/useAuth';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import OAuthButton from '../components/ui/OAuthButton';
 import { OAuthButtons } from '../components/ui/OAuthButtons';
 import { supabase } from '../services/supabase/client';
 
