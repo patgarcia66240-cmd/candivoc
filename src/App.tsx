@@ -39,7 +39,6 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ chil
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
       <Route path="/test-supabase" element={<TestSupabase />} />
       <Route path="/config-error" element={<ConfigErrorSimple />} />
       <Route
