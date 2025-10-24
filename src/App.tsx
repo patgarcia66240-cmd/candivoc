@@ -4,6 +4,7 @@ import './App.css';
 import { AuthProvider } from './services/auth/authContext';
 import { useAuth } from './services/auth/useAuth';
 import { ToastProvider } from './contexts/ToastProvider';
+import { Key } from 'lucide-react';
 import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';
 import { Scenarios } from './pages/Scenarios';
@@ -13,6 +14,7 @@ import { Settings } from './pages/Settings';
 import { Chat } from './pages/Chat';
 import { ConfigErrorSimple } from './pages/ConfigErrorSimple';
 import { TestSupabase } from './pages/TestSupabase';
+import { Tarifs } from './pages/Tarifs';
 import { Layout } from './components/ui/Layout';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
@@ -20,10 +22,18 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ chil
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="text-gray-600">Chargement de l'authentification...</p>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-sm">
+          <div className="relative flex items-center justify-center">
+            <div className="animate-pulse rounded-full h-16 w-16 bg-orange-200 flex items-center justify-center">
+              <Key className="h-8 w-8 text-orange-600 animate-pulse" />
+            </div>
+            <div className="absolute inset-0 rounded-full h-16 w-16 border-2 border-orange-300 animate-ping"></div>
+          </div>
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <p className="text-gray-700 font-medium text-center">En attente d'authentification...</p>
+            <p className="text-gray-500 text-sm text-center">Vérification de votre session</p>
+          </div>
         </div>
       </div>
     );
@@ -70,6 +80,14 @@ const AppRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <Settings />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/tarifs"
+        element={
+          <PrivateRoute>
+            <Tarifs />
           </PrivateRoute>
         }
       />

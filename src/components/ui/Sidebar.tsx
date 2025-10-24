@@ -6,7 +6,8 @@ import {
   MessageSquare,
   User,
   Settings,
-  LogOut
+  LogOut,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '../../services/auth/useAuth';
 import { cn } from '../../utils/cn';
@@ -32,6 +33,11 @@ const sidebarItems: SidebarItem[] = [
     label: 'Sessions',
     href: '/sessions',
     icon: MessageSquare,
+  },
+  {
+    label: 'Tarifs',
+    href: '/tarifs',
+    icon: CreditCard,
   },
 ];
 
@@ -102,7 +108,7 @@ export const Sidebar: React.FC = () => {
             </Link>
             <button
               onClick={logout}
-              className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-700 bg-red-50/80 hover:bg-red-100/80 rounded-xl transition-all duration-300 [text-shadow:_0_1px_2px_rgb(255_255_255_/_0.9)] shadow-lg hover:shadow-xl border border-red-200/50"
+              className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50/80 hover:bg-gray-100/80 rounded-xl transition-all duration-300 [text-shadow:_0_1px_2px_rgb(255_255_255_/_0.9)] shadow-lg hover:shadow-xl border border-red-200/50"
             >
               <LogOut className="w-4 h-4 mr-3" />
               Déconnexion

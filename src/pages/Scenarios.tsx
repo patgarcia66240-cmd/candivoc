@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScenarioList } from '../components/scenarios/ScenarioList';
 import { scenariosService } from '../services/api/scenarios';
-import type { Scenario } from '../../types/scenarios';
+import type { Scenario } from '../types/scenarios';
 
 export const Scenarios: React.FC = () => {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
