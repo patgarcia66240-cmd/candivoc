@@ -14,7 +14,8 @@ import { Settings } from './pages/Settings';
 import { Chat } from './pages/Chat';
 import { ConfigErrorSimple } from './pages/ConfigErrorSimple';
 import { TestSupabase } from './pages/TestSupabase';
-import { Tarifs } from './pages/Tarifs';
+import { Pricing } from './pages/Pricing';
+import { PaymentSuccess } from './pages/PaymentSuccess';
 import { Layout } from './components/ui/Layout';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
@@ -87,7 +88,7 @@ const AppRoutes: React.FC = () => {
         path="/tarifs"
         element={
           <PrivateRoute>
-            <Tarifs />
+            <Pricing />
           </PrivateRoute>
         }
       />
@@ -104,6 +105,14 @@ const AppRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <SessionPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/success"
+        element={
+          <PrivateRoute>
+            <PaymentSuccess />
           </PrivateRoute>
         }
       />

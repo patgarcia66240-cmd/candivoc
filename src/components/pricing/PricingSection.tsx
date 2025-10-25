@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, Star, Crown, Zap, Info } from "lucide-react";
 import { supabase } from "../../services/supabase/client";
-import { createCheckoutSession } from "../../services/stripe/stripe";
+import { createCheckoutSession } from "../../lib/stripe";
 import { useSubscription } from "../../hooks/useSubscription";
 import type { StripePrice } from "../../services/stripe/stripe";
 

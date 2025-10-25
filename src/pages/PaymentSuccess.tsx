@@ -10,7 +10,9 @@ export const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  
+  console.log('🎯 PaymentSuccess: Page chargée');
+  console.log('🎯 URL actuelle:', window.location.href);
+
   useEffect(() => {
     const handlePaymentSuccess = async () => {
       try {
