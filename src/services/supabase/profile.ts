@@ -25,6 +25,9 @@ export class ProfileService {
     stripe_customer_id?: string;
     createdBy?: string;
   }): Promise<{ profile: Profile | null; error: Error | null }> {
+    if (!supabase) {
+      return { profile: null, error: new Error('Supabase client is not initialized') };
+    }
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -88,7 +91,7 @@ export class ProfileService {
 
       return { profile: transformedProfile, error: null };
     } catch (error) {
-      return { profile: null, error };
+      return { profile: null, error: error as Error };
     }
   }
 
@@ -120,6 +123,9 @@ export class ProfileService {
       last_login?: string;
     }
   ): Promise<{ profile: Profile | null; error: Error | null }> {
+    if (!supabase) {
+      return { profile: null, error: new Error('Supabase client is not initialized') };
+    }
     try {
       const updateData: Record<string, unknown> = {};
       if ('first_name' in data) updateData.first_name = data.first_name;
@@ -188,12 +194,15 @@ export class ProfileService {
 
       return { profile: transformedProfile, error: null };
     } catch (error) {
-      return { profile: null, error };
+      return { profile: null, error: error as Error };
     }
   }
 
   // Récupérer un profil par ID
   static async getProfileById(userId: string): Promise<{ profile: Profile | null; error: Error | null }> {
+    if (!supabase) {
+      return { profile: null, error: new Error('Supabase client is not initialized') };
+    }
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -236,12 +245,15 @@ export class ProfileService {
 
       return { profile: transformedProfile, error: null };
     } catch (error) {
-      return { profile: null, error };
+      return { profile: null, error: error as Error };
     }
   }
 
   // Supprimer un profil utilisateur
   static async deleteProfile(userId: string): Promise<{ error: Error | null }> {
+    if (!supabase) {
+      return { error: new Error('Supabase client is not initialized') };
+    }
     try {
       const { error } = await supabase
         .from('profiles')
@@ -250,12 +262,15 @@ export class ProfileService {
 
       return { error };
     } catch (error) {
-      return { error };
+      return { error: error as Error };
     }
   }
 
   // Lister tous les profils (pour les admins)
   static async getAllProfiles(): Promise<{ profiles: Profile[] | null; error: Error | null }> {
+    if (!supabase) {
+      return { profiles: null, error: new Error('Supabase client is not initialized') };
+    }
     try {
       const { data: profiles, error } = await supabase
         .from('profiles')
@@ -297,7 +312,7 @@ export class ProfileService {
 
       return { profiles: transformedProfiles, error: null };
     } catch (error) {
-      return { profiles: null, error };
+      return { profiles: null, error: error as Error };
     }
   }
 
@@ -342,6 +357,9 @@ export class ProfileService {
     profession?: string;
     company?: string;
   }): Promise<{ profiles: Profile[] | null; error: Error | null }> {
+    if (!supabase) {
+      return { profiles: null, error: new Error('Supabase client is not initialized') };
+    }
     try {
       let query = supabase.from('profiles').select('*');
 
