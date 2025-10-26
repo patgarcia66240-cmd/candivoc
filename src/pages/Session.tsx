@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { VoiceChatInterface } from "../components/chat/VoiceChatInterface";
 import { sessionsService } from "../services/api/sessions";
@@ -10,6 +10,7 @@ import { useAuth } from "../services/auth/useAuth";
 import { aiService } from "../services/ai/aiService";
 import { cleanTextForSpeech, createVoiceText } from "../utils/textCleaner";
 import { ScenariosService } from "../services/supabase/scenarios";
+import { SessionSkeleton } from "../components/ui/SessionSkeleton";
 
 // Interfaces locales pour éviter les problèmes d'export
 interface Message {
@@ -38,7 +39,7 @@ interface Session {
   duration?: number;
   audioRecordingUrl?: string;
   transcript: Message[];
-  evaluation?: SessionEvaluation;
+  evaluation?: sessionEvaluation;
   createdAt: Date;
 }
 
@@ -71,7 +72,7 @@ interface ScenarioData {
   dureeEstimee: string;
 }
 
-export const SessionPage: React.FC = () => {
+export const sessionPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { settings } = useSettings();
@@ -117,7 +118,7 @@ export const SessionPage: React.FC = () => {
         // Créer une session de démonstration
         createDemoSession(sessionId);
       } else {
-        fetchSession(sessionId);
+        fetchsession(sessionId);
       }
     }
   }, [sessionId, loadScenariosData]);
@@ -135,7 +136,7 @@ export const SessionPage: React.FC = () => {
       const scenarioId = demoId.replace("demo-", "");
 
       // Créer une session de démonstration
-      const demoSession: Session = {
+      const demoSession: session = {
         id: demoId,
         userId: "demo-user",
         scenarioId: `Scénario ${scenarioId}`,
@@ -168,14 +169,14 @@ export const SessionPage: React.FC = () => {
     }
   };
 
-  const fetchSession = async (id: string) => {
+  const fetchsession = async (id: string) => {
     try {
-      const response = await sessionsService.getSessionById(id);
+      const response = await sessionsService.getsessionById(id);
       if (response.success && response.data) {
         setSession(response.data);
         setMessages(response.data.transcript || []);
       } else {
-        setError("Session non trouvée");
+        setError("session non trouvée");
       }
     } catch (error) {
       console.error("Error fetching session:", error);
@@ -194,7 +195,7 @@ export const SessionPage: React.FC = () => {
       const systemMessage: Message = {
         id: Date.now().toString(),
         sessionId: sessionId!,
-        content: "🎤 Enregistrement en cours...",
+        content: "🎤 enregistrement en cours...",
         speaker: "ai",
         timestamp: new Date(),
       };
@@ -503,14 +504,14 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
     }
   };
 
-  const handleEndSession = async () => {
+  const handleEndsession = async () => {
     if (session && session.id) {
       try {
         if (session.id.startsWith("demo-")) {
           // Pour les sessions de démonstration, simplement naviguer
           navigate("/dashboard");
         } else {
-          await sessionsService.endSession(session.id);
+          await sessionsService.endsession(session.id);
           navigate("/dashboard");
         }
       } catch (error) {
@@ -524,21 +525,14 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500 dark:text-gray-400">Chargement de la session...</p>
-        </div>
-      </div>
-    );
+    return <SessionSkeleton />;
   }
 
   if (error || !session) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">{error || "Session non trouvée"}</p>
+          <p className="text-red-600 dark:text-red-400 mb-4">{error || "session non trouvée"}</p>
           <Button onClick={() => navigate("/dashboard")}>
             Retour au tableau de bord
           </Button>
@@ -555,12 +549,12 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
           <div className="flex items-center justify-between h-16">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {session.scenarioId} - Session en cours
+                {session.scenarioId} - session en cours
               </h1>
               <div className="flex items-center space-x-4 mt-1">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {isRecording
-                    ? "🎤 Enregistrement en cours"
+                    ? "🎤 enregistrement en cours"
                     : "Prêt à enregistrer"}
                 </p>
                 {(() => {
@@ -593,7 +587,7 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={handleEndSession}>
+              <Button variant="outline" onClick={handleEndsession}>
                 Terminer la session
               </Button>
             </div>

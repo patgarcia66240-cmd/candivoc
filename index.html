@@ -10,8 +10,8 @@
 
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#f97316">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="CandiVoc">
   <meta name="application-name" content="CandiVoc">
   <meta name="msapplication-TileColor" content="#f97316">
@@ -33,6 +33,24 @@
   <!-- Preconnect pour les APIs externes -->
   <link rel="preconnect" href="https://api.openai.com">
   <link rel="preconnect" href="https://*.supabase.co">
+  
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('theme');
+        var theme = (saved && ['light','dark','system'].indexOf(saved) !== -1) ? saved : 'system';
+        var actual = theme === 'system'
+          ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : theme;
+        document.documentElement.classList.remove('light','dark');
+        document.documentElement.classList.add(actual);
+        if (document.body) {
+          document.body.classList.remove('light','dark');
+          document.body.classList.add(actual);
+        }
+      } catch (e) { /* noop */ }
+    })();
+  </script>
 
   <link rel="stylesheet" href="/src/index.css">
 </head>

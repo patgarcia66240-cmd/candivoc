@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+﻿import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -25,7 +25,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-    // Récupérer le thème depuis localStorage ou utiliser system
+    // RÃ©cupÃ©rer le thÃ¨me depuis localStorage ou utiliser system
     const saved = localStorage.getItem('theme') as Theme;
     if (saved && ['light', 'dark', 'system'].includes(saved)) {
       return saved;
@@ -35,7 +35,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
 
-  // Appliquer le thème au document et détecter le thème système
+  // Appliquer le thÃ¨me au document et dÃ©tecter le thÃ¨me systÃ¨me
   useEffect(() => {
     const updateTheme = () => {
       let actualTheme: 'light' | 'dark';
@@ -48,24 +48,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
       setResolvedTheme(actualTheme);
 
-      // Appliquer les classes avec transition fluide
+      // Appliquer les classes au document
       const root = document.documentElement;
-      const body = document.body;
-
-      // Ajouter une classe de transition temporaire
-      root.style.transition = 'background-color 0.3s ease, color 0.3s ease';
-
-      // Appliquer les classes
       root.classList.remove('light', 'dark');
       root.classList.add(actualTheme);
 
-      if (body) {
-        body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
-        body.classList.remove('light', 'dark');
-        body.classList.add(actualTheme);
-      }
-    
-      // Mettre à jour les meta tags pour le thème
+      // Mettre Ã  jour les meta tags pour le thÃ¨me
       const metaTheme = document.querySelector('meta[name="theme-color"]');
       if (metaTheme) {
         metaTheme.setAttribute('content', actualTheme === 'dark' ? '#1f2937' : '#ffffff');
@@ -76,15 +64,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         document.head.appendChild(newMeta);
       }
 
-
-      // Forcer un re-render des composants qui utilisent les classes dark:
-      const event = new CustomEvent('themechange', { detail: { theme: actualTheme } });
-      window.dispatchEvent(event);
+      console.log('ðŸŽ¨ Theme Update - Theme:', theme, 'â†’ Actual:', actualTheme, 'â†’ Classes:', root.className);
     };
 
     updateTheme();
 
-    // Écouter les changements de préférence système
+    // Ã‰couter les changements de prÃ©fÃ©rence systÃ¨me
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => updateTheme();

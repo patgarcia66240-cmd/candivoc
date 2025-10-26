@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Key, Save, Eye, EyeOff, AlertCircle, TestTube, User, Briefcase, Volume2, Volume1, VolumeX, MapPin
 } from 'lucide-react';
@@ -11,6 +11,7 @@ import { audioService } from '../services/audio/audioService';
 import { aiService } from '../services/ai/aiService';
 import { SettingsManager } from '../services/settings/SettingsManager';
 import { cleanTextForSpeech } from '../utils/textCleaner';
+import { SettingsSkeleton } from '../components/ui/SettingsSkeleton';
 
 export const Settings: React.FC = () => {
   const { user, updateProfile } = useAuth();
@@ -36,7 +37,7 @@ export const Settings: React.FC = () => {
   });
 
   const [showApiKey, setShowApiKey] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isTestingVolume, setIsTestingVolume] = useState(false);
   const [isTestingAI, setIsTestingAI] = useState(false);
@@ -89,6 +90,13 @@ export const Settings: React.FC = () => {
       setForceRefresh(prev => prev + 1);
     }
   }, [user]); // Seulement au montage du composant ou quand user change
+
+  // Arrêter le chargement initial après l'initialisation
+  useEffect(() => {
+    if (user) {
+      setIsLoading(false);
+    }
+  }, [user]);
 
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -146,7 +154,7 @@ export const Settings: React.FC = () => {
       setSaveSuccess(true);
 
       // 💡 Pas de redirection - l'utilisateur reste sur la page settings
-      // Cela permet de continuer à modifier les paramètres si nécessaire
+      // Cela permet de continuer à modifier les Paramètres si nécessaire
       console.log('✅ Settings - User remains on settings page after save (no redirect)');
 
       // Réinitialiser l'état de succès après 3 secondes
@@ -169,7 +177,7 @@ export const Settings: React.FC = () => {
 
   const handleApiKeySave = async () => {
     if (!formData.openai_api_key.trim()) {
-      toast.error('Veuillez entrer une clé API valide');
+      toast.error('Veuillez entrer une Clé API valide');
       return;
     }
 
@@ -179,7 +187,7 @@ export const Settings: React.FC = () => {
       await updateProfile({ openai_api_key: formData.openai_api_key.trim() });
       toast.success('Clé API sauvegardée avec succès!');
     } catch {
-      toast.error('Erreur lors de la sauvegarde de la clé API');
+      toast.error('Erreur lors de la sauvegarde de la Clé API');
     } finally {
       setIsLoading(false);
     }
@@ -271,7 +279,7 @@ export const Settings: React.FC = () => {
     setIsTestingAI(true);
 
     try {
-      // Mettre à jour la clé API dans le service IA
+      // Mettre à jour la Clé API dans le service IA
       if (formData.openai_api_key) {
         aiService.setApiKey(formData.openai_api_key);
       }
@@ -318,6 +326,11 @@ export const Settings: React.FC = () => {
       }
     }
   };
+
+  // Afficher le skeleton pendant le chargement des paramètres
+  if (isLoading) {
+    return <SettingsSkeleton />;
+  }
 
   return (
     <>
@@ -382,7 +395,7 @@ export const Settings: React.FC = () => {
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Paramètres
             </h1>
           </div>
@@ -396,10 +409,10 @@ export const Settings: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
 
             {/* Column 1: Informations Personnelles */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center mb-6">
                 <User className="w-6 h-6 text-blue-600 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Informations Personnelles
                 </h2>
               </div>
@@ -456,10 +469,10 @@ export const Settings: React.FC = () => {
             </div>
 
             {/* Column 2: Informations Professionnelles */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center mb-6">
                 <Briefcase className="w-6 h-6 text-green-600 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Informations Professionnelles
                 </h2>
               </div>
@@ -501,10 +514,10 @@ export const Settings: React.FC = () => {
           </div>
 
           {/* Contact Information - Address */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center mb-6">
               <MapPin className="w-6 h-6 text-orange-600 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Adresse et Contact
               </h2>
             </div>
@@ -546,10 +559,10 @@ export const Settings: React.FC = () => {
 
   
           {/* OpenAI API Configuration */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center mb-6">
               <Key className="w-6 h-6 text-slate-600 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Configuration de l'IA
               </h2>
             </div>
@@ -557,11 +570,11 @@ export const Settings: React.FC = () => {
             <div className="space-y-8">
               {/* API Key Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Clé API OpenAI
                 </label>
-                <p className="text-sm2 text-gray-500 mb-4">
-                  Configurez votre clé API pour permettre au système IA de fonctionner correctement.
+                <p className="text-sm2 text-gray-500 dark:text-gray-400 mb-4">
+                  Configurez votre Clé API pour permettre au système IA de fonctionner correctement.
                 </p>
 
                 <div className="flex space-x-4">
@@ -576,7 +589,7 @@ export const Settings: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowApiKey(!showApiKey)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300"
                     >
                       {showApiKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -596,7 +609,7 @@ export const Settings: React.FC = () => {
                     ) : (
                       <>
                         <Save className="w-4 h-4 mr-2" />
-                        Sauvegarder
+                        sauvegarder
                       </>
                     )}
                   </Button>
@@ -628,10 +641,10 @@ export const Settings: React.FC = () => {
               <div className="border-t pt-8">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Volume de la voix IA
                     </label>
-                    <p className="text-sm2 text-gray-500">
+                    <p className="text-sm2 text-gray-500 dark:text-gray-400">
                       Ajustez le volume de la voix de l'assistant IA pour une expérience optimale.
                     </p>
                   </div>
@@ -647,7 +660,7 @@ export const Settings: React.FC = () => {
                   {/* Curseur de volume principal */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-gray-600">Volume principal</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">Volume principal</span>
                       <div className="flex items-center space-x-3">
                         <VolumeX className="w-4 h-4 text-gray-400" />
                         <div className="flex-1 max-w-xs relative">
@@ -679,7 +692,7 @@ export const Settings: React.FC = () => {
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0
                             ? 'bg-red-100 text-red-700 border border-red-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
                         }`}
                       >
                         Muet
@@ -689,7 +702,7 @@ export const Settings: React.FC = () => {
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0.3
                             ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
                         }`}
                       >
                         30%
@@ -699,7 +712,7 @@ export const Settings: React.FC = () => {
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0.6
                             ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
                         }`}
                       >
                         60%
@@ -709,7 +722,7 @@ export const Settings: React.FC = () => {
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0.9
                             ? 'bg-green-100 text-green-700 border border-green-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
                         }`}
                       >
                         90% (Recommandé)
@@ -719,7 +732,7 @@ export const Settings: React.FC = () => {
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 1
                             ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
                         }`}
                       >
                         100%
@@ -729,7 +742,7 @@ export const Settings: React.FC = () => {
 
                   {/* Bouton de test */}
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
                       Cliquez sur le bouton pour tester le volume avec la voix actuelle de l'IA
                     </div>
                     <Button
@@ -757,11 +770,11 @@ export const Settings: React.FC = () => {
           </div>
 
           {/* Settings Management */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center mb-6">
               <Save className="w-6 h-6 text-slate-600 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Gestion des paramètres
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Gestion des Paramètres
               </h2>
             </div>
 
@@ -773,7 +786,7 @@ export const Settings: React.FC = () => {
                   className="flex-1 sm:flex-none"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Exporter les paramètres
+                  Exporter les Paramètres
                 </Button>
 
                 <label className="flex-1 sm:flex-none cursor-pointer">
@@ -789,7 +802,7 @@ export const Settings: React.FC = () => {
                       className="w-full"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      Importer les paramètres
+                      Importer les Paramètres
                     </Button>
                   </span>
                 </label>
@@ -804,14 +817,14 @@ export const Settings: React.FC = () => {
                 </Button>
               </div>
 
-              <p className="text-sm2 text-gray-500">
-                Exportez vos paramètres pour les sauvegarder ou les importer sur un autre appareil. Utilisez la réinitialisation pour remettre votre profil aux valeurs par défaut.
+              <p className="text-sm2 text-gray-500 dark:text-gray-400">
+                Exportez vos Paramètres pour les sauvegarder ou les importer sur un autre appareil. Utilisez la réinitialisation pour remettre votre profil aux valeurs par défaut.
               </p>
             </div>
           </div>
 
           {/* Save Button */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 variant={saveSuccess ? "primary" : "gradient"}
@@ -827,7 +840,7 @@ export const Settings: React.FC = () => {
                 ) : saveSuccess ? (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Sauvegardé avec succès ✓
+                    sauvegardé avec succès ✓
                   </>
                 ) : (
                   <>
@@ -842,7 +855,7 @@ export const Settings: React.FC = () => {
           {saveSuccess && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
@@ -852,7 +865,7 @@ export const Settings: React.FC = () => {
                     Vos changements ont été sauvegardés avec succès!
                   </p>
                   <p className="text-sm text-green-700">
-                    Vous restez sur cette page pour continuer à modifier vos paramètres.
+                    Vous restez sur cette page pour continuer à modifier vos Paramètres.
                   </p>
                 </div>
               </div>
@@ -865,3 +878,4 @@ export const Settings: React.FC = () => {
     </>
   );
 };
+

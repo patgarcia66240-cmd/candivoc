@@ -5,20 +5,15 @@ import { useAuth } from '../services/auth/useAuth';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
+import { DashboardSkeleton } from '../components/ui/DashboardSkeleton';
 
 export const Dashboard: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionName, setSessionName] = useState('');
 
-  // Debug pour vérifier l'état d'authentification sur le dashboard
-  console.log('🎯 Dashboard - Auth state:', {
-    hasUser: !!user,
-    userEmail: user?.email,
-    isAuthenticated
-  });
-
+  
   const handleNewSession = () => {
     setIsModalOpen(true);
   };
@@ -76,14 +71,19 @@ export const Dashboard: React.FC = () => {
     },
   ];
 
+  // Afficher le skeleton pendant le chargement de l'authentification
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
   return (
     <>
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 shadow-lg border-b border-slate-200 dark:border-gray-700">
+      <div className="bg-linear-to-r from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 shadow-lg border-b border-slate-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white [text-shadow:_0_1px_2px_rgb(255_255_255_/_0.8)]">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white [text-shadow:0_1px_2px_rgb(255_255_255/0.8)]">
                 Bonjour, {user?.first_name} 👋
               </h1>
               <p className="text-slate-600 dark:text-gray-300 mt-1">Prêt à améliorer vos compétences d'entretien ?</p>
@@ -104,14 +104,14 @@ export const Dashboard: React.FC = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-xl border border-slate-200/50 dark:border-gray-700/50 p-8 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div key={index} className="bg-linear-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-xl border border-slate-200/50 dark:border-gray-700/50 p-8 hover:shadow-2xl transition-all duration-300 hover:scale-105">
               <div className="flex items-center">
                 <div className={`${stat.color} rounded-2xl p-4 mr-6 shadow-lg`}>
                   <stat.icon className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-600 dark:text-gray-300 uppercase tracking-wide mb-1">{stat.label}</p>
-                  <p className="text-4xl font-bold text-slate-900 dark:text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_0.1)]">{stat.value}</p>
+                  <p className="text-4xl font-bold text-slate-900 dark:text-white [text-shadow:0_2px_4px_rgb(0_0_0/0.1)]">{stat.value}</p>
                 </div>
               </div>
             </div>
@@ -119,15 +119,15 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Recent Sessions */}
-        <div className="bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-slate-200/50 dark:border-gray-700/50 overflow-hidden">
-          <div className="px-8 py-6 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-800 border-b border-slate-300 dark:border-gray-600">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white [text-shadow:_0_1px_2px_rgb(255_255_255_/_0.8)]">Sessions récentes</h2>
+        <div className="bg-linear-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-slate-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div className="px-8 py-6 bg-linear-to-r from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-800 border-b border-slate-300 dark:border-gray-600">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white [text-shadow:0_1px_2px_rgb(255_255_255/0.8)]">Sessions récentes</h2>
             <p className="text-slate-600 dark:text-gray-300 mt-1">Vos dernières séances d'entraînement</p>
           </div>
           <div className="p-8">
             {recentSessions.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <div className="w-20 h-20 bg-linear-to-br from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
                   <Play className="w-10 h-10 text-white" />
                 </div>
                 <p className="text-slate-600 dark:text-gray-300 text-lg mb-6">Aucune session récente</p>
@@ -147,7 +147,7 @@ export const Dashboard: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right mr-6">
-                      <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.1)]">
+                      <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 [text-shadow:0_1px_2px_rgb(0_0_0/0.1)]">
                         {session.score}%
                       </div>
                       <p className="text-slate-500 dark:text-gray-400 text-sm">Score</p>

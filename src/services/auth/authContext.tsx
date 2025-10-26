@@ -67,7 +67,6 @@ type AuthAction =
   | { type: 'UPDATE_USER'; payload: User };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
-  console.log('🔄 AuthReducer:', action.type, { loading: state.loading, user: !!state.user });
 
   switch (action.type) {
     case 'AUTH_START':
@@ -132,7 +131,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Navigation sécurisée avec fallback
   const safeNavigate = (path: string) => {
-    console.log('🔄 Navigating to:', path);
     window.location.href = path;
   };
 
@@ -175,22 +173,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       isInitialized = true;
 
       try {
-        console.log('🔍 Initializing auth...');
 
         // Plus de timeout d'initialisation - laisser le processus se faire naturellement
 
         const { user, error } = await SupabaseAuth.getCurrentUser();
 
-        console.log('👤 Auth result:', {
-          user: !!user,
-          hasProfile: !!user?.profile,
-          error: error?.message,
-          userEmail: user?.email
-        });
+        
 
         // Si erreur d'authentification (service indisponible), rediriger vers ConfigError
         if (error && error.message.includes('Service d\'authentification indisponible')) {
-          console.log('🔧 Auth service unavailable - redirecting to ConfigError');
           safeNavigate('/config-error');
           return;
         }
@@ -199,7 +190,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (user && user.profile) {
             const transformedUser = transformProfileToUser(user.profile);
             dispatch({ type: 'AUTH_SUCCESS', payload: transformedUser });
-            console.log('✅ User logged in:', transformedUser.email);
           } else if (user) {
             // Utilisateur Supabase sans profil - créer un utilisateur de base
             const basicUser: User = {
@@ -230,21 +220,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               last_login: new Date().toISOString(),
             };
             dispatch({ type: 'AUTH_SUCCESS', payload: basicUser });
-            console.log('✅ Basic user created from Supabase:', basicUser.email);
           } else {
             dispatch({ type: 'LOGOUT' });
-            console.log('👋 No user logged in - application ready');
           }
         }
       } catch (error) {
-        console.error('❌ Auth initialization error:', error);
         if (mounted) {
           // Vérifier si c'est une erreur de configuration Supabase
           if (error instanceof Error && error.message.includes('Service d\'authentification indisponible')) {
-            console.log('🔧 Auth service unavailable - redirecting to ConfigError');
             safeNavigate('/config-error');
           } else {
-            console.error('❌ Auth initialization error:', error);
             dispatch({ type: 'LOGOUT' });
           }
         }
@@ -261,17 +246,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const res = SupabaseAuth.onAuthStateChange(
         async (event, session) => {
-          console.log('🔄 Auth state change:', event, !!session?.user);
 
           if (!mounted) return;
 
           if (event === 'SIGNED_IN' && session?.user) {
-            console.log('🔍 SIGNED_IN detected - laissé au login de gérer');
             // Simplifié - le login gère déjà AUTH_SUCCESS
             // Pas de double traitement pour éviter les conflits
           } else if (event === 'SIGNED_OUT') {
             dispatch({ type: 'LOGOUT' });
-            console.log('👋 User signed out');
           }
         }
       );
@@ -283,7 +265,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         subscription = res as unknown as { unsubscribe: () => void };
       }
     } catch (error) {
-      console.error('❌ Error setting up auth listener:', error);
       if (mounted) dispatch({ type: 'LOGOUT' });
     }
 
@@ -295,8 +276,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log('🔑 Starting login process for:', email);
-    dispatch({ type: 'AUTH_START' });
+     dispatch({ type: 'AUTH_START' });
 
     // Plus de timeout de login - laisser Supabase gérer les timeouts réseau
 
@@ -304,10 +284,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { data, error } = await SupabaseAuth.signIn(email, password);
 
       if (error) {
-        console.error('❌ Login error:', error);
         dispatch({ type: 'AUTH_FAILURE', payload: error.message || 'Login failed' });
       } else if (data && data.user) {
-        console.log('✅ Login successful for:', data.user.email);
 
         // Simple et direct - utilisateur minimaliste
         const simpleUser: User = {
@@ -339,10 +317,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         };
 
         dispatch({ type: 'AUTH_SUCCESS', payload: simpleUser });
-        console.log('✅ Simple AUTH_SUCCESS - User:', simpleUser.email);
       }
     } catch (error) {
-      console.error('❌ Login exception:', error);
       dispatch({ type: 'AUTH_FAILURE', payload: 'Une erreur est survenue lors de la connexion' });
     }
   };
@@ -356,7 +332,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   ) => {
     dispatch({ type: 'AUTH_START' });
     try {
-      console.log('📝 Attempting registration:', { email, first_name, last_name, role });
 
       const { data, error } = await SupabaseAuth.signUp(
         email,
@@ -366,7 +341,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         role
       );
 
-      console.log('📝 Registration result:', { data: !!data, error: error?.message });
 
       if (error) {
         // Messages d'erreur plus spécifiques
@@ -383,16 +357,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           errorMessage = error.message || 'Registration failed';
         }
 
-        console.error('❌ Registration error:', error);
         dispatch({ type: 'AUTH_FAILURE', payload: errorMessage });
       } else if (data?.user) {
-        console.log('✅ Registration successful for:', data.user.email);
         // Récupérer le profil utilisateur après l'inscription
         const { user } = await SupabaseAuth.getCurrentUser();
         if (user && user.profile) {
           const transformedUser = transformProfileToUser(user.profile);
           dispatch({ type: 'AUTH_SUCCESS', payload: transformedUser });
-          console.log('✅ User profile loaded:', transformedUser.email);
         } else if (user) {
           // Si pas de profil, créer un utilisateur de base
           const basicUser: User = {
@@ -423,11 +394,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             last_login: new Date().toISOString(),
           };
           dispatch({ type: 'AUTH_SUCCESS', payload: basicUser });
-          console.log('✅ Basic user created from registration:', basicUser.email);
         }
       }
     } catch (error) {
-      console.error('❌ Registration exception:', error);
       dispatch({ type: 'AUTH_FAILURE', payload: 'Une erreur est survenue lors de l\'inscription' });
     }
   };
@@ -446,10 +415,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw new Error('No user logged in');
     }
 
-    console.log('🔧 Updating profile for user:', state.user.id);
-    console.log('📋 User current state:', state.user);
-    console.log('📝 Data received:', data);
-
+    
     try {
       // Transformer les données User en format Profile pour Supabase
       const profileData: Record<string, unknown> = {};
@@ -481,29 +447,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Toujours inclure updated_at
       profileData.updated_at = new Date().toISOString();
 
-      console.log('📝 Profile data constructed for update:', {
-        hasPostalCode: 'postal_code' in data,
-        postalCodeValue: data.postal_code,
-        postalCodeType: typeof data.postal_code,
-        profileDataPostalCode: profileData.postal_code,
-        allKeys: Object.keys(profileData),
-        fullProfileData: profileData
-      });
-
+      
       // Importer ProfileService dynamiquement pour éviter les dépendances circulaires
       const { ProfileService } = await import('../supabase/profile');
 
       let profile, error;
 
       // Essayer de mettre à jour le profil via ProfileService
-      console.log('📝 Attempting to update profile via ProfileService...');
       const updateResult = await ProfileService.updateProfile(state.user.id, profileData);
       profile = updateResult.profile;
       error = updateResult.error;
 
       // Si la mise à jour échoue parce que le profil n'existe pas, le créer
       if (error && (error as { code?: string })?.code === 'PGRST116') {
-        console.log('📝 Profile not found, creating new profile...');
         const createResult = await ProfileService.createProfile({
           id: state.user.id,
           email: state.user.email || '',
@@ -528,16 +484,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error = createResult.error;
       }
 
-      console.log('📊 ProfileService operation result:', {
-        hasProfile: !!profile,
-        error: error?.message,
-        errorCode: (error as { code?: string })?.code,
-        errorDetails: (error as { details?: unknown })?.details
-      });
-
+      
       // Si ProfileService échoue, essayer directement avec Supabase client
       if (!profile && error) {
-        console.log('🔄 ProfileService failed, trying direct Supabase update...');
         try {
           const { supabase } = await import('../supabase/client');
           if (!supabase) {
@@ -555,12 +504,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             .select()
             .single();
 
-          console.log('🔍 Direct Supabase result:', {
-            hasData: !!directResult,
-            error: directError?.message,
-            errorCode: directError?.code
-          });
-
+          
           if (directResult && !directError) {
             // Transformer le résultat
             profile = {
@@ -596,13 +540,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             error = directError;
           }
         } catch (directException) {
-          console.error('❌ Direct Supabase update failed:', directException);
           error = { message: 'Direct update failed: ' + (directException as Error).message };
         }
       }
 
       if (error || !profile) {
-        console.error('❌ Profile operation failed:', error);
         throw new Error(error?.message || 'Profile update failed');
       }
 
@@ -614,18 +556,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (hasChanged) {
         dispatch({ type: 'UPDATE_USER', payload: updatedUser });
-        console.log('✅ Profile updated successfully:', updatedUser.email);
-        console.log('🔄 Dispatched UPDATE_USER with new user data:', {
-          first_name: updatedUser.first_name,
-          last_name: updatedUser.last_name,
-          phone: updatedUser.phone,
-          email: updatedUser.email
-        });
+        
       } else {
-        console.log('ℹ️ Profile data unchanged, skipping UPDATE_USER dispatch');
       }
     } catch (error) {
-      console.error('❌ Profile update exception:', error);
       throw error;
     }
   };

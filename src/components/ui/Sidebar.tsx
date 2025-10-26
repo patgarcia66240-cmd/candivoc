@@ -50,7 +50,7 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-slate-400/40 via-slate-200/70 to-slate-400/30 dark:from-gray-800/90 dark:via-gray-900/90 dark:to-gray-800/90 h-full w-64 shadow-2xl border-r border-slate-400/50 dark:border-gray-700 backdrop-blur-sm transition-colors">
+    <div className="bg-gradient-to-r from-slate-400/40 via-slate-200/70 to-slate-400/30 dark:from-gray-800/90 dark:via-gray-900/90 dark:to-gray-800/90 h-full w-64 shadow-2xl border-r border-slate-400/50 dark:border-gray-700 backdrop-blur-sm transition-colors text-slate-900 dark:text-gray-200">
       <div className="flex flex-col h-full">
         {/* Logo/Brand */}
         <div className="flex items-center justify-center h-16 border-b border-slate-400/30 dark:border-gray-700">
@@ -68,7 +68,7 @@ export const Sidebar: React.FC = () => {
                     'flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 group',
                     isActive(item.href)
                       ? 'bg-gradient-to-r from-slate-500/40 to-slate-300/40 dark:from-blue-600/40 dark:to-blue-800/40 text-slate-700 dark:text-white border-r-4 border-slate-800 dark:border-blue-400 shadow-xl [text-shadow:_0_2px_4px_rgb(255_255_255_/_0.9)] dark:[text-shadow:_0_2px_4px_rgb(0_0_0_/_0.9)] backdrop-blur-sm'
-                      : 'text-slate-800 dark:text-gray-300 hover:bg-gradient-to-r hover:from-slate-500/30 hover:to-slate-600/30 dark:hover:from-blue-600/30 dark:hover:to-blue-700/30 hover:text-slate-900 dark:hover:text-white [text-shadow:_0_2px_4px_rgb(255_255_255_/_0.7)] dark:[text-shadow:_0_2px_4px_rgb(0_0_0_/_0.7)] hover:shadow-lg'
+                      : 'text-slate-800 dark:text-gray-300 hover:bg-gradient-to-r hover:from-slate-500/30 hover:to-slate-600/30 dark:hover:from-blue-600/30 dark:hover:to-blue-700/30 hover:text-slate-900 dark:hover:text-gray-100 [text-shadow:_0_2px_4px_rgb(255_255_255_/_0.7)] dark:[text-shadow:_0_2px_4px_rgb(0_0_0_/_0.7)] hover:shadow-lg'
                   )}
                 >
                   <item.icon className="w-5 h-5 mr-3" />

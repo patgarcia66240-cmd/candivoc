@@ -12,8 +12,8 @@ interface BeforeInstallPromptEvent extends Event {
 
 export const PWAInstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     // Détecter si l'app est déjà installée
@@ -32,19 +32,11 @@ export const PWAInstallPrompt: React.FC = () => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-
-      // Afficher le prompt après 3 secondes
-      setTimeout(() => {
-        if (!isInstalled) {
-          setShowInstallPrompt(true);
-        }
-      }, 3000);
     };
 
     // Écouter l'événement appinstalled
     const handleAppInstalled = () => {
       setIsInstalled(true);
-      setShowInstallPrompt(false);
       setDeferredPrompt(null);
     };
 
@@ -55,29 +47,7 @@ export const PWAInstallPrompt: React.FC = () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [isInstalled]);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-
-    try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-
-      if (outcome === 'accepted') {
-        setShowInstallPrompt(false);
-        setDeferredPrompt(null);
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'installation PWA:', error);
-    }
-  };
-
-  const handleDismiss = () => {
-    setShowInstallPrompt(false);
-    // Ne plus montrer le prompt pendant 24h
-    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
-  };
+  }, []);
 
   // Vérifier si l'utilisateur a déjà dismissé le prompt récemment
   useEffect(() => {
@@ -87,21 +57,42 @@ export const PWAInstallPrompt: React.FC = () => {
       const oneDay = 24 * 60 * 60 * 1000;
 
       if (timeDiff < oneDay) {
-        setShowInstallPrompt(false);
+        setDismissed(true);
       }
     }
   }, []);
 
-  if (isInstalled || !showInstallPrompt || !deferredPrompt) {
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    try {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } catch (error) {
+    }
+  };
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    // Ne plus montrer le prompt pendant 24h
+    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+  };
+
+  if (isInstalled || dismissed || !deferredPrompt) {
     return null;
   }
+
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-96">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 animate-in slide-in-from-bottom duration-300">
         <div className="flex items-start gap-4">
-          <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center">
+          <div className="shrink-0">
+            <div className="w-12 h-12 bg-linear-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center">
               <Smartphone className="w-6 h-6 text-white" />
             </div>
           </div>
