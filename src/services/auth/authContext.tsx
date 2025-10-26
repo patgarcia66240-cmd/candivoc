@@ -48,7 +48,7 @@ interface AuthState {
   error: string | null;
 }
 
-interface AuthContextType extends AuthState {
+export interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, first_name: string, last_name: string, role?: UserRole) => Promise<void>;
   logout: () => void;
@@ -443,8 +443,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateProfile = async (data: Partial<User>) => {
     if (!state.user) {
-      dispatch({ type: 'AUTH_FAILURE', payload: 'No user logged in' });
-      return;
+      throw new Error('No user logged in');
     }
 
     console.log('🔧 Updating profile for user:', state.user.id);
@@ -604,8 +603,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error || !profile) {
         console.error('❌ Profile operation failed:', error);
-        dispatch({ type: 'AUTH_FAILURE', payload: error?.message || 'Profile update failed' });
-        return;
+        throw new Error(error?.message || 'Profile update failed');
       }
 
       // Mettre à jour l'utilisateur dans l'état avec le profil transformé
@@ -628,7 +626,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('❌ Profile update exception:', error);
-      dispatch({ type: 'AUTH_FAILURE', payload: 'Profile update failed' });
+      throw error;
     }
   };
 

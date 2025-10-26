@@ -19,10 +19,10 @@ export const Button: React.FC<ButtonProps> = ({
   const variants = {
     primary: 'cursor-pointer bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
     secondary: 'cursor-pointer bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500',
-    outline: 'cursor-pointer border border-secondary-300 bg-white text-secondary-700 hover:bg-secondary-50 focus:ring-primary-500 hover:bg-gray-500 hover:text-white',
-    ghost: 'cursor-pointer text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-500',
+    outline: 'cursor-pointer border border-secondary-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-secondary-700 dark:text-gray-300 hover:bg-secondary-50 dark:hover:bg-gray-700 focus:ring-primary-500 hover:bg-gray-500 hover:text-white dark:hover:bg-gray-600 dark:hover:text-white',
+    ghost: 'cursor-pointer text-secondary-700 dark:text-gray-300 hover:bg-secondary-100 dark:hover:bg-gray-800 focus:ring-secondary-500',
     gray: 'cursor-pointer bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
-    gradient: 'cursor-pointer bg-gradient-to-br from-slate-500 via-slate-600 to-slate-700 text-white hover:from-slate-600 hover:via-slate-700 hover:to-slate-800 focus:ring-slate-500 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 [text-shadow:_0_2px_4px_rgb(0_0_0_/_0.6)] border border-slate-400/20'
+    gradient: 'cursor-pointer bg-gradient-to-br from-slate-500 via-slate-600 to-slate-700 dark:from-blue-600 dark:via-blue-700 dark:to-blue-800 text-white hover:from-slate-600 hover:via-slate-700 hover:to-slate-800 dark:hover:from-blue-700 dark:hover:via-blue-800 dark:hover:to-blue-900 focus:ring-slate-500 dark:focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 [text-shadow:_0_2px_4px_rgb(0_0_0_/_0.6)] border border-slate-400/20 dark:border-blue-400/20'
   };
 
   const sizes = {

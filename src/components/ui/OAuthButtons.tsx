@@ -39,7 +39,7 @@ export const OAuthButtons: React.FC<OAuthButtonsProps> = ({
         <Button
           key={provider.name}
           variant="outline"
-          onClick={() => onOAuthLogin(provider.name)}
+          onClick={() => onOAuthLogin(provider.name as 'google' | 'linkedin_oidc' | 'github')}
           className="flex items-center py-3 px-6 text-base font-semibold"
         >
           <img

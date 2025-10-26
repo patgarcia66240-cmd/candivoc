@@ -10,7 +10,7 @@ import type {
 export class ScenariosService {
   // Récupérer tous les scénarios (avec filtres optionnels)
   static async getScenarios(filters?: ScenarioFilters): Promise<{ data: Scenario[] | null; error: Error | null }> {
-    let query = supabase
+    let query = supabase!
       .from('scenarios')
       .select('*')
       .eq('is_active', true);
@@ -39,7 +39,7 @@ export class ScenariosService {
 
   // Récupérer un scénario par son ID avec ses critères d'évaluation
   static async getScenarioById(id: string): Promise<{ data: ScenarioWithCriteria | null; error: Error | null }> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase!
       .from('scenarios')
       .select(`
         *,
@@ -54,7 +54,7 @@ export class ScenariosService {
 
   // Récupérer les scénarios créés par un utilisateur
   static async getUserScenarios(userId: string, filters?: ScenarioFilters): Promise<{ data: Scenario[] | null; error: Error | null }> {
-    let query = supabase
+    let query = supabase!
       .from('scenarios')
       .select('*')
       .eq('created_by', userId)
@@ -79,7 +79,7 @@ export class ScenariosService {
   // Créer un nouveau scénario avec ses critères d'évaluation
   static async createScenario(scenario: CreateScenarioInput): Promise<{ data: Scenario | null; error: Error | null }> {
     // Créer le scénario principal
-    const { data: scenarioData, error: scenarioError } = await supabase
+    const { data: scenarioData, error: scenarioError } = await supabase!
       .from('scenarios')
       .insert({
         title: scenario.title,
@@ -114,13 +114,13 @@ export class ScenariosService {
         type: criteria.type
       }));
 
-      const { error: criteriaError } = await supabase
+      const { error: criteriaError } = await supabase!
         .from('evaluation_criteria')
         .insert(criteriaWithScenarioId);
 
       if (criteriaError) {
         // Si l'insertion des critères échoue, supprimer le scénario créé
-        await supabase.from('scenarios').delete().eq('id', scenarioData.id);
+        await supabase!.from('scenarios').delete().eq('id', scenarioData.id);
         return { data: null, error: criteriaError };
       }
     }
@@ -131,7 +131,7 @@ export class ScenariosService {
   // Mettre à jour un scénario
   static async updateScenario(id: string, updates: UpdateScenarioInput): Promise<{ data: Scenario | null; error: Error | null }> {
     // Mettre à jour le scénario principal
-    const { data: scenarioData, error: scenarioError } = await supabase
+    const { data: scenarioData, error: scenarioError } = await supabase!
       .from('scenarios')
       .update({
         title: updates.title,
@@ -161,7 +161,7 @@ export class ScenariosService {
     // Si des critères d'évaluation sont fournis, les mettre à jour
     if (updates.evaluation_criteria) {
       // Supprimer les anciens critères
-      await supabase
+      await supabase!
         .from('evaluation_criteria')
         .delete()
         .eq('scenario_id', id);
@@ -176,7 +176,7 @@ export class ScenariosService {
           type: criteria.type
         }));
 
-        const { error: criteriaError } = await supabase
+        const { error: criteriaError } = await supabase!
           .from('evaluation_criteria')
           .insert(criteriaWithScenarioId);
 
@@ -191,7 +191,7 @@ export class ScenariosService {
 
   // Supprimer un scénario (désactiver)
   static async deleteScenario(id: string): Promise<{ error: Error | null }> {
-    const { error } = await supabase
+    const { error } = await supabase!
       .from('scenarios')
       .update({ is_active: false })
       .eq('id', id);
@@ -202,7 +202,7 @@ export class ScenariosService {
   // Supprimer définitivement un scénario
   static async hardDeleteScenario(id: string): Promise<{ error: Error | null }> {
     // Supprimer d'abord les critères d'évaluation (à cause de la contrainte de clé étrangère)
-    const { error: criteriaError } = await supabase
+    const { error: criteriaError } = await supabase!
       .from('evaluation_criteria')
       .delete()
       .eq('scenario_id', id);
@@ -212,7 +212,7 @@ export class ScenariosService {
     }
 
     // Supprimer le scénario
-    const { error } = await supabase
+    const { error } = await supabase!
       .from('scenarios')
       .delete()
       .eq('id', id);
@@ -258,7 +258,7 @@ export class ScenariosService {
 
   // Compter les scénarios par catégorie
   static async getScenariosCountByCategory(): Promise<{ data: Record<string, number> | null; error: Error | null }> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase!
       .from('scenarios')
       .select('category')
       .eq('is_active', true)
@@ -269,7 +269,7 @@ export class ScenariosService {
     }
 
     const counts: Record<string, number> = {};
-    data?.forEach(scenario => {
+    data?.forEach((scenario: { category: string }) => {
       counts[scenario.category] = (counts[scenario.category] || 0) + 1;
     });
 

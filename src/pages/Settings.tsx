@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Key, Save, Eye, EyeOff, AlertCircle, TestTube, User, Briefcase, Volume2, Volume1, VolumeX
+  Key, Save, Eye, EyeOff, AlertCircle, TestTube, User, Briefcase, Volume2, Volume1, VolumeX, MapPin
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -37,6 +37,7 @@ export const Settings: React.FC = () => {
 
   const [showApiKey, setShowApiKey] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [isTestingVolume, setIsTestingVolume] = useState(false);
   const [isTestingAI, setIsTestingAI] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
@@ -101,23 +102,66 @@ export const Settings: React.FC = () => {
     setIsLoading(true);
 
     try {
-      console.log('💾 Settings - Saving profile data:', formData);
-      await updateProfile(formData);
+      console.log('💾 Settings - Starting profile save process...');
+      console.log('💾 Settings - Current formData:', formData);
+      console.log('💾 Settings - User before save:', user);
+
+      // Valider les données avant envoi
+      if (!user?.id) {
+        console.error('❌ Settings - No user ID available');
+        toast.error('Erreur: Utilisateur non connecté');
+        setIsLoading(false);
+        return;
+      }
+
+      // Filtrer les données vides pour éviter les mises à jour inutiles
+      const dataToSave = Object.fromEntries(
+        Object.entries(formData).filter(([key, value]) => {
+          const shouldInclude = value !== '' && value !== null && value !== undefined;
+          console.log(`💾 Settings - Field ${key}: "${value}" -> included: ${shouldInclude}`);
+          return shouldInclude;
+        })
+      );
+
+      console.log('💾 Settings - Filtered data to save:', dataToSave);
+
+      if (Object.keys(dataToSave).length === 0) {
+        console.log('⚠️ Settings - No data to save, all fields are empty');
+        toast.info('Aucune modification à sauvegarder');
+        setIsLoading(false);
+        return;
+      }
+
+      // Appeler la fonction updateProfile avec logging détaillé
+      console.log('💾 Settings - Calling updateProfile with data:', dataToSave);
+      await updateProfile(dataToSave);
+      console.log('💾 Settings - updateProfile completed successfully');
 
       // Le useEffect de synchronisation va automatiquement mettre à jour le formulaire
       console.log('✅ Settings - Profile saved, form will sync automatically via useEffect');
 
-      toast.success('Profil mis à jour avec succès!');
+      toast.success('Profil mis à jour avec succès! Vos changements ont été sauvegardés.');
 
-      // Attendre un peu plus longtemps pour s'assurer que le contexte est mis à jour
-      // et que les données sont bien synchronisées avant la redirection
-      /* setTimeout(() => {
-        console.log('🚀 Settings - Redirecting to dashboard after profile update');
-        navigate('/dashboard');
-      }, 2000); // Délai augmenté à 2 secondes pour laisser le temps à la synchronisation
- */    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Erreur lors de la mise à jour du profil');
+      // 💡 Indiquer visuellement que la sauvegarde a réussi
+      setSaveSuccess(true);
+
+      // 💡 Pas de redirection - l'utilisateur reste sur la page settings
+      // Cela permet de continuer à modifier les paramètres si nécessaire
+      console.log('✅ Settings - User remains on settings page after save (no redirect)');
+
+      // Réinitialiser l'état de succès après 3 secondes
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error('❌ Settings - Error updating profile:', error);
+      console.error('❌ Settings - Error details:', {
+        message: (error as Error)?.message,
+        stack: (error as Error)?.stack,
+        name: (error as Error)?.name,
+        cause: (error as Error)?.cause
+      });
+      toast.error(`Erreur lors de la mise à jour du profil: ${(error as Error)?.message || 'Erreur inconnue'}`);
     } finally {
       setIsLoading(false);
     }
@@ -348,76 +392,134 @@ export const Settings: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="space-y-4">
 
-          {/* Profile Information */}
+          {/* Profile Information - 2 Columns Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
+
+            {/* Column 1: Informations Personnelles */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center mb-6">
+                <User className="w-6 h-6 text-blue-600 mr-3" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Informations Personnelles
+                </h2>
+              </div>
+
+              <div className="space-y-6">
+                <Input
+                  label="Prénom"
+                  type="text"
+                  value={formData.first_name}
+                  onChange={(e) => handleInputChange('first_name', e.target.value)}
+                  placeholder="Jean"
+                />
+
+                <Input
+                  label="Nom"
+                  type="text"
+                  value={formData.last_name}
+                  onChange={(e) => handleInputChange('last_name', e.target.value)}
+                  placeholder="Dupont"
+                />
+
+                <Input
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="jean.dupont@email.com"
+                  disabled // Email généralement non modifiable directement
+                />
+
+                <Input
+                  label="Téléphone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="+33 6 12 34 56 78"
+                />
+
+                <Input
+                  label="Date de naissance"
+                  type="date"
+                  value={formData.date_of_birth}
+                  onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                />
+
+                <Input
+                  label="Nationalité"
+                  type="text"
+                  value={formData.nationality}
+                  onChange={(e) => handleInputChange('nationality', e.target.value)}
+                  placeholder="Française"
+                />
+              </div>
+            </div>
+
+            {/* Column 2: Informations Professionnelles */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center mb-6">
+                <Briefcase className="w-6 h-6 text-green-600 mr-3" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Informations Professionnelles
+                </h2>
+              </div>
+
+              <div className="space-y-6">
+                <Input
+                  label="Profession"
+                  type="text"
+                  value={formData.profession}
+                  onChange={(e) => handleInputChange('profession', e.target.value)}
+                  placeholder="Développeur Web"
+                />
+
+                <Input
+                  label="Entreprise"
+                  type="text"
+                  value={formData.company}
+                  onChange={(e) => handleInputChange('company', e.target.value)}
+                  placeholder="Tech Company"
+                />
+
+                <Input
+                  label="LinkedIn"
+                  type="url"
+                  value={formData.linkedin}
+                  onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                  placeholder="linkedin.com/in/jean-dupont"
+                />
+
+                <Input
+                  label="Site Web"
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) => handleInputChange('website', e.target.value)}
+                  placeholder="https://jendupont.com"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information - Address */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center mb-2">
-              <User className="w-6 h-6 text-slate-600 mr-3" />
+            <div className="flex items-center mb-6">
+              <MapPin className="w-6 h-6 text-orange-600 mr-3" />
               <h2 className="text-xl font-semibold text-gray-900">
-                Informations personnelles
+                Adresse et Contact
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label="Prénom"
+                label="Adresse"
                 type="text"
-                value={formData.first_name}
-                onChange={(e) => handleInputChange('first_name', e.target.value)}
-                placeholder="Jean"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                placeholder="123 Rue de la République"
               />
 
               <Input
-                label="Nom"
-                type="text"
-                value={formData.last_name}
-                onChange={(e) => handleInputChange('last_name', e.target.value)}
-                placeholder="Dupont"
-              />
-
-              <Input
-                label="Email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="jean.dupont@email.com"
-                disabled // Email généralement non modifiable directement
-              />
-
-              <Input
-                label="Téléphone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="+33 6 12 34 56 78"
-              />
-
-              <Input
-                label="Date de naissance"
-                type="date"
-                value={formData.date_of_birth}
-                onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-              />
-
-              <Input
-                label="Nationalité"
-                type="text"
-                value={formData.nationality}
-                onChange={(e) => handleInputChange('nationality', e.target.value)}
-                placeholder="Française"
-              />
-
-              <div className="md:col-span-2">
-                <Input
-                  label="Adresse"
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="123 rue de la République"
-                />
-              </div>
-
-              <Input
-                label="Code postal"
+                label="Code Postal"
                 type="text"
                 value={formData.postal_code}
                 onChange={(e) => handleInputChange('postal_code', e.target.value)}
@@ -432,62 +534,17 @@ export const Settings: React.FC = () => {
                 placeholder="Paris"
               />
 
-              <div className="md:col-span-1">
-                <Input
-                  label="Pays"
-                  type="text"
-                  value={formData.country}
-                  onChange={(e) => handleInputChange('country', e.target.value)}
-                  placeholder="France"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Professional Information */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center mb-2">
-              <Briefcase className="w-6 h-6 text-slate-600 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Informations professionnelles
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label="Profession"
+                label="Pays"
                 type="text"
-                value={formData.profession}
-                onChange={(e) => handleInputChange('profession', e.target.value)}
-                placeholder="Développeur Web"
-              />
-
-              <Input
-                label="Entreprise"
-                type="text"
-                value={formData.company}
-                onChange={(e) => handleInputChange('company', e.target.value)}
-                placeholder="Tech Corp"
-              />
-
-              <Input
-                label="LinkedIn"
-                type="url"
-                value={formData.linkedin}
-                onChange={(e) => handleInputChange('linkedin', e.target.value)}
-                placeholder="https://linkedin.com/in/jean-dupont"
-              />
-
-              <Input
-                label="Site web"
-                type="url"
-                value={formData.website}
-                onChange={(e) => handleInputChange('website', e.target.value)}
-                placeholder="https://johndoe.com"
+                value={formData.country}
+                onChange={(e) => handleInputChange('country', e.target.value)}
+                placeholder="France"
               />
             </div>
           </div>
 
+  
           {/* OpenAI API Configuration */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center mb-6">
@@ -757,8 +814,8 @@ export const Settings: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
-                variant="gradient"
-                className="w-full sm:w-auto"
+                variant={saveSuccess ? "primary" : "gradient"}
+                className="w-full sm:w-auto transition-all duration-300"
                 onClick={handleSaveProfile}
                 disabled={isLoading}
               >
@@ -766,6 +823,11 @@ export const Settings: React.FC = () => {
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Sauvegarde en cours...
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Sauvegardé avec succès ✓
                   </>
                 ) : (
                   <>
@@ -775,6 +837,27 @@ export const Settings: React.FC = () => {
                 )}
               </Button>
             </div>
+
+          {/* Message de confirmation */}
+          {saveSuccess && (
+            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-green-800">
+                    Vos changements ont été sauvegardés avec succès!
+                  </p>
+                  <p className="text-sm text-green-700">
+                    Vous restez sur cette page pour continuer à modifier vos paramètres.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           </div>
 
         </div>

@@ -9,9 +9,7 @@ export interface AuthUser extends User {
   profile?: Profile;
 }
 
-export interface AuthSession extends Session {
-  user?: AuthUser;
-}
+// Pas besoin d'interface Session personnalisée, utiliser Session directement
 
 export class SupabaseAuth {
   // Inscription
@@ -29,13 +27,13 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!.auth.signUp({
+    const { data, error } = await supabase!!.auth.signUp({
       email,
       password,
       options: {
         data: {
           first_name: first_name,
-          last_name: lastName,
+          last_name: last_name,
           role: role,
         },
       },
@@ -43,20 +41,20 @@ export class SupabaseAuth {
 
     if (!error && data.user) {
       // Créer le profil utilisateur dans la table public.profiles
-      const { error: profileError } = await supabase!
+      const { error: profileError } = await supabase!!
         .from('profiles')
         .insert({
           id: data.user.id,
           email: data.user.email!,
           first_name: first_name,
-          last_name: lastName,
+          last_name: last_name,
           role: role,
         });
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
         // Tenter de supprimer l'utilisateur auth créé si le profil échoue
-        await supabase!.auth.admin.deleteUser(data.user.id);
+        await supabase!!.auth.admin.deleteUser(data.user.id);
         return { data: null, error: profileError };
       }
     }
@@ -73,7 +71,7 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!.auth.signInWithPassword({
+    const { data, error } = await supabase!!.auth.signInWithPassword({
       email,
       password,
     });
@@ -86,8 +84,8 @@ export class SupabaseAuth {
       return { error: new Error('Service d\'authentification indisponible.') };
     }
 
-    const { error } = await supabase!.auth.signOut();
-    return { error };
+    const { error } = await supabase!!.auth.signOut();
+    return { error: error as Error | null };
   }
 
   // Récupérer l'utilisateur actuel avec son profil
@@ -99,14 +97,14 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!.auth.getUser();
+    const { data, error } = await supabase!!.auth.getUser();
 
     if (error || !data.user) {
       return { user: null, error };
     }
 
     // Récupérer le profil utilisateur
-    const { data: profile, error: profileError } = await supabase!
+    const { data: profile, error: profileError } = await supabase!!
       .from('profiles')
       .select('*')
       .eq('id', data.user.id)
@@ -154,7 +152,7 @@ export class SupabaseAuth {
   }
 
   // Récupérer la session actuelle
-  static async getCurrentSession(): Promise<{ session: AuthSession | null; error: Error | null }> {
+  static async getCurrentSession(): Promise<{ session: Session | null; error: Error | null }> {
     if (!isSupabaseAvailable()) {
       return {
         session: null,
@@ -162,12 +160,12 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!.auth.getSession();
+    const { data, error } = await supabase!!.auth.getSession();
     return { session: data.session, error };
   }
 
   // Écouter les changements d'authentification
-  static onAuthStateChange(callback: (event: string, session: AuthSession | null) => void) {
+  static onAuthStateChange(callback: (event: string, session: Session | null) => void) {
     if (!isSupabaseAvailable()) {
       // Retourner un mock qui ne fait rien pour éviter les erreurs
       return {
@@ -185,52 +183,52 @@ export class SupabaseAuth {
   // Mettre à jour le dernier login
   static async updateLastLogin(userId: string): Promise<{ error: Error | null }> {
     try {
-      const { error } = await supabase
+      const { error } = await supabase!!
         .from('profiles')
         .update({ last_login: new Date().toISOString() })
         .eq('id', userId);
 
-      return { error };
+      return { error: error as Error | null };
     } catch (error) {
-      return { error };
+      return { error: error as Error | null };
     }
   }
 
   // Vérifier si l'utilisateur est actif
   static async isUserActive(userId: string): Promise<{ isActive: boolean; error: Error | null }> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('profiles')
         .select('is_active')
         .eq('id', userId)
         .single();
 
       if (error) {
-        return { isActive: false, error };
+        return { isActive: false, error: error as Error | null };
       }
 
       return { isActive: data.is_active, error: null };
     } catch (error) {
-      return { isActive: false, error };
+      return { isActive: false, error: error as Error | null };
     }
   }
 
   // Récupérer le rôle de l'utilisateur
   static async getUserRole(userId: string): Promise<{ role: UserRole | null; error: Error | null }> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('profiles')
         .select('role')
         .eq('id', userId)
         .single();
 
       if (error) {
-        return { role: null, error };
+        return { role: null, error: error as Error | null };
       }
 
       return { role: data.role, error: null };
     } catch (error) {
-      return { role: null, error };
+      return { role: null, error: error as Error | null };
     }
   }
 
@@ -255,13 +253,13 @@ export class SupabaseAuth {
       company?: string;
     }
   ) {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase!.auth.signUp({
       email,
       password,
       options: {
         data: {
           first_name: profileData.first_name,
-          last_name: profileData.lastName,
+          last_name: profileData.last_name,
           role: profileData.role || 'user',
         },
       },
@@ -269,13 +267,13 @@ export class SupabaseAuth {
 
     if (!error && data.user) {
       // Créer le profil utilisateur complet dans la table public.profiles
-      const { error: profileError } = await supabase
+      const { error: profileError } = await supabase!
         .from('profiles')
         .insert({
           id: data.user.id,
           email: data.user.email!,
           first_name: profileData.first_name,
-          last_name: profileData.lastName,
+          last_name: profileData.last_name,
           role: profileData.role || 'user',
           phone: profileData.phone || null,
           address: profileData.address || null,
@@ -293,7 +291,7 @@ export class SupabaseAuth {
       if (profileError) {
         console.error('Profile creation error:', profileError);
         // Tenter de supprimer l'utilisateur auth créé si le profil échoue
-        await supabase.auth.admin.deleteUser(data.user.id);
+        await supabase!.auth.admin.deleteUser(data.user.id);
         return { data: null, error: profileError };
       }
     }

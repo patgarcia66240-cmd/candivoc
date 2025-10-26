@@ -1,3 +1,7 @@
+// Exporter tous les types depuis les fichiers du dossier types
+export * from './scenarios';
+export * from './supabase';
+
 // Types principaux pour l'application de chat vocal
 
 export interface User {
@@ -114,4 +118,3 @@ export interface WebSocketMessage {
   data: unknown;
   timestamp: Date;
 }
-

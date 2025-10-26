@@ -102,6 +102,12 @@ export const SessionPage: React.FC = () => {
     user: user?.email,
   });
 
+  // Charger les données des scénarios depuis Supabase
+  const loadScenariosData = useCallback(async () => {
+    const data = await getScenariosData();
+    setScenariosData(data);
+  }, []);
+
   useEffect(() => {
     // Charger les données des scénarios au démarrage
     loadScenariosData();
@@ -122,12 +128,6 @@ export const SessionPage: React.FC = () => {
       aiService.setApiKey(apiKey);
     }
   }, [apiKey]);
-
-  // Charger les données des scénarios depuis Supabase
-  const loadScenariosData = useCallback(async () => {
-    const data = await getScenariosData();
-    setScenariosData(data);
-  }, []);
 
   const createDemoSession = async (demoId: string) => {
     try {
@@ -525,10 +525,10 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">Chargement de la session...</p>
+          <p className="text-gray-500 dark:text-gray-400">Chargement de la session...</p>
         </div>
       </div>
     );
@@ -536,9 +536,9 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
 
   if (error || !session) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error || "Session non trouvée"}</p>
+          <p className="text-red-600 dark:text-red-400 mb-4">{error || "Session non trouvée"}</p>
           <Button onClick={() => navigate("/dashboard")}>
             Retour au tableau de bord
           </Button>
@@ -550,15 +550,15 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
   return (
     <>
       {/* Header */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {session.scenarioId} - Session en cours
               </h1>
               <div className="flex items-center space-x-4 mt-1">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {isRecording
                     ? "🎤 Enregistrement en cours"
                     : "Prêt à enregistrer"}
@@ -611,7 +611,7 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
 
         {/* Interface principale ou écran de démarrage */}
         <div
-          className={`bg-white rounded-lg shadow-sm border border-gray-200 h-[600px] ${
+          className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-[600px] ${
             !hasApiKey ? "opacity-75 pointer-events-none" : ""
           }`}
         >
@@ -619,10 +619,10 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
             // Écran de démarrage avec bouton pour commencer le scénario
             <div className="flex flex-col items-center justify-center h-full space-y-6 p-8">
               <div className="text-center space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   🎭 Scénario d'entretien
                 </h2>
-                <p className="text-gray-600 max-w-md">
+                <p className="text-gray-600 dark:text-gray-300 max-w-md">
                   {messages[0]?.content ||
                     "Préparez-vous à votre simulation d'entretien. L'IA va vous présenter le scénario et vous pourrez commencer à pratiquer."}
                 </p>
@@ -644,11 +644,11 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
                 </Button>
 
                 {!hasApiKey && (
-                  <div className="text-center space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-sm text-gray-600 font-medium">
+                  <div className="text-center space-y-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
                       ⚠️ Clé API OpenAI requise
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       Pour utiliser l'IA vocale, vous devez configurer votre clé
                       API OpenAI
                     </p>
@@ -656,7 +656,7 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
                       variant="outline"
                       size="sm"
                       onClick={handleOpenSettings}
-                      className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:border-blue-700"
+                      className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 dark:text-blue-400 dark:border-blue-400 hover:border-blue-700"
                     >
                       ⚙️ Configurer l'API
                     </Button>
@@ -665,7 +665,7 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
 
                 {hasApiKey && (
                   <div className="text-center">
-                    <p className="text-sm text-green-600 font-medium">
+                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                       ✅ Clé API configurée - Prêt à commencer !
                     </p>
                   </div>
@@ -673,10 +673,10 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
               </div>
 
               <div className="text-center space-y-2">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   💡 Conseils pour bien commencer :
                 </p>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                   <li>• Prenez le temps de comprendre le scénario</li>
                   <li>• Parlez clairement et distinctement</li>
                   <li>• Vous pouvez interrompre l'IA à tout moment</li>

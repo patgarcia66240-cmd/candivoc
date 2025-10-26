@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, ReactNode } from 'react';
+import React, { createContext } from 'react';
+import type { ReactNode } from 'react';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from '../components/ui/ToastContainer';
 import type { ToastContextType } from './toast-types';

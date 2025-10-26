@@ -3,7 +3,7 @@ import { Search, Filter } from 'lucide-react';
 import { ScenarioCard } from './ScenarioCard';
 import { Input } from '../ui/Input';
 import { CustomSelect } from '../ui/CustomSelect';
-import type { Scenario } from '../../../types/scenarios';
+import type { Scenario } from '../../types/scenarios';
 
 interface ScenarioListProps {
   scenarios: Scenario[];

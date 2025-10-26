@@ -11,6 +11,11 @@ body {
   min-height: 100vh;
 }
 
+/* Dark mode styles for body */
+.dark body {
+  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+}
+
 * {
   box-sizing: border-box;
 }

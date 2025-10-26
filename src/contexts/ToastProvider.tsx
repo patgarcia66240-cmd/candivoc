@@ -1,7 +1,8 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import type { ReactNode } from 'react';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from '../components/ui/ToastContainer';
-import { ToastContext } from './ToastContext-only';
+import { ToastContext } from './ToastContext';
 import type { ToastContextType } from './toast-types';
 
 interface ToastProviderProps {

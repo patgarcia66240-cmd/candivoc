@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Crown, Zap } from 'lucide-react';
 import { PricingCard } from '../components/ui/PricingCard';
-import { SubscriptionStatus } from '../components/ui/SubscriptionStatus';
 import { stripeService } from '../services/stripe';
 import type { StripeSubscription } from '../services/stripe';
 
 export const Tarifs: React.FC = () => {
   const [subscription, setSubscription] = useState<StripeSubscription | null>(null);
-  const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const fetchSubscription = async () => {
       try {
@@ -16,8 +14,6 @@ export const Tarifs: React.FC = () => {
         setSubscription(sub);
       } catch (error) {
         console.error('Erreur lors de la récupération de l\'abonnement:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -44,14 +40,7 @@ export const Tarifs: React.FC = () => {
     return isCurrentFromAPI;
   };
 
-  // Fonction pour réinitialiser l'état de test
-  const resetTestState = () => {
-    const currentPlan = localStorage.getItem('currentPlan');
-    console.log('Réinitialisation. Plan actuel avant reset:', currentPlan);
-    localStorage.removeItem('currentPlan');
-    window.location.reload();
-  };
-
+  
   // Afficher l'état actuel pour le débogage
   React.useEffect(() => {
     const currentPlan = localStorage.getItem('currentPlan');

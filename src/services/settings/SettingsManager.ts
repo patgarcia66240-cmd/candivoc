@@ -175,60 +175,61 @@ export class SettingsManager {
 
     // Validation et correction pour chaque champ
     if (typeof settings === 'object' && settings !== null) {
+      const settingsObj = settings as Record<string, unknown>;
 
       // API Key (string optionnelle)
-      if (settings.apiKey !== undefined) {
-        corrected.apiKey = typeof settings.apiKey === 'string' ? settings.apiKey : undefined;
+      if (settingsObj.apiKey !== undefined) {
+        corrected.apiKey = typeof settingsObj.apiKey === 'string' ? settingsObj.apiKey : undefined;
       }
 
       // Notifications (boolean)
-      corrected.notifications = typeof settings.notifications === 'boolean'
-        ? settings.notifications
+      corrected.notifications = typeof settingsObj.notifications === 'boolean'
+        ? settingsObj.notifications
         : DEFAULT_SETTINGS.notifications;
 
       // Sound enabled (boolean)
-      corrected.soundEnabled = typeof settings.soundEnabled === 'boolean'
-        ? settings.soundEnabled
+      corrected.soundEnabled = typeof settingsObj.soundEnabled === 'boolean'
+        ? settingsObj.soundEnabled
         : DEFAULT_SETTINGS.soundEnabled;
 
       // Auto save (boolean)
-      corrected.autoSave = typeof settings.autoSave === 'boolean'
-        ? settings.autoSave
+      corrected.autoSave = typeof settingsObj.autoSave === 'boolean'
+        ? settingsObj.autoSave
         : DEFAULT_SETTINGS.autoSave;
 
       // Language (enum)
-      if (['fr', 'en', 'es'].includes(settings.language)) {
-        corrected.language = settings.language;
+      if (['fr', 'en', 'es'].includes(settingsObj.language as string)) {
+        corrected.language = settingsObj.language as 'fr' | 'en' | 'es';
       }
 
       // Theme (enum)
-      if (['light', 'dark', 'auto'].includes(settings.theme)) {
-        corrected.theme = settings.theme;
+      if (['light', 'dark', 'auto'].includes(settingsObj.theme as string)) {
+        corrected.theme = settingsObj.theme as 'light' | 'dark' | 'auto';
       }
 
       // Max sessions (number positif)
-      if (typeof settings.maxSessions === 'number' && settings.maxSessions > 0) {
-        corrected.maxSessions = Math.min(settings.maxSessions, 1000); // Limite raisonnable
+      if (typeof settingsObj.maxSessions === 'number' && settingsObj.maxSessions > 0) {
+        corrected.maxSessions = Math.min(settingsObj.maxSessions, 1000); // Limite raisonnable
       }
 
       // Session timeout (number positif en minutes)
-      if (typeof settings.sessionTimeout === 'number' && settings.sessionTimeout > 0) {
-        corrected.sessionTimeout = Math.min(Math.max(settings.sessionTimeout, 5), 480); // Entre 5min et 8h
+      if (typeof settingsObj.sessionTimeout === 'number' && settingsObj.sessionTimeout > 0) {
+        corrected.sessionTimeout = Math.min(Math.max(settingsObj.sessionTimeout, 5), 480); // Entre 5min et 8h
       }
 
       // Auto backup (boolean)
-      corrected.autoBackup = typeof settings.autoBackup === 'boolean'
-        ? settings.autoBackup
+      corrected.autoBackup = typeof settingsObj.autoBackup === 'boolean'
+        ? settingsObj.autoBackup
         : DEFAULT_SETTINGS.autoBackup;
 
       // AI Voice Volume (number between 0 and 1)
-      if (typeof settings.aiVoiceVolume === 'number') {
-        corrected.aiVoiceVolume = Math.max(0, Math.min(1, settings.aiVoiceVolume));
+      if (typeof settingsObj.aiVoiceVolume === 'number') {
+        corrected.aiVoiceVolume = Math.max(0, Math.min(1, settingsObj.aiVoiceVolume));
       }
 
       // Version (string)
-      corrected.version = typeof settings.version === 'string'
-        ? settings.version
+      corrected.version = typeof settingsObj.version === 'string'
+        ? settingsObj.version
         : this.SETTINGS_VERSION;
     }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, Users, Star, Play } from 'lucide-react';
 import { Button } from '../ui/Button';
-import type { Scenario } from '../../../types/scenarios';
+import type { Scenario } from '../../types/scenarios';
 
 interface ScenarioCardProps {
   scenario: Scenario;

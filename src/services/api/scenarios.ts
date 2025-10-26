@@ -1,5 +1,12 @@
 import { ScenariosService } from '../supabase/scenarios';
-import type { Scenario, ScenarioWithCriteria, CreateScenarioInput, UpdateScenarioInput } from '../../types/scenarios';
+import type {
+  Scenario,
+  ScenarioWithCriteria,
+  CreateScenarioInput,
+  UpdateScenarioInput,
+  ScenarioCategory,
+  ScenarioDifficulty
+} from '../../types/scenarios';
 
 interface APIResponse<T = unknown> {
   success: boolean;
@@ -11,7 +18,14 @@ interface APIResponse<T = unknown> {
 export const scenariosService = {
   async getAllScenarios(filters?: { category?: string; difficulty?: string; is_public?: boolean }): Promise<APIResponse<Scenario[]>> {
     try {
-      const { data, error } = await ScenariosService.getScenarios(filters);
+      // Convert string filters to proper types
+      const typedFilters = filters ? {
+        category: filters.category as ScenarioCategory | undefined,
+        difficulty: filters.difficulty as ScenarioDifficulty | undefined,
+        is_public: filters.is_public
+      } : undefined;
+
+      const { data, error } = await ScenariosService.getScenarios(typedFilters);
 
       if (error) {
         console.error('Error fetching scenarios:', error);

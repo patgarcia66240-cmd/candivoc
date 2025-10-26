@@ -278,7 +278,7 @@ export class ProfileService {
         .order('created_at', { ascending: false });
 
       if (error) {
-        return { profiles: null, error };
+        return { profiles: null, error: error as Error | null };
       }
 
       const transformedProfiles: Profile[] = profiles.map(profile => ({
@@ -382,7 +382,7 @@ export class ProfileService {
       const { data: profiles, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
-        return { profiles: null, error };
+        return { profiles: null, error: error as Error | null };
       }
 
       const transformedProfiles: Profile[] = profiles.map(profile => ({
@@ -416,7 +416,7 @@ export class ProfileService {
 
       return { profiles: transformedProfiles, error: null };
     } catch (error) {
-      return { profiles: null, error };
+      return { profiles: null, error: error as Error | null };
     }
   }
 }
