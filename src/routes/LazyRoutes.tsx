@@ -71,7 +71,7 @@ export const Chat = lazy(() =>
 
 export const Session = lazy(() =>
   import('../pages/Session').then(module => ({
-    default: module.SessionPage
+    default: module.sessionPage
   }))
 ) as LazyComponentType
 
@@ -243,9 +243,10 @@ export const RouteWithPrefetch: React.FC<RouteWithPrefetchProps> = ({
 // 📊 Statistiques de chargement (pour monitoring)
 export const trackChunkLoading = (chunkName: string, loadTime: number) => {
   if (typeof window !== 'undefined' && 'gtag' in window) {
-    window.gtag('event', 'chunk_loaded', {
-      chunk_name: chunkName,
-      load_time: loadTime,
+    window.gtag('event', {
+      event_category: 'chunk_loading',
+      event_label: chunkName,
+      value: loadTime,
       timestamp: Date.now()
     })
   }
@@ -288,7 +289,7 @@ export const createOptimizedRoutes = () => {
       )
     },
     {
-      path: '/tarifs',
+      path: '/pricing',
       element: (
         <RouteWithPrefetch prefetch={prefetchChunks.pricing}>
           <Pricing />

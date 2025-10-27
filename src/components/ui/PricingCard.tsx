@@ -55,22 +55,22 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   `;
 
   const titleClasses = `
-    text-2xl font-bold mb-2 [text-shadow:_0_2px_4px_rgb(0_0_0_/_0.3)]
+    text-2xl font-bold mb-2 [text-shadow:0_2px_4px_rgb(0_0_0/0.3)]
     ${textColor === 'white' ? 'text-white' : 'text-slate-800'}
   `;
 
   const subtitleClasses = `
-    [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.2)]
+    [text-shadow:0_1px_2px_rgb(0_0_0/0.2)]
     ${textColor === 'white' ? 'text-slate-200' : 'text-slate-700'}
   `;
 
   const priceClasses = `
-    text-4xl font-bold [text-shadow:_0_2px_4px(rgb(0_0_0_/_0.3)]
+    text-4xl font-bold [text-shadow:0_2px_4px(rgb(0_0_0/0.3)]
     ${textColor === 'white' ? 'text-white' : 'text-slate-900'}
   `;
 
   const periodClasses = `
-    [text-shadow:_0_1px_2px(rgb(0_0_0_/_0.2)]
+    [text-shadow:0_1px_2px(rgb(0_0_0/0.2)]
     ${textColor === 'white' ? 'text-slate-200' : 'text-slate-700'}
   `;
 
@@ -84,8 +84,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     : 'w-5 h-5 text-slate-600 mr-3 mt-0.5 flex-shrink-0';
 
   const featureTextClasses = textColor === 'white'
-    ? '[text-shadow:_0_1px_2px(rgb(0_0_0_/_0.2)]'
-    : '[text-shadow:_0_1px_2px(rgb(255_255_255_/_0.7)]';
+    ? '[text-shadow:0_1px_2px(rgb(0_0_0/0.2)]'
+    : '[text-shadow:0_1px_2px(rgb(255_255_255/0.7)]';
 
   const handleSubscribe = async () => {
     if (buttonOnClick) {
@@ -196,17 +196,17 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     <div className={cardClasses}>
       {isPopular && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-          <span className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+          <span className="bg-linear-to-r from-orange-400 to-orange-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
             Plus populaire
           </span>
         </div>
       )}
 
       {/* En-tête avec icône */}
-      <div className="text-center mb-6 flex-shrink-0 relative">
+      <div className="text-center mb-6 shrink-0 relative">
         {isCurrentPlan && (
           <div className="absolute -top-2 -right-2 z-10">
-            <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+            <div className="w-8 h-8 bg-linear-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
               <Check className="w-5 h-5 text-white" />
             </div>
           </div>
@@ -223,13 +223,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       </div>
 
       {/* Prix */}
-      <div className="text-center mb-6 flex-shrink-0">
+      <div className="text-center mb-6 shrink-0">
         <span className={priceClasses}>{price}</span>
         <span className={periodClasses}>{period}</span>
       </div>
 
       {/* Liste des fonctionnalités */}
-      <ul className="space-y-3 mb-8 flex-grow">
+      <ul className="space-y-3 mb-8 grow">
         {normalizedFeatures.map((feature, index) => (
           <li key={index} className={featureItemClasses}>
             {feature && (
@@ -243,7 +243,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       </ul>
 
       {/* Bouton */}
-      <div className="mt-auto flex-shrink-0">
+      <div className="mt-auto shrink-0">
         <button
           onClick={handleSubscribe}
           disabled={isCurrentPlan}

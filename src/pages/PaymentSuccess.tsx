@@ -133,7 +133,7 @@ export const PaymentSuccess: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-green-50 to-emerald-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mx-auto mb-4"></div>
           <p className="text-green-700 text-lg">Confirmation de votre abonnement...</p>
@@ -144,7 +144,7 @@ export const PaymentSuccess: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-red-50 to-pink-100 flex items-center justify-center">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
           <div className="text-red-500 mb-4">
             <CreditCard className="w-16 h-16 mx-auto" />
@@ -163,7 +163,7 @@ export const PaymentSuccess: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to-br from-green-50 to-emerald-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
         <div className="text-green-500 mb-6">
           <CheckCircle className="w-20 h-20 mx-auto" />

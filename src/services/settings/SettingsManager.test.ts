@@ -1,8 +1,9 @@
 /**
  * Tests pour la classe SettingsManager
- * Ces tests peuvent être exécutés avec Jest ou un framework similaire
+ * Ces tests sont exécutés avec Vitest
  */
 
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { SettingsManager } from './SettingsManager';
 
 // Mock localStorage pour les tests
@@ -10,14 +11,14 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
 
   return {
-    getItem: jest.fn((key: string) => store[key] || null),
-    setItem: jest.fn((key: string, value: string) => {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => {
       store[key] = value;
     }),
-    removeItem: jest.fn((key: string) => {
+    removeItem: vi.fn((key: string) => {
       delete store[key];
     }),
-    clear: jest.fn(() => {
+    clear: vi.fn(() => {
       store = {};
     })
   };
@@ -31,11 +32,11 @@ describe('SettingsManager', () => {
   beforeEach(() => {
     // Nettoyer localStorage avant chaque test
     localStorageMock.clear();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('getSettings()', () => {
-    test('devrait retourner les settings par défaut si aucun setting n\'existe', () => {
+    it('devrait retourner les settings par défaut si aucun setting n\'existe', () => {
       const settings = SettingsManager.getSettings();
 
       expect(settings.notifications).toBe(true);
@@ -47,7 +48,7 @@ describe('SettingsManager', () => {
       expect(settings.lastUpdated).toBeDefined();
     });
 
-    test('devrait sauvegarder les settings par défaut s\'il n\'en existe aucun', () => {
+    it('devrait sauvegarder les settings par défaut s\'il n\'en existe aucun', () => {
       SettingsManager.getSettings();
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
@@ -56,7 +57,7 @@ describe('SettingsManager', () => {
       );
     });
 
-    test('devrait charger les settings existants', () => {
+    it('devrait charger les settings existants', () => {
       const customSettings = {
         notifications: false,
         soundEnabled: false,
@@ -81,7 +82,7 @@ describe('SettingsManager', () => {
       expect(settings.apiKey).toBe('test-key-123');
     });
 
-    test('devrait corriger les settings invalides', () => {
+    it('devrait corriger les settings invalides', () => {
       const invalidSettings = {
         notifications: 'oui', // devrait être boolean
         soundEnabled: null,   // devrait être boolean
@@ -109,7 +110,7 @@ describe('SettingsManager', () => {
       expect(typeof settings.sessionTimeout).toBe('number');
     });
 
-    test('devrait gérer les erreurs de JSON', () => {
+    it('devrait gérer les erreurs de JSON', () => {
       localStorageMock.setItem('candivoc_app_settings', 'invalid-json');
 
       const settings = SettingsManager.getSettings();
@@ -121,7 +122,7 @@ describe('SettingsManager', () => {
   });
 
   describe('saveSettings()', () => {
-    test('devrait sauvegarder les settings avec succès', () => {
+    it('devrait sauvegarder les settings avec succès', () => {
       const newSettings = {
         notifications: false,
         language: 'en' as const
@@ -137,7 +138,7 @@ describe('SettingsManager', () => {
       );
     });
 
-    test('devrait fusionner les nouveaux settings avec les existants', () => {
+    it('devrait fusionner les nouveaux settings avec les existants', () => {
       // D'abord charger les settings par défaut
       SettingsManager.getSettings();
 
@@ -151,7 +152,7 @@ describe('SettingsManager', () => {
       expect(updatedSettings.language).toBe('fr');   // devrait garder la valeur par défaut
     });
 
-    test('devrait ajouter les métadonnées de version et date', () => {
+    it('devrait ajouter les métadonnées de version et date', () => {
       const updatedSettings = SettingsManager.saveSettings({
         theme: 'dark' as const
       });
@@ -161,7 +162,7 @@ describe('SettingsManager', () => {
       expect(new Date(updatedSettings.lastUpdated!)).toBeInstanceOf(Date);
     });
 
-    test('devrait valider et corriger les settings avant sauvegarde', () => {
+    it('devrait valider et corriger les settings avant sauvegarde', () => {
       const invalidSettings = {
         language: 'invalid-lang',
         theme: 'invalid-theme',
@@ -177,7 +178,7 @@ describe('SettingsManager', () => {
   });
 
   describe('getSetting() et updateSetting()', () => {
-    test('devrait récupérer un setting spécifique', () => {
+    it('devrait récupérer un setting spécifique', () => {
       SettingsManager.saveSettings({ language: 'en' });
 
       const language = SettingsManager.getSetting('language');
@@ -185,7 +186,7 @@ describe('SettingsManager', () => {
       expect(language).toBe('en');
     });
 
-    test('devrait mettre à jour un setting spécifique', () => {
+    it('devrait mettre à jour un setting spécifique', () => {
       SettingsManager.getSettings(); // Initialiser
 
       const updated = SettingsManager.updateSetting('notifications', false);
@@ -196,7 +197,7 @@ describe('SettingsManager', () => {
   });
 
   describe('resetToDefaults()', () => {
-    test('devrait réinitialiser aux valeurs par défaut', () => {
+    it('devrait réinitialiser aux valeurs par défaut', () => {
       // D'abord modifier des settings
       SettingsManager.saveSettings({
         notifications: false,
@@ -213,7 +214,7 @@ describe('SettingsManager', () => {
       expect(localStorageMock.setItem).toHaveBeenCalled();
     });
 
-    test('devrait supprimer l\'ancienne clé et en créer une nouvelle', () => {
+    it('devrait supprimer l\'ancienne clé et en créer une nouvelle', () => {
       SettingsManager.getSettings(); // Créer des settings
 
       SettingsManager.resetToDefaults();
@@ -224,7 +225,7 @@ describe('SettingsManager', () => {
   });
 
   describe('exportSettings() et importSettings()', () => {
-    test('devrait exporter les settings en JSON', () => {
+    it('devrait exporter les settings en JSON', () => {
       SettingsManager.saveSettings({
         notifications: false,
         language: 'en'
@@ -238,7 +239,7 @@ describe('SettingsManager', () => {
       expect(parsed.language).toBe('en');
     });
 
-    test('devrait importer des settings depuis JSON', () => {
+    it('devrait importer des settings depuis JSON', () => {
       const jsonSettings = JSON.stringify({
         notifications: false,
         language: 'en',
@@ -254,7 +255,7 @@ describe('SettingsManager', () => {
       expect(imported.apiKey).toBe('imported-key');
     });
 
-    test('devrait valider et corriger les settings importés', () => {
+    it('devrait valider et corriger les settings importés', () => {
       const invalidJson = JSON.stringify({
         notifications: 'yes',
         language: 'deutsch',
@@ -268,7 +269,7 @@ describe('SettingsManager', () => {
       expect(imported.theme).toBe('light');
     });
 
-    test('devrait lever une erreur pour JSON invalide', () => {
+    it('devrait lever une erreur pour JSON invalide', () => {
       const invalidJson = 'not-valid-json';
 
       expect(() => {
@@ -278,7 +279,7 @@ describe('SettingsManager', () => {
   });
 
   describe('checkSettingsIntegrity()', () => {
-    test('devrait retourner true pour des settings valides', () => {
+    it('devrait retourner true pour des settings valides', () => {
       SettingsManager.saveSettings({ language: 'en' });
 
       const integrity = SettingsManager.checkSettingsIntegrity();
@@ -287,7 +288,7 @@ describe('SettingsManager', () => {
       expect(integrity.issues).toHaveLength(0);
     });
 
-    test('devrait détecter des settings corrompus', () => {
+    it('devrait détecter des settings corrompus', () => {
       localStorageMock.setItem('candivoc_app_settings', 'corrupted-data');
 
       const integrity = SettingsManager.checkSettingsIntegrity();
@@ -296,7 +297,7 @@ describe('SettingsManager', () => {
       expect(integrity.issues.length).toBeGreaterThan(0);
     });
 
-    test('devrait détecter des settings incomplets', () => {
+    it('devrait détecter des settings incomplets', () => {
       localStorageMock.setItem(
         'candivoc_app_settings',
         JSON.stringify({ notifications: true })
@@ -309,7 +310,7 @@ describe('SettingsManager', () => {
       expect(integrity.correctedSettings!.language).toBe('fr');
     });
 
-    test('devrait détecter l\'absence de settings', () => {
+    it('devrait détecter l\'absence de settings', () => {
       const integrity = SettingsManager.checkSettingsIntegrity();
 
       expect(integrity.isValid).toBe(false);
@@ -318,7 +319,7 @@ describe('SettingsManager', () => {
   });
 
   describe('cleanup()', () => {
-    test('devrait nettoyer les settings corrompus', () => {
+    it('devrait nettoyer les settings corrompus', () => {
       localStorageMock.setItem(
         'candivoc_app_settings',
         JSON.stringify({ notifications: 'invalid' })
@@ -331,7 +332,7 @@ describe('SettingsManager', () => {
       expect(settings.notifications).toBe(true);
     });
 
-    test('ne devrait rien faire si les settings sont valides', () => {
+    it('ne devrait rien faire si les settings sont valides', () => {
       SettingsManager.saveSettings({ language: 'en' });
 
       SettingsManager.cleanup();
@@ -342,7 +343,7 @@ describe('SettingsManager', () => {
   });
 
   describe('Gestion des erreurs', () => {
-    test('getSettings devrait gérer les erreurs de localStorage', () => {
+    it('getSettings devrait gérer les erreurs de localStorage', () => {
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error('Storage error');
       });
@@ -352,7 +353,7 @@ describe('SettingsManager', () => {
       expect(settings.notifications).toBe(true); // Valeurs par défaut
     });
 
-    test('saveSettings devrait lever une erreur en cas d\'échec', () => {
+    it('saveSettings devrait lever une erreur en cas d\'échec', () => {
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('Storage error');
       });
@@ -362,7 +363,7 @@ describe('SettingsManager', () => {
       }).toThrow('Impossible de sauvegarder les settings');
     });
 
-    test('resetToDefaults devrait lever une erreur en cas d\'échec', () => {
+    it('resetToDefaults devrait lever une erreur en cas d\'échec', () => {
       localStorageMock.removeItem.mockImplementation(() => {
         throw new Error('Storage error');
       });
@@ -388,7 +389,7 @@ describe('useSettings hook', () => {
     localStorageMock.clear();
   });
 
-  test('devrait charger les settings au montage', () => {
+  it('devrait charger les settings au montage', () => {
     const { result } = renderHook(() => useSettings());
 
     expect(result.current.settings.notifications).toBe(true);
@@ -396,7 +397,7 @@ describe('useSettings hook', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  test('devrait mettre à jour un setting', () => {
+  it('devrait mettre à jour un setting', () => {
     const { result } = renderHook(() => useSettings());
 
     act(() => {
@@ -406,7 +407,7 @@ describe('useSettings hook', () => {
     expect(result.current.settings.notifications).toBe(false);
   });
 
-  test('devrait gérer les erreurs', () => {
+  it('devrait gérer les erreurs', () => {
     localStorageMock.setItem.mockImplementation(() => {
       throw new Error('Storage error');
     });
@@ -416,7 +417,7 @@ describe('useSettings hook', () => {
     expect(result.current.error).toBeTruthy();
   });
 
-  test('devrait réinitialiser les settings', () => {
+  it('devrait réinitialiser les settings', () => {
     const { result } = renderHook(() => useSettings());
 
     act(() => {
@@ -430,7 +431,7 @@ describe('useSettings hook', () => {
     expect(result.current.settings.notifications).toBe(true);
   });
 
-  test('devrait exporter les settings', () => {
+  it('devrait exporter les settings', () => {
     const { result } = renderHook(() => useSettings());
 
     const exported = result.current.exportSettings();

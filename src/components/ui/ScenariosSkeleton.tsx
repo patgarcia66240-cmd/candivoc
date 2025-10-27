@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const ScenariosSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 p-6">
+  <div className="min-h-screen bg-linear-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 p-6">
     {/* Header skeleton */}
     <div className="max-w-7xl mx-auto mb-8">
       <div className="space-y-4">

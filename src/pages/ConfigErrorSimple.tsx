@@ -7,10 +7,10 @@ export const ConfigErrorSimple: React.FC = () => {
  
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-gray-100  flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-100 to-gray-100  flex items-center justify-center p-4">
       <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Image Section */}
-        <div className="bg-gradient-to-br from-slate-100 to-gray-100 p-2 flex items-center justify-center">
+        <div className="bg-linear-to-br from-slate-100 to-gray-100 p-2 flex items-center justify-center">
           <img
             src="/images/candivoc.png"
             alt="Supabase Configuration"

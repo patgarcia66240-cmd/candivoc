@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const TarifsSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-900">
+  <div className="min-h-screen bg-linear-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-900">
     {/* Header skeleton */}
     <div className="bg-white dark:bg-gray-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,7 +12,7 @@ export const TarifsSkeleton: React.FC = () => (
     </div>
 
     {/* Hero section skeleton */}
-    <div className="relative bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-900 py-24">
+    <div className="relative bg-linear-to-br from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-900 py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="space-y-6">
           <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-96 mx-auto animate-pulse"></div>
@@ -48,7 +48,7 @@ export const TarifsSkeleton: React.FC = () => (
         </div>
 
         {/* Pro plan skeleton (featured) */}
-        <div className="bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl shadow-xl border-2 border-orange-200 overflow-hidden transform scale-105">
+        <div className="bg-linear-to-br from-orange-500 to-amber-500 rounded-2xl shadow-xl border-2 border-orange-200 overflow-hidden transform scale-105">
           <div className="p-8">
             <div className="space-y-4">
               <div className="h-8 bg-white/30 rounded w-32 animate-pulse"></div>
@@ -115,7 +115,7 @@ export const TarifsSkeleton: React.FC = () => (
     </div>
 
     {/* CTA section skeleton */}
-    <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-900 py-16">
+    <div className="bg-linear-to-br from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-900 py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="space-y-6">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-80 mx-auto animate-pulse"></div>

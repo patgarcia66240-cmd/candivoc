@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const SessionsSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 p-6">
+  <div className="min-h-screen bg-linear-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 p-6">
     {/* Header skeleton */}
     <div className="max-w-7xl mx-auto mb-8">
       <div className="flex items-center justify-between">
@@ -41,7 +41,7 @@ export const SessionsSkeleton: React.FC = () => (
               <div key={i} className="group flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-start space-x-4 flex-1">
                   {/* Status icon skeleton */}
-                  <div className="flex-shrink-0 w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                  <div className="shrink-0 w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
 
                   <div className="flex-1 min-w-0 space-y-3">
                     <div className="flex items-center justify-between">

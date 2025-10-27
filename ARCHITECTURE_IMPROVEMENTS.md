@@ -152,7 +152,7 @@ const VoiceChatInterface = lazy(() =>
 
 // 🎨 Skeletons de chargement
 const PageSkeleton = () => (
-  <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+  <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50">
     <div className="animate-pulse">
       <div className="h-16 bg-gray-200 rounded mb-4"></div>
       <div className="h-64 bg-gray-200 rounded mb-4"></div>

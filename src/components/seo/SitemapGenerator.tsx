@@ -27,7 +27,7 @@ const SITEMAP_URLS: SitemapURL[] = [
     priority: 0.8
   },
   {
-    url: 'https://candivoc.com/tarifs',
+    url: 'https://candivoc.com/pricing',
     lastModified: new Date().toISOString(),
     changeFrequency: 'monthly',
     priority: 0.6

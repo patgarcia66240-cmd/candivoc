@@ -2,7 +2,7 @@ import React from 'react'
 
 // 🎨 Skeleton complet pour page
 export const PageSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+  <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50">
     <div className="animate-pulse">
       {/* Header skeleton */}
       <header className="bg-white shadow-sm border-b border-gray-200">
@@ -100,7 +100,7 @@ export const PageSkeleton: React.FC = () => (
 
 // 📱 Skeleton mobile optimisé
 export const MobilePageSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+  <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50">
     <div className="animate-pulse">
       {/* Mobile header */}
       <div className="bg-white shadow-sm p-4">

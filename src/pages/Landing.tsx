@@ -77,7 +77,7 @@ export const Landing: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-100 dark:from-gray-900 dark:to-gray-800 transition-colors">
+    <div className="min-h-screen bg-linear-to-br from-primary-50 to-secondary-100 dark:from-gray-900 dark:to-gray-800 transition-colors">
 
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">

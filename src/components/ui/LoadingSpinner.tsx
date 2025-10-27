@@ -30,7 +30,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
 // 🎨 Skeleton de chargement pour pages
 export const PageSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-6">
+  <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 p-6">
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header skeleton */}
       <div className="flex items-center space-x-4">

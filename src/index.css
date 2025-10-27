@@ -38,6 +38,7 @@ html.dark body {
 
 .line-clamp-3 {
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -104,18 +105,18 @@ html.dark body {
 }
 
 /* Custom gradient backgrounds */
-.bg-gradient-primary {
+.bg-linear-primary {
   background: linear-gradient(135deg, #d946ef 0%, #c026d3 100%);
 }
 
-.bg-gradient-secondary {
+.bg-linear-secondary {
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
 }
 
-.bg-gradient-accent {
+.bg-linear-accent {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
-.bg-gradient-mixed {
+.bg-linear-mixed {
   background: linear-gradient(135deg, #d946ef 0%, #22c55e 50%, #ef4444 100%);
 }

@@ -29,17 +29,17 @@ function PricingCard({
       relative rounded-2xl p-8 h-full flex flex-col
       ${
         isPopular
-          ? "bg-gradient-to-br from-slate-600 to-slate-800 text-white border-2 border-orange-400/50 shadow-2xl"
+          ? "bg-linear-to-br from-slate-600 to-slate-800 text-white border-2 border-orange-400/50 shadow-2xl"
           : product.id === "free"
-          ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 border border-slate-300"
-          : "bg-gradient-to-br from-slate-500 to-slate-700 text-white border border-slate-600"
+          ? "bg-linear-to-br from-slate-100 to-slate-200 text-slate-800 border border-slate-300"
+          : "bg-linear-to-br from-slate-500 to-slate-700 text-white border border-slate-600"
       }
       ${isPopular ? "ring-4 ring-orange-400/20" : ""}
     `}
     >
       {isCurrentPlan && (
         <div className="absolute -top-4 right-0">
-          <span className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center">
+          <span className="bg-linear-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center">
             <Check className="w-4 h-4 mr-1" />
             Plan actuel
           </span>
@@ -76,10 +76,10 @@ function PricingCard({
         </div>
       </div>
 
-      <ul className="space-y-3 mb-8 flex-grow">
+      <ul className="space-y-3 mb-8 grow">
         {product.features.map((feature: string, index: number) => (
           <li key={index} className="flex items-start">
-            <Check className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-green-400" />
+            <Check className="w-5 h-5 mr-3 mt-0.5 shrink-0 text-green-400" />
             <span>{feature}</span>
           </li>
         ))}
@@ -94,7 +94,7 @@ function PricingCard({
             isDisabled
               ? "bg-gray-500 text-gray-300 cursor-not-allowed opacity-50"
               : isPopular
-              ? "bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-lg hover:shadow-xl"
+              ? "bg-linear-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-lg hover:shadow-xl"
               : product.id === "free"
               ? "bg-slate-600 hover:bg-slate-700 text-white"
               : "bg-slate-700 hover:bg-slate-800 text-white"
@@ -172,7 +172,7 @@ export function PricingSection() {
       const result = await createCheckoutSession({
         priceId,
         successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/tarifs`,
+        cancelUrl: `${window.location.origin}/pricing`,
         mode: "subscription",
         customerEmail: user.email || "",
         clientReferenceId: user.id,
@@ -246,7 +246,7 @@ export function PricingSection() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 mb-4">
