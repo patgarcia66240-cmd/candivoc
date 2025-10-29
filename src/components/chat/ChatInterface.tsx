@@ -58,12 +58,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-2xl border border-slate-200/50">
+    <div className="flex flex-col h-full bg-linear-to-br from-white to-slate-50 rounded-2xl shadow-2xl border border-slate-200/50">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="text-center text-slate-500 py-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+            <div className="w-16 h-16 bg-linear-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
               <Bot className="w-8 h-8 text-white" />
             </div>
             <p className="text-lg font-medium text-slate-700">Commencez votre session d'entraînement</p>
@@ -78,7 +78,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               }`}
             >
               {message.speaker === 'ai' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center shadow-lg">
+                <div className="shrink-0 w-8 h-8 bg-linear-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center shadow-lg">
                   <Bot className="w-4 h-4 text-white" />
                 </div>
               )}
@@ -86,8 +86,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <div
                 className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-lg ${
                   message.speaker === 'user'
-                    ? 'bg-gradient-to-br from-slate-600 to-slate-700 text-white'
-                    : 'bg-gradient-to-br from-slate-100 to-slate-200 text-slate-900 border border-slate-300/50'
+                    ? 'bg-linear-to-br from-slate-600 to-slate-700 text-white'
+                    : 'bg-linear-to-br from-slate-100 to-slate-200 text-slate-900 border border-slate-300/50'
                 }`}
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
@@ -120,7 +120,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </div>
 
               {message.speaker === 'user' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                <div className="shrink-0 w-8 h-8 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
                   <User className="w-4 h-4 text-white" />
                 </div>
               )}
@@ -131,7 +131,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Input */}
-      <div className="border-t border-slate-200/50 p-6 bg-gradient-to-r from-slate-50 to-white">
+      <div className="border-t border-slate-200/50 p-6 bg-linear-to-r from-slate-50 to-white">
         <form onSubmit={handleSubmit} className="flex space-x-4">
           <Input
             value={inputValue}

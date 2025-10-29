@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { User, Calendar, TrendingUp, Play, Clock, Star, Target, Award } from 'lucide-react';
+import {  Calendar, TrendingUp, Play, Clock, Star, Target } from 'lucide-react';
 import { useAuth } from '../services/auth/useAuth';
 import { useUserSessions } from '../hooks/useSessions';
 import { useScenarios } from '../hooks/useScenarios';
@@ -118,7 +118,7 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {stats.map((stat, index) => (
@@ -228,7 +228,7 @@ export const Dashboard: React.FC = () => {
                 {scenarios.slice(0, 6).map((scenario) => (
                   <div key={scenario.id} className="bg-white/60 dark:bg-gray-800/60 rounded-xl border border-slate-200/50 dark:border-gray-700/50 p-6 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:shadow-lg transition-all duration-300 cursor-pointer">
                     <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-4 shadow-lg">
+                      <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-4 shadow-lg">
                         <Target className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex-1">

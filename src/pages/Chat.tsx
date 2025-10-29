@@ -323,7 +323,7 @@ export const Chat: React.FC = () => {
       </div>
 
       {/* Chat Interface */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Alert si pas de clé API */}
         {!hasApiKey && (
           <div className="mb-6">

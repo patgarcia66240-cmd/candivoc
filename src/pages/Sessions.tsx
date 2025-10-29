@@ -107,7 +107,7 @@ export const Sessions: React.FC = () => {
   // Gérer les erreurs
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <h2 className="text-lg font-semibold text-red-900 mb-2">
             Erreur lors du chargement des sessions
@@ -140,7 +140,7 @@ export const Sessions: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="group bg-linear-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 rounded-xl shadow-sm border border-gray-200/60 dark:border-gray-700/60 p-6 hover:shadow-md hover:border-gray-300/60 transition-all duration-200">

@@ -1,17 +1,28 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from "react";
 import {
-  Key, Save, Eye, EyeOff, AlertCircle, TestTube, User, Briefcase, Volume2, Volume1, VolumeX, MapPin
-} from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../services/auth/useAuth';
-import { useToastContext } from '../contexts/useToastContext';
-import { useSettings } from '../hooks/useSettings';
-import { audioService } from '../services/audio/audioService';
-import { aiService } from '../services/ai/aiService';
-import { SettingsManager } from '../services/settings/SettingsManager';
-import { cleanTextForSpeech } from '../utils/textCleaner';
-import { SettingsSkeleton } from '../components/ui/SettingsSkeleton';
+  Key,
+  Save,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  TestTube,
+  User,
+  Briefcase,
+  Volume2,
+  Volume1,
+  VolumeX,
+  MapPin,
+} from "lucide-react";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { useAuth } from "../services/auth/useAuth";
+import { useToastContext } from "../contexts/useToastContext";
+import { useSettings } from "../hooks/useSettings";
+import { audioService } from "../services/audio/audioService";
+import { aiService } from "../services/ai/aiService";
+import { SettingsManager } from "../services/settings/SettingsManager";
+import { cleanTextForSpeech } from "../utils/textCleaner";
+import { SettingsSkeleton } from "../components/ui/SettingsSkeleton";
 
 export const Settings: React.FC = () => {
   const { user, updateProfile } = useAuth();
@@ -19,21 +30,21 @@ export const Settings: React.FC = () => {
   const toast = useToastContext();
 
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    address: '',
-    postal_code: '',
-    city: '',
-    country: '',
-    date_of_birth: '',
-    nationality: '',
-    linkedin: '',
-    website: '',
-    profession: '',
-    company: '',
-    openai_api_key: ''
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    address: "",
+    postal_code: "",
+    city: "",
+    country: "",
+    date_of_birth: "",
+    nationality: "",
+    linkedin: "",
+    website: "",
+    profession: "",
+    company: "",
+    openai_api_key: "",
   });
 
   const [showApiKey, setShowApiKey] = useState(false);
@@ -45,54 +56,54 @@ export const Settings: React.FC = () => {
 
   // Initialiser le formulaire avec les données de l'utilisateur
   useEffect(() => {
-    console.log('🔄 Settings useEffect - User changed:', {
+    console.log("🔄 Settings useEffect - User changed:", {
       userId: user?.id,
       userEmail: user?.email,
       hasUser: !!user,
-      userUpdatedAt: user?.updatedAt
+      userUpdatedAt: user?.updatedAt,
     });
 
     if (user) {
-      console.log('📝 Settings - Updating form data with user profile:', {
+      console.log("📝 Settings - Updating form data with user profile:", {
         first_name: user.first_name,
         last_name: user.last_name,
         phone: user.phone,
         postal_code: user.postal_code,
-        openai_api_key_length: user.openai_api_key?.length || 0
+        openai_api_key_length: user.openai_api_key?.length || 0,
       });
 
       setFormData({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        address: user.address || '',
-        postal_code: user.postal_code || '',
-        city: user.city || '',
-        country: user.country || '',
-        date_of_birth: user.date_of_birth || '',
-        nationality: user.nationality || '',
-        linkedin: user.linkedin || '',
-        website: user.website || '',
-        profession: user.profession || '',
-        company: user.company || '',
-        openai_api_key: user.openai_api_key || ''
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        address: user.address || "",
+        postal_code: user.postal_code || "",
+        city: user.city || "",
+        country: user.country || "",
+        date_of_birth: user.date_of_birth || "",
+        nationality: user.nationality || "",
+        linkedin: user.linkedin || "",
+        website: user.website || "",
+        profession: user.profession || "",
+        company: user.company || "",
+        openai_api_key: user.openai_api_key || "",
       });
 
       // Synchroniser la clé API depuis le profil vers les settings locaux
       if (user.openai_api_key && user.openai_api_key.trim()) {
-        updateSetting('apiKey', user.openai_api_key.trim());
+        updateSetting("apiKey", user.openai_api_key.trim());
       }
     } else {
-      console.log('⚠️ Settings - No user available, form not initialized');
+      console.log("⚠️ Settings - No user available, form not initialized");
     }
   }, [user, forceRefresh]);
 
   // Forcer le rafraîchissement des données au chargement de la page
   useEffect(() => {
     if (user) {
-      console.log('🔃 Settings - Forcing profile data refresh on page load');
-      setForceRefresh(prev => prev + 1);
+      console.log("🔃 Settings - Forcing profile data refresh on page load");
+      setForceRefresh((prev) => prev + 1);
     }
   }, [user]); // Seulement au montage du composant ou quand user change
 
@@ -103,11 +114,10 @@ export const Settings: React.FC = () => {
     }
   }, [user]);
 
-
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -115,14 +125,14 @@ export const Settings: React.FC = () => {
     setIsLoading(true);
 
     try {
-      console.log('💾 Settings - Starting profile save process...');
-      console.log('💾 Settings - Current formData:', formData);
-      console.log('💾 Settings - User before save:', user);
+      console.log("💾 Settings - Starting profile save process...");
+      console.log("💾 Settings - Current formData:", formData);
+      console.log("💾 Settings - User before save:", user);
 
       // Valider les données avant envoi
       if (!user?.id) {
-        console.error('❌ Settings - No user ID available');
-        toast.error('Erreur: Utilisateur non connecté');
+        console.error("❌ Settings - No user ID available");
+        toast.error("Erreur: Utilisateur non connecté");
         setIsLoading(false);
         return;
       }
@@ -130,51 +140,64 @@ export const Settings: React.FC = () => {
       // Filtrer les données vides pour éviter les mises à jour inutiles
       const dataToSave = Object.fromEntries(
         Object.entries(formData).filter(([key, value]) => {
-          const shouldInclude = value !== '' && value !== null && value !== undefined;
-          console.log(`💾 Settings - Field ${key}: "${value}" -> included: ${shouldInclude}`);
+          const shouldInclude =
+            value !== "" && value !== null && value !== undefined;
+          console.log(
+            `💾 Settings - Field ${key}: "${value}" -> included: ${shouldInclude}`
+          );
           return shouldInclude;
         })
       );
 
-      console.log('💾 Settings - Filtered data to save:', dataToSave);
+      console.log("💾 Settings - Filtered data to save:", dataToSave);
 
       if (Object.keys(dataToSave).length === 0) {
-        console.log('⚠️ Settings - No data to save, all fields are empty');
-        toast.info('Aucune modification à sauvegarder');
+        console.log("⚠️ Settings - No data to save, all fields are empty");
+        toast.info("Aucune modification à sauvegarder");
         setIsLoading(false);
         return;
       }
 
       // Appeler la fonction updateProfile avec logging détaillé
-      console.log('💾 Settings - Calling updateProfile with data:', dataToSave);
+      console.log("💾 Settings - Calling updateProfile with data:", dataToSave);
       await updateProfile(dataToSave);
-      console.log('💾 Settings - updateProfile completed successfully');
+      console.log("💾 Settings - updateProfile completed successfully");
 
       // Le useEffect de synchronisation va automatiquement mettre à jour le formulaire
-      console.log('✅ Settings - Profile saved, form will sync automatically via useEffect');
+      console.log(
+        "✅ Settings - Profile saved, form will sync automatically via useEffect"
+      );
 
-      toast.success('Profil mis à jour avec succès! Vos changements ont été sauvegardés.');
+      toast.success(
+        "Profil mis à jour avec succès! Vos changements ont été sauvegardés."
+      );
 
       // 💡 Indiquer visuellement que la sauvegarde a réussi
       setSaveSuccess(true);
 
       // 💡 Pas de redirection - l'utilisateur reste sur la page settings
       // Cela permet de continuer à modifier les Paramètres si nécessaire
-      console.log('✅ Settings - User remains on settings page after save (no redirect)');
+      console.log(
+        "✅ Settings - User remains on settings page after save (no redirect)"
+      );
 
       // Réinitialiser l'état de succès après 3 secondes
       setTimeout(() => {
         setSaveSuccess(false);
       }, 3000);
     } catch (error) {
-      console.error('❌ Settings - Error updating profile:', error);
-      console.error('❌ Settings - Error details:', {
+      console.error("❌ Settings - Error updating profile:", error);
+      console.error("❌ Settings - Error details:", {
         message: (error as Error)?.message,
         stack: (error as Error)?.stack,
         name: (error as Error)?.name,
-        cause: (error as Error)?.cause
+        cause: (error as Error)?.cause,
       });
-      toast.error(`Erreur lors de la mise à jour du profil: ${(error as Error)?.message || 'Erreur inconnue'}`);
+      toast.error(
+        `Erreur lors de la mise à jour du profil: ${
+          (error as Error)?.message || "Erreur inconnue"
+        }`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +205,7 @@ export const Settings: React.FC = () => {
 
   const handleApiKeySave = async () => {
     if (!formData.openai_api_key.trim()) {
-      toast.error('Veuillez entrer une Clé API valide');
+      toast.error("Veuillez entrer une Clé API valide");
       return;
     }
 
@@ -192,11 +215,11 @@ export const Settings: React.FC = () => {
       await updateProfile({ openai_api_key: formData.openai_api_key.trim() });
 
       // Synchroniser la clé API dans les settings locaux pour la cohérence
-      updateSetting('apiKey', formData.openai_api_key.trim());
+      updateSetting("apiKey", formData.openai_api_key.trim());
 
-      toast.success('Clé API sauvegardée avec succès!');
+      toast.success("Clé API sauvegardée avec succès!");
     } catch {
-      toast.error('Erreur lors de la sauvegarde de la Clé API');
+      toast.error("Erreur lors de la sauvegarde de la Clé API");
     } finally {
       setIsLoading(false);
     }
@@ -205,19 +228,21 @@ export const Settings: React.FC = () => {
   const handleExportSettings = () => {
     try {
       const settingsJson = SettingsManager.exportSettings();
-      const blob = new Blob([settingsJson], { type: 'application/json' });
+      const blob = new Blob([settingsJson], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `candivoc-settings-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `candivoc-settings-${
+        new Date().toISOString().split("T")[0]
+      }.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success('Settings exportés avec succès!');
+      toast.success("Settings exportés avec succès!");
     } catch {
-      toast.error('Erreur lors de l\'export des settings');
+      toast.error("Erreur lors de l'export des settings");
     }
   };
 
@@ -230,33 +255,34 @@ export const Settings: React.FC = () => {
       try {
         const jsonContent = e.target?.result as string;
         SettingsManager.importSettings(jsonContent);
-        toast.success('Settings importés avec succès!');
+        toast.success("Settings importés avec succès!");
       } catch {
-        toast.error('Fichier de settings invalide');
+        toast.error("Fichier de settings invalide");
       }
     };
     reader.readAsText(file);
 
     // Reset input
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const handleTestVolume = async () => {
     if (isTestingVolume) return;
 
     setIsTestingVolume(true);
-    const testMessage = "Bonjour! Ceci est un test du volume de la voix de l'IA. Vous pouvez ajuster le volume avec le curseur ci-dessus.";
+    const testMessage =
+      "Bonjour! Ceci est un test du volume de la voix de l'IA. Vous pouvez ajuster le volume avec le curseur ci-dessus.";
 
     try {
       await audioService.speakText(cleanTextForSpeech(testMessage), {
         rate: 0.9,
         pitch: 1.0,
         volume: getCurrentVolume(),
-        lang: 'fr-FR'
+        lang: "fr-FR",
       });
     } catch (error) {
-      console.error('Error testing volume:', error);
-      toast.error('Erreur lors du test du volume');
+      console.error("Error testing volume:", error);
+      toast.error("Erreur lors du test du volume");
     } finally {
       setIsTestingVolume(false);
     }
@@ -271,11 +297,11 @@ export const Settings: React.FC = () => {
 
   const getVolumeColor = () => {
     const volume = settings.aiVoiceVolume ?? 0.9;
-    if (volume === 0) return 'bg-red-100 text-red-600 border-red-200';
-    if (volume < 0.5) return 'bg-yellow-100 text-yellow-600 border-yellow-200';
-    if (volume === 0.6) return 'bg-blue-100 text-blue-600 border-blue-200';
-    if (volume === 1) return 'bg-purple-100 text-purple-600 border-purple-200';
-    return 'bg-green-100 text-green-600 border-green-200';
+    if (volume === 0) return "bg-red-100 text-red-600 border-red-200";
+    if (volume < 0.5) return "bg-yellow-100 text-yellow-600 border-yellow-200";
+    if (volume === 0.6) return "bg-blue-100 text-blue-600 border-blue-200";
+    if (volume === 1) return "bg-purple-100 text-purple-600 border-purple-200";
+    return "bg-green-100 text-green-600 border-green-200";
   };
 
   const getCurrentVolume = () => {
@@ -293,45 +319,49 @@ export const Settings: React.FC = () => {
         aiService.setApiKey(formData.openai_api_key);
       }
 
-      const result = await aiService.testConnection();
+      const isValid = await aiService.testConnection();
 
-      if (result.success) {
-        toast.success(result.message);
+      if (isValid) {
+        toast.success("✅ Connexion réussie ! La clé API OpenAI est valide.");
       } else {
-        toast.error(result.message);
+        toast.error("❌ La clé API semble invalide ou non fonctionnelle.");
       }
     } catch (error) {
-      console.error('Error testing AI:', error);
-      toast.error('Erreur lors du test de l\'IA');
+      console.error("Error testing AI:", error);
+      toast.error("Erreur lors du test de l'IA");
     } finally {
       setIsTestingAI(false);
     }
   };
 
   const handleResetSettings = () => {
-    if (confirm('Êtes-vous sûr de vouloir réinitialiser votre profil ? Cette action est irréversible.')) {
+    if (
+      confirm(
+        "Êtes-vous sûr de vouloir réinitialiser votre profil ? Cette action est irréversible."
+      )
+    ) {
       try {
         // Réinitialiser aux valeurs par défaut
         const defaultProfile = {
-          first_name: '',
-          last_name: '',
-          phone: '',
-          address: '',
-          postal_code: '',
-          city: '',
-          country: '',
-          date_of_birth: '',
-          nationality: '',
-          linkedin: '',
-          website: '',
-          profession: '',
-          company: '',
-          openai_api_key: ''
+          first_name: "",
+          last_name: "",
+          phone: "",
+          address: "",
+          postal_code: "",
+          city: "",
+          country: "",
+          date_of_birth: "",
+          nationality: "",
+          linkedin: "",
+          website: "",
+          profession: "",
+          company: "",
+          openai_api_key: "",
         };
-        setFormData(prev => ({ ...prev, ...defaultProfile }));
-        toast.success('Profil réinitialisé aux valeurs par défaut!');
+        setFormData((prev) => ({ ...prev, ...defaultProfile }));
+        toast.success("Profil réinitialisé aux valeurs par défaut!");
       } catch {
-        toast.error('Erreur lors de la réinitialisation');
+        toast.error("Erreur lors de la réinitialisation");
       }
     }
   };
@@ -401,7 +431,7 @@ export const Settings: React.FC = () => {
       `}</style>
 
       {/* Header */}
-      <div className="bg-white shadow-sm">
+      {/* <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -410,13 +440,11 @@ export const Settings: React.FC = () => {
           </div>
         </div>
       </div>
-
+ */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="space-y-4">
-
           {/* Profile Information - 2 Columns Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
-
             {/* Column 1: Informations Personnelles */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center mb-6">
@@ -431,7 +459,9 @@ export const Settings: React.FC = () => {
                   label="Prénom"
                   type="text"
                   value={formData.first_name}
-                  onChange={(e) => handleInputChange('first_name', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("first_name", e.target.value)
+                  }
                   placeholder="Jean"
                 />
 
@@ -439,7 +469,9 @@ export const Settings: React.FC = () => {
                   label="Nom"
                   type="text"
                   value={formData.last_name}
-                  onChange={(e) => handleInputChange('last_name', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("last_name", e.target.value)
+                  }
                   placeholder="Dupont"
                 />
 
@@ -447,7 +479,7 @@ export const Settings: React.FC = () => {
                   label="Email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="jean.dupont@email.com"
                   disabled // Email généralement non modifiable directement
                 />
@@ -456,7 +488,7 @@ export const Settings: React.FC = () => {
                   label="Téléphone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
                   placeholder="+33 6 12 34 56 78"
                 />
 
@@ -464,14 +496,18 @@ export const Settings: React.FC = () => {
                   label="Date de naissance"
                   type="date"
                   value={formData.date_of_birth}
-                  onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("date_of_birth", e.target.value)
+                  }
                 />
 
                 <Input
                   label="Nationalité"
                   type="text"
                   value={formData.nationality}
-                  onChange={(e) => handleInputChange('nationality', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("nationality", e.target.value)
+                  }
                   placeholder="Française"
                 />
               </div>
@@ -491,7 +527,9 @@ export const Settings: React.FC = () => {
                   label="Profession"
                   type="text"
                   value={formData.profession}
-                  onChange={(e) => handleInputChange('profession', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("profession", e.target.value)
+                  }
                   placeholder="Développeur Web"
                 />
 
@@ -499,7 +537,7 @@ export const Settings: React.FC = () => {
                   label="Entreprise"
                   type="text"
                   value={formData.company}
-                  onChange={(e) => handleInputChange('company', e.target.value)}
+                  onChange={(e) => handleInputChange("company", e.target.value)}
                   placeholder="Tech Company"
                 />
 
@@ -507,7 +545,9 @@ export const Settings: React.FC = () => {
                   label="LinkedIn"
                   type="url"
                   value={formData.linkedin}
-                  onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("linkedin", e.target.value)
+                  }
                   placeholder="linkedin.com/in/jean-dupont"
                 />
 
@@ -515,7 +555,7 @@ export const Settings: React.FC = () => {
                   label="Site Web"
                   type="url"
                   value={formData.website}
-                  onChange={(e) => handleInputChange('website', e.target.value)}
+                  onChange={(e) => handleInputChange("website", e.target.value)}
                   placeholder="https://jendupont.com"
                 />
               </div>
@@ -536,7 +576,7 @@ export const Settings: React.FC = () => {
                 label="Adresse"
                 type="text"
                 value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
+                onChange={(e) => handleInputChange("address", e.target.value)}
                 placeholder="123 Rue de la République"
               />
 
@@ -544,7 +584,9 @@ export const Settings: React.FC = () => {
                 label="Code Postal"
                 type="text"
                 value={formData.postal_code}
-                onChange={(e) => handleInputChange('postal_code', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("postal_code", e.target.value)
+                }
                 placeholder="75001"
               />
 
@@ -552,7 +594,7 @@ export const Settings: React.FC = () => {
                 label="Ville"
                 type="text"
                 value={formData.city}
-                onChange={(e) => handleInputChange('city', e.target.value)}
+                onChange={(e) => handleInputChange("city", e.target.value)}
                 placeholder="Paris"
               />
 
@@ -560,13 +602,12 @@ export const Settings: React.FC = () => {
                 label="Pays"
                 type="text"
                 value={formData.country}
-                onChange={(e) => handleInputChange('country', e.target.value)}
+                onChange={(e) => handleInputChange("country", e.target.value)}
                 placeholder="France"
               />
             </div>
           </div>
 
-  
           {/* OpenAI API Configuration */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center mb-6">
@@ -583,15 +624,18 @@ export const Settings: React.FC = () => {
                   Clé API OpenAI
                 </label>
                 <p className="text-sm2 text-gray-500 dark:text-gray-400 mb-4">
-                  Configurez votre Clé API pour permettre au système IA de fonctionner correctement.
+                  Configurez votre Clé API pour permettre au système IA de
+                  fonctionner correctement.
                 </p>
 
                 <div className="flex space-x-4">
                   <div className="flex-1 relative">
                     <Input
-                      type={showApiKey ? 'text' : 'password'}
+                      type={showApiKey ? "text" : "password"}
                       value={formData.openai_api_key}
-                      onChange={(e) => handleInputChange('openai_api_key', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("openai_api_key", e.target.value)
+                      }
                       placeholder="sk-..."
                       className="pr-12"
                     />
@@ -600,7 +644,11 @@ export const Settings: React.FC = () => {
                       onClick={() => setShowApiKey(!showApiKey)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300"
                     >
-                      {showApiKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showApiKey ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
                     </button>
                   </div>
 
@@ -654,10 +702,13 @@ export const Settings: React.FC = () => {
                       Volume de la voix IA
                     </label>
                     <p className="text-sm2 text-gray-500 dark:text-gray-400">
-                      Ajustez le volume de la voix de l'assistant IA pour une expérience optimale.
+                      Ajustez le volume de la voix de l'assistant IA pour une
+                      expérience optimale.
                     </p>
                   </div>
-                  <div className={`flex items-center space-x-2 px-3 py-2 rounded-full border ${getVolumeColor()}`}>
+                  <div
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-full border ${getVolumeColor()}`}
+                  >
                     {getVolumeIcon()}
                     <span className="text-sm font-medium">
                       {Math.round(getCurrentVolume() * 100)}%
@@ -669,7 +720,9 @@ export const Settings: React.FC = () => {
                   {/* Curseur de volume principal */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-gray-600 dark:text-gray-300">Volume principal</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                        Volume principal
+                      </span>
                       <div className="flex items-center space-x-3">
                         <VolumeX className="w-4 h-4 text-gray-400" />
                         <div className="flex-1 max-w-xs relative">
@@ -685,7 +738,7 @@ export const Settings: React.FC = () => {
                             value={getCurrentVolume()}
                             onChange={(e) => {
                               const volume = parseFloat(e.target.value);
-                              updateSetting('aiVoiceVolume', volume);
+                              updateSetting("aiVoiceVolume", volume);
                             }}
                             className="volume-slider w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer relative z-10"
                           />
@@ -697,51 +750,51 @@ export const Settings: React.FC = () => {
                     {/* Préréglages rapides */}
                     <div className="flex space-x-2 mt-4">
                       <button
-                        onClick={() => updateSetting('aiVoiceVolume', 0)}
+                        onClick={() => updateSetting("aiVoiceVolume", 0)}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0
-                            ? 'bg-red-100 text-red-700 border border-red-200'
-                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
+                            ? "bg-red-100 text-red-700 border border-red-200"
+                            : "bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200"
                         }`}
                       >
                         Muet
                       </button>
                       <button
-                        onClick={() => updateSetting('aiVoiceVolume', 0.3)}
+                        onClick={() => updateSetting("aiVoiceVolume", 0.3)}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0.3
-                            ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
-                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
+                            ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                            : "bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200"
                         }`}
                       >
                         30%
                       </button>
                       <button
-                        onClick={() => updateSetting('aiVoiceVolume', 0.6)}
+                        onClick={() => updateSetting("aiVoiceVolume", 0.6)}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0.6
-                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
+                            ? "bg-blue-100 text-blue-700 border border-blue-200"
+                            : "bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200"
                         }`}
                       >
                         60%
                       </button>
                       <button
-                        onClick={() => updateSetting('aiVoiceVolume', 0.9)}
+                        onClick={() => updateSetting("aiVoiceVolume", 0.9)}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 0.9
-                            ? 'bg-green-100 text-green-700 border border-green-200'
-                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
+                            ? "bg-green-100 text-green-700 border border-green-200"
+                            : "bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200"
                         }`}
                       >
                         90% (Recommandé)
                       </button>
                       <button
-                        onClick={() => updateSetting('aiVoiceVolume', 1)}
+                        onClick={() => updateSetting("aiVoiceVolume", 1)}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           getCurrentVolume() === 1
-                            ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                            : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200'
+                            ? "bg-purple-100 text-purple-700 border border-purple-200"
+                            : "bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200"
                         }`}
                       >
                         100%
@@ -752,7 +805,8 @@ export const Settings: React.FC = () => {
                   {/* Bouton de test */}
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Cliquez sur le bouton pour tester le volume avec la voix actuelle de l'IA
+                      Cliquez sur le bouton pour tester le volume avec la voix
+                      actuelle de l'IA
                     </div>
                     <Button
                       variant="outline"
@@ -806,10 +860,7 @@ export const Settings: React.FC = () => {
                     className="hidden"
                   />
                   <span className="w-full inline-block">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                    >
+                    <Button variant="outline" className="w-full">
                       <Save className="w-4 h-4 mr-2" />
                       Importer les Paramètres
                     </Button>
@@ -827,7 +878,9 @@ export const Settings: React.FC = () => {
               </div>
 
               <p className="text-sm2 text-gray-500 dark:text-gray-400">
-                Exportez vos Paramètres pour les sauvegarder ou les importer sur un autre appareil. Utilisez la réinitialisation pour remettre votre profil aux valeurs par défaut.
+                Exportez vos Paramètres pour les sauvegarder ou les importer sur
+                un autre appareil. Utilisez la réinitialisation pour remettre
+                votre profil aux valeurs par défaut.
               </p>
             </div>
           </div>
@@ -860,28 +913,36 @@ export const Settings: React.FC = () => {
               </Button>
             </div>
 
-          {/* Message de confirmation */}
-          {saveSuccess && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center">
-                <div className="shrink-0">
-                  <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-green-800">
-                    Vos changements ont été sauvegardés avec succès!
-                  </p>
-                  <p className="text-sm text-green-700">
-                    Vous restez sur cette page pour continuer à modifier vos Paramètres.
-                  </p>
+            {/* Message de confirmation */}
+            {saveSuccess && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center">
+                  <div className="shrink-0">
+                    <svg
+                      className="h-5 w-5 text-green-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-green-800">
+                      Vos changements ont été sauvegardés avec succès!
+                    </p>
+                    <p className="text-sm text-green-700">
+                      Vous restez sur cette page pour continuer à modifier vos
+                      Paramètres.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
-
         </div>
       </div>
     </>
