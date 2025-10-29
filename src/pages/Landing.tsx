@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../services/auth/useAuth';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -40,8 +40,8 @@ export const Landing: React.FC = () => {
 
         // FORCER LA REDIRECTION après un court délai pour contourner le problème
         setTimeout(() => {
-          console.log('🚀 FORCAGE REDIRECTION vers dashboard');
-          navigate('/dashboard', { replace: true });
+          console.log('🚀 FORCAGE REDIRECTION vers dashboard (TanStack Router)');
+          navigate({ to: '/app/dashboard' });
         }, 500);
       } else {
         await register(email, password, 'John', 'Doe', 'user');
@@ -61,7 +61,7 @@ export const Landing: React.FC = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/app/dashboard`,
         },
       });
       if (error) throw error;
@@ -72,8 +72,8 @@ export const Landing: React.FC = () => {
   };
 
   if (user) {
-    console.log('🚀 Landing - Redirection vers dashboard - User:', user.email);
-    return <Navigate to="/dashboard" replace />;
+    console.log('🚀 Landing - Redirection vers dashboard (TanStack Router) - User:', user.email);
+    return <div>Redirection vers dashboard...</div>;
   }
 
   return (

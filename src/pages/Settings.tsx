@@ -78,6 +78,11 @@ export const Settings: React.FC = () => {
         company: user.company || '',
         openai_api_key: user.openai_api_key || ''
       });
+
+      // Synchroniser la clé API depuis le profil vers les settings locaux
+      if (user.openai_api_key && user.openai_api_key.trim()) {
+        updateSetting('apiKey', user.openai_api_key.trim());
+      }
     } else {
       console.log('⚠️ Settings - No user available, form not initialized');
     }
@@ -185,6 +190,10 @@ export const Settings: React.FC = () => {
 
     try {
       await updateProfile({ openai_api_key: formData.openai_api_key.trim() });
+
+      // Synchroniser la clé API dans les settings locaux pour la cohérence
+      updateSetting('apiKey', formData.openai_api_key.trim());
+
       toast.success('Clé API sauvegardée avec succès!');
     } catch {
       toast.error('Erreur lors de la sauvegarde de la Clé API');

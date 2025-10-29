@@ -136,7 +136,7 @@ export const PaymentSuccess: React.FC = () => {
   };
 
   const handleReturnHome = () => {
-    navigate('/dashboard');
+    navigate('/app/dashboard');
   };
 
   if (loading) {

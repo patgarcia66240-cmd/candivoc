@@ -27,10 +27,7 @@ export const prefetchChunks = {
   dashboard: () => {
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        // Lazy import to avoid circular dependencies
-        import('./LazyRoutes').then(routes => {
-          routes.Dashboard?.preload?.()
-        })
+        import('../pages/Dashboard')
       }, 10000)
     }
   },
@@ -39,9 +36,7 @@ export const prefetchChunks = {
   scenarios: () => {
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        import('./LazyRoutes').then(routes => {
-          routes.Scenarios?.preload?.()
-        })
+        import('../pages/Scenarios')
       }, 5000)
     }
   },
@@ -50,9 +45,7 @@ export const prefetchChunks = {
   settings: () => {
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        import('./LazyRoutes').then(routes => {
-          routes.Settings?.preload?.()
-        })
+        import('../pages/Settings')
       }, 15000)
     }
   }

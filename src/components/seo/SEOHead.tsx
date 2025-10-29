@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useRouterState } from '@tanstack/react-router';
 
 interface SEOHeadProps {
   title?: string;
@@ -29,7 +29,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   type = 'website',
   noIndex = false
 }) => {
-  const location = useLocation();
+  const { location } = useRouterState();
 
   // Construire le titre complet
   const fullTitle = title

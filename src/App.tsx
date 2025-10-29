@@ -1,20 +1,15 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { RouterProvider } from '@tanstack/react-router';
 import './App.css';
 import { AuthProvider } from './services/auth/authContext';
-import { useAuth } from './services/auth/useAuth';
 import { ToastProvider } from './contexts/ToastProvider';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { Key } from 'lucide-react';
-import { SEOHead } from './components/seo/SEOHead';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
 import { PWAStatus } from './components/pwa/PWAStatus';
-import { Layout } from './components/ui/Layout';
-import { PageSkeleton } from './components/ui/PageSkeleton';
-import { TarifsSkeleton } from './components/ui/TarifsSkeleton';
 import { queryClient } from './lib/react-query';
+import { router } from './routing/router';
 
 // Lightweight placeholder hook for prefetching to avoid a missing-module error.
 // Replace this with the real implementation in src/hooks/usePrefetching.ts when available.
@@ -24,197 +19,11 @@ const usePrefetching = (): void => {
   }, []);
 };
 
-// Lazy-load route pages to match Suspense usage
-// Ensure the dynamic import always returns an object with a `default` component so React.lazy's typing is satisfied.
-// This handles modules that export the component as a named export or a default export.
-const Landing = React.lazy(() =>
-  import('./pages/Landing').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Landing }))
-);
-const ConfigErrorSimple = React.lazy(() =>
-  import('./pages/ConfigErrorSimple').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).ConfigErrorSimple }))
-);
-const Dashboard = React.lazy(() =>
-  import('./pages/Dashboard').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Dashboard }))
-);
-const Scenarios = React.lazy(() =>
-  import('./pages/Scenarios').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Scenarios }))
-);
-const Sessions = React.lazy(() =>
-  import('./pages/Sessions').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Sessions }))
-);
-const Settings = React.lazy(() =>
-  import('./pages/Settings').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Settings }))
-);
-const Pricing = React.lazy(() =>
-  import('./pages/Pricing').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Pricing }))
-);
-const Chat = React.lazy(() =>
-  import('./pages/Chat').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Chat }))
-);
-const Session = React.lazy(() =>
-  import('./pages/Session').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Session }))
-);
-const PaymentSuccess = React.lazy(() =>
-  import('./pages/PaymentSuccess').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).PaymentSuccess }))
-);
-
 // 🎯 Initialisation des services de monitoring
 import MonitoringService from './lib/monitoring';
 import AnalyticsService from './lib/analytics';
 import PerformanceService from './lib/performance';
 
-// 🎯 Composant de chargement pour authentification
-const AuthLoadingScreen: React.FC = () => (
-  <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
-    <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-sm">
-      <div className="relative flex items-center justify-center">
-        <div className="animate-pulse rounded-full h-16 w-16 bg-orange-200 flex items-center justify-center">
-          <Key className="h-8 w-8 text-orange-600 animate-pulse" />
-        </div>
-        <div className="absolute inset-0 rounded-full h-16 w-16 border-2 border-orange-300 animate-ping"></div>
-      </div>
-      <div className="flex flex-col items-center justify-center space-y-2">
-        <p className="text-gray-700 font-medium text-center">En attente d'authentification...</p>
-        <p className="text-gray-500 text-sm text-center">Vérification de votre session</p>
-      </div>
-    </div>
-  </div>
-);
-
-// 🛡️ Route privée optimisée
-const PrivateRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return <AuthLoadingScreen />;
-  }
-
-  if (isAuthenticated) {
-    return <Layout>{children}</Layout>;
-  } else {
-    return <Navigate to="/" replace />;
-  }
-});
-
-PrivateRoute.displayName = 'PrivateRoute';
-
-// 🚀 Routes optimisées avec lazy loading
-const AppRoutes: React.FC = () => {
-  return (
-    <Routes>
-      {/* Routes publiques */}
-      <Route
-        path="/"
-        element={
-          <React.Suspense fallback={<PageSkeleton />}>
-            <Landing />
-          </React.Suspense>
-        }
-      />
-
-      
-      <Route
-        path="/config-error"
-        element={
-          <React.Suspense fallback={<PageSkeleton />}>
-            <ConfigErrorSimple />
-          </React.Suspense>
-        }
-      />
-
-      {/* Routes protégées avec lazy loading */}
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
-              <Dashboard />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/scenarios"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
-              <Scenarios />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/sessions"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
-              <Sessions />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/settings"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
-              <Settings />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/pricing"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<TarifsSkeleton />}>
-              <Pricing />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/chat/:sessionId"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
-              <Chat />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/session/:sessionId"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
-              <Session />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/success"
-        element={
-          <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
-              <PaymentSuccess />
-            </React.Suspense>
-          </PrivateRoute>
-        }
-      />
-    </Routes>
-  );
-};
-
-// 🎯 Application avec monitoring et prefetching intelligent
 const App: React.FC = () => {
   // 🚀 Initialiser les services de monitoring au démarrage
   React.useEffect(() => {
@@ -241,19 +50,13 @@ const App: React.FC = () => {
             <MonitoringService.ErrorBoundary
               fallback={(errorData) => <ErrorFallback error={errorData.error as Error} reset={errorData.resetError} />}
             >
-              <Router>
-                <SEOHead />
-                <div className="App">
-                  <AppRoutes />
-                </div>
-                <PWAInstallPrompt />
-                <PWAStatus />
-              </Router>
+              <RouterProvider router={router} />
+              <PWAInstallPrompt />
+              <PWAStatus />
             </MonitoringService.ErrorBoundary>
           </AuthProvider>
         </ToastProvider>
       </ThemeProvider>
-      {/* 🔧 DevTools uniquement en développement */}
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );

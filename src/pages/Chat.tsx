@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { VoiceChatInterface } from '../components/chat/VoiceChatInterface';
 import { ApiKeyAlert } from '../components/chat/ApiKeyAlert';
 import { audioService } from '../services/audio/audioService';
 import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../services/auth/useAuth';
 import { aiService } from '../services/ai/aiService';
 import { cleanTextForSpeech } from '../utils/textCleaner';
 
@@ -26,16 +27,20 @@ interface Message {
 }
 
 export const Chat: React.FC = () => {
-  const { sessionId } = useParams<{ sessionId: string }>();
-  const navigate = useNavigate();
+  const { sessionId } = useParams({ from: '/app/chat/$sessionId' });
+  const navigate = useNavigate({ from: '/app/chat/$sessionId' });
   const { settings } = useSettings();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [sessionName, setSessionName] = useState('');
   const [loading, setLoading] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
 
-  // Vérifier si la clé API est configurée
-  const hasApiKey = settings.apiKey && settings.apiKey.trim().length > 0;
+  // Vérifier si la clé API est configurée (depuis le profil utilisateur ou settings locaux)
+  const userApiKey = user?.openai_api_key?.trim() || '';
+  const settingsApiKey = settings.apiKey?.trim() || '';
+  const finalApiKey = userApiKey || settingsApiKey; // Priorité au profil utilisateur
+  const hasApiKey = finalApiKey.length > 0;
 
   useEffect(() => {
     // Initialize chat session
@@ -134,6 +139,11 @@ export const Chat: React.FC = () => {
       };
       setMessages(prev => [...prev, thinkingMessage]);
 
+      // Configurer la clé API dans le service IA
+      if (finalApiKey) {
+        aiService.setApiKey(finalApiKey);
+      }
+
       // Appeler le service IA
       const aiResponse = await aiService.generateResponse(conversationHistory, {
         temperature: 0.7,
@@ -196,7 +206,7 @@ export const Chat: React.FC = () => {
 
   const handleOpenSettings = () => {
     // Naviguer vers la page des paramètres ou ouvrir une modal
-    navigate('/settings');
+    navigate({ to: '/app/settings' });
   };
 
   const handleStartRecording = async () => {
@@ -263,7 +273,7 @@ export const Chat: React.FC = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate('/dashboard');
+    navigate({ to: '/app/dashboard' });
   };
 
   if (loading) {

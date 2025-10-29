@@ -1,12 +1,14 @@
-﻿import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+﻿import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { useAuth } from '../services/auth/useAuth';
+import { useUserSessions } from '../hooks/useSessions';
 import {
   CalendarIcon,
   ClockIcon,
   ChartBarIcon,
   PlayIcon,
   UserIcon,
-  
+
   EyeIcon,
   CheckCircleIcon,
   XCircleIcon,
@@ -17,25 +19,15 @@ import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import { SessionsSkeleton } from '../components/ui/SessionsSkeleton';
 
-// Interface locale pour éviter les problèmes d'export
-interface Session {
-  id: string;
-  title: string;
-  scenarioTitle: string;
-  date: string;
-  duration: string;
-  score?: number;
-  status: 'completed' | 'in_progress' | 'abandoned';
-  feedback?: string;
-}
-
 export const Sessions: React.FC = () => {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionName, setSessionName] = useState('');
 
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Utiliser le hook React Query pour les sessions
+  const { data: sessions = [], isLoading, error } = useUserSessions(user?.id || '');
 
   const handleNewSession = () => {
     setIsModalOpen(true);
@@ -44,75 +36,31 @@ export const Sessions: React.FC = () => {
   const handleSessionSubmit = () => {
     if (sessionName.trim()) {
       setIsModalOpen(false);
-      // Navigate to chat page with session name
-      navigate(`/chat/${encodeURIComponent(sessionName.trim())}`);
+      // Naviguer vers le chat avec le nom de la session
+      navigate({
+        to: '/app/chat/$sessionId',
+        params: { sessionId: encodeURIComponent(sessionName.trim()) }
+      });
     }
   };
 
+  // Formater les sessions pour l'affichage
+  const formattedSessions = sessions.map(session => ({
+    id: session.id,
+    title: session.scenarioId || `Session ${session.id}`,
+    scenarioTitle: session.scenarioId || `Session ${session.id}`,
+    date: new Date(session.createdAt).toLocaleDateString('fr-FR'),
+    duration: session.duration
+      ? `${Math.round(session.duration / (1000 * 60))} min`
+      : session.startTime && session.endTime
+        ? `${Math.round((new Date(session.endTime).getTime() - new Date(session.startTime).getTime()) / (1000 * 60))} min`
+        : 'N/A',
+    score: session.evaluation?.overallScore,
+    status: session.status as 'completed' | 'in_progress' | 'abandoned',
+    feedback: session.evaluation?.feedback
+  }));
 
-
-  useEffect(() => {
-    // Charger les sessions de démonstration
-    const loadSessions = async () => {
-      try {
-        // Simuler un chargement
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Sessions de démonstration
-        const demoSessions: Session[] = [
-          {
-            id: '1',
-            title: 'Session 1',
-            scenarioTitle: 'Entretien technique React',
-            date: '2024-01-15',
-            duration: '45 min',
-            score: 85,
-            status: 'completed',
-            feedback: 'Excellente performance technique, bonne communication'
-          },
-          {
-            id: '2',
-            title: 'Session 2',
-            scenarioTitle: 'Vente de solution SaaS',
-            date: '2024-01-14',
-            duration: '30 min',
-            score: 72,
-            status: 'completed',
-            feedback: 'Argumentation solide, travailler sur la gestion des objections'
-          },
-          {
-            id: '3',
-            title: 'Session 3',
-            scenarioTitle: 'Présentation de projet',
-            date: '2024-01-12',
-            duration: '20 min',
-            score: 90,
-            status: 'completed',
-            feedback: 'Présentation claire et structurée'
-          },
-          {
-            id: '4',
-            title: 'Session 4',
-            scenarioTitle: 'Résolution de conflit',
-            date: '2024-01-10',
-            duration: '25 min',
-            status: 'abandoned',
-            feedback: 'Session interrompue'
-          }
-        ];
-
-        setSessions(demoSessions);
-      } catch (error) {
-        console.error('Error loading sessions:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSessions();
-  }, []);
-
-  const getStatusColor = (status: Session['status']) => {
+  const getStatusColor = (status: 'completed' | 'in_progress' | 'abandoned') => {
     switch (status) {
       case 'completed':
         return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800/60';
@@ -125,7 +73,7 @@ export const Sessions: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: Session['status']) => {
+  const getStatusIcon = (status: 'completed' | 'in_progress' | 'abandoned') => {
     switch (status) {
       case 'completed':
         return <CheckCircleIcon className="w-4 h-4" />;
@@ -138,7 +86,7 @@ export const Sessions: React.FC = () => {
     }
   };
 
-  const getStatusText = (status: Session['status']) => {
+  const getStatusText = (status: 'completed' | 'in_progress' | 'abandoned') => {
     switch (status) {
       case 'completed':
         return 'Terminée';
@@ -151,8 +99,25 @@ export const Sessions: React.FC = () => {
     }
   };
 
-  if (loading) {
+  // Afficher le skeleton pendant le chargement
+  if (isLoading) {
     return <SessionsSkeleton />;
+  }
+
+  // Gérer les erreurs
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-900 mb-2">
+            Erreur lors du chargement des sessions
+          </h2>
+          <p className="text-red-700">
+            Impossible de charger vos sessions. Veuillez réessayer plus tard.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -185,7 +150,7 @@ export const Sessions: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Total sessions</p>
-                <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-800 dark:text-gray-200 transition-colors">{sessions.length}</p>
+                <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-800 dark:text-gray-200 transition-colors">{formattedSessions.length}</p>
               </div>
             </div>
           </div>
@@ -198,8 +163,8 @@ export const Sessions: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Score moyen</p>
                 <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-800 dark:text-gray-200 transition-colors">
-                  {sessions.filter(s => s.score).length > 0
-                    ? Math.round(sessions.filter(s => s.score).reduce((acc, s) => acc + (s.score || 0), 0) / sessions.filter(s => s.score).length)
+                  {formattedSessions.filter(s => s.score).length > 0
+                    ? Math.round(formattedSessions.filter(s => s.score).reduce((acc, s) => acc + (s.score || 0), 0) / formattedSessions.filter(s => s.score).length)
                     : 0}%
                 </p>
               </div>
@@ -226,8 +191,8 @@ export const Sessions: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Taux de complétion</p>
                 <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-800 dark:text-gray-200 transition-colors">
-                  {sessions.length > 0
-                    ? Math.round((sessions.filter(s => s.status === 'completed').length / sessions.length) * 100)
+                  {formattedSessions.length > 0
+                    ? Math.round((formattedSessions.filter(s => s.status === 'completed').length / formattedSessions.length) * 100)
                     : 0}%
                 </p>
               </div>
@@ -242,7 +207,7 @@ export const Sessions: React.FC = () => {
           </div>
 
           <div className="p-6">
-            {sessions.length === 0 ? (
+            {formattedSessions.length === 0 ? (
               <div className="text-center py-12">
                 <div className="bg-linear-to-br from-gray-100 to-gray-200/50 rounded-full p-6 w-fit mx-auto mb-6">
                   <CalendarIcon className="w-16 h-16 text-gray-400" />
@@ -260,7 +225,7 @@ export const Sessions: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {sessions.map((session) => (
+                {formattedSessions.map((session) => (
                   <div key={session.id} className="group flex items-center justify-between p-6 bg-linear-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 hover:border-gray-300 hover:shadow-md transition-all duration-200 cursor-pointer">
                     <div className="flex items-start space-x-4 flex-1">
                       {/* Status Icon */}
@@ -312,7 +277,10 @@ export const Sessions: React.FC = () => {
                         variant="gradient"
                         size="sm"
                         className="shadow-sm hover:shadow-md transition-all duration-200"
-                        onClick={() => navigate(`/session/${session.id}`)}
+                        onClick={() => navigate({
+                          to: '/app/session/$sessionId',
+                          params: { sessionId: session.id }
+                        })}
                       >
                         <EyeIcon className="w-4 h-4 mr-2" />
                         Voir les détails

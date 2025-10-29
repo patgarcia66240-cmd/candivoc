@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, Calendar, TrendingUp, Play } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { User, Calendar, TrendingUp, Play, Clock, Star, Target, Award } from 'lucide-react';
 import { useAuth } from '../services/auth/useAuth';
+import { useUserSessions } from '../hooks/useSessions';
+import { useScenarios } from '../hooks/useScenarios';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
@@ -13,7 +15,10 @@ export const Dashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionName, setSessionName] = useState('');
 
-  
+  // Récupérer les sessions et scénarios réels
+  const { data: sessions = [], isLoading: sessionsLoading } = useUserSessions(user?.id || '');
+  const { data: scenarios = [], isLoading: scenariosLoading } = useScenarios();
+
   const handleNewSession = () => {
     setIsModalOpen(true);
   };
@@ -22,57 +27,70 @@ export const Dashboard: React.FC = () => {
     if (sessionName.trim()) {
       setIsModalOpen(false);
       // Navigate to chat page with session name
-      navigate(`/chat/${encodeURIComponent(sessionName.trim())}`);
+      navigate({ to: `/app/chat/${encodeURIComponent(sessionName.trim())}` });
     }
+  };
+
+  // Calculer les statistiques réelles
+  const completedSessions = sessions.filter(s => s.status === 'completed');
+  const totalDuration = completedSessions.reduce((acc, session) => {
+    if (session.duration) return acc + session.duration;
+    if (session.startTime && session.endTime) {
+      return acc + (new Date(session.endTime).getTime() - new Date(session.startTime).getTime());
+    }
+    return acc;
+  }, 0);
+
+  const averageScore = completedSessions.length > 0
+    ? completedSessions.reduce((acc, session) => {
+        const score = session.evaluation?.overallScore || 0;
+        return acc + score;
+      }, 0) / completedSessions.length
+    : 0;
+
+  const formatDuration = (ms: number) => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    return hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
   };
 
   const stats = [
     {
       label: 'Sessions complétées',
-      value: '12',
+      value: completedSessions.length.toString(),
       icon: Calendar,
       color: 'bg-slate-500',
     },
     {
       label: 'Score moyen',
-      value: '78%',
+      value: `${Math.round(averageScore)}%`,
       icon: TrendingUp,
       color: 'bg-slate-600',
     },
     {
       label: 'Temps total',
-      value: '3h 45min',
-      icon: User,
+      value: formatDuration(totalDuration),
+      icon: Clock,
       color: 'bg-slate-700',
     },
   ];
 
-  const recentSessions = [
-    {
-      id: '1',
-      title: 'Entretien technique React',
-      date: '2024-01-15',
-      score: 85,
-      duration: '45 min',
-    },
-    {
-      id: '2',
-      title: 'Simulation commerciale',
-      date: '2024-01-14',
-      score: 72,
-      duration: '30 min',
-    },
-    {
-      id: '3',
-      title: 'Présentation de projet',
-      date: '2024-01-12',
-      score: 90,
-      duration: '20 min',
-    },
-  ];
+  // Formater les sessions récentes
+  const recentSessions = sessions.slice(0, 5).map(session => ({
+    id: session.id,
+    title: session.scenarioId || `Session du ${new Date(session.createdAt).toLocaleDateString()}`,
+    date: new Date(session.createdAt).toLocaleDateString('fr-FR'),
+    score: session.evaluation?.overallScore || 0,
+    duration: session.duration
+      ? formatDuration(session.duration)
+      : session.startTime && session.endTime
+        ? formatDuration(new Date(session.endTime).getTime() - new Date(session.startTime).getTime())
+        : 'En cours',
+    status: session.status
+  }));
 
-  // Afficher le skeleton pendant le chargement de l'authentification
-  if (loading) {
+  // Afficher le skeleton pendant le chargement
+  if (loading || sessionsLoading || scenariosLoading) {
     return <DashboardSkeleton />;
   }
 
@@ -147,14 +165,112 @@ export const Dashboard: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right mr-6">
-                      <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 [text-shadow:0_1px_2px_rgb(0_0_0/0.1)]">
-                        {session.score}%
-                      </div>
-                      <p className="text-slate-500 dark:text-gray-400 text-sm">Score</p>
+                      {session.status === 'completed' && session.score > 0 ? (
+                        <>
+                          <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 [text-shadow:0_1px_2px_rgb(0_0_0/0.1)]">
+                            {session.score}%
+                          </div>
+                          <p className="text-slate-500 dark:text-gray-400 text-sm">Score</p>
+                        </>
+                      ) : session.status === 'active' ? (
+                        <>
+                          <div className="text-xl font-bold text-blue-600 dark:text-blue-400 [text-shadow:0_1px_2px_rgb(0_0_0/0.1)]">
+                            En cours
+                          </div>
+                          <p className="text-slate-500 dark:text-gray-400 text-sm">Statut</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-xl font-bold text-slate-600 dark:text-slate-400 [text-shadow:0_1px_2px_rgb(0_0_0/0.1)]">
+                            {session.status === 'pending' ? 'En attente' : 'Abandonnée'}
+                          </div>
+                          <p className="text-slate-500 dark:text-gray-400 text-sm">Statut</p>
+                        </>
+                      )}
                     </div>
-                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <div className={`w-3 h-3 rounded-full ${
+                      session.status === 'completed' ? 'bg-emerald-500' :
+                      session.status === 'active' ? 'bg-blue-500 animate-pulse' :
+                      session.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}></div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Scénarios disponibles */}
+        <div className="mt-8 bg-linear-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-slate-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div className="px-8 py-6 bg-linear-to-r from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-800 border-b border-slate-300 dark:border-gray-600">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white [text-shadow:0_1px_2px_rgb(255_255_255/0.8)]">
+              Scénarios disponibles
+            </h2>
+            <p className="text-slate-600 dark:text-gray-300 mt-1">
+              Choisissez un scénario pour votre prochaine session d'entraînement
+            </p>
+          </div>
+          <div className="p-8">
+            {scenarios.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-linear-to-br from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                  <Target className="w-10 h-10 text-white" />
+                </div>
+                <p className="text-slate-600 dark:text-gray-300 text-lg mb-6">
+                  Aucun scénario disponible
+                </p>
+                <p className="text-slate-500 dark:text-gray-400 text-sm">
+                  Les scénarios apparaîtront ici une fois disponibles
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {scenarios.slice(0, 6).map((scenario) => (
+                  <div key={scenario.id} className="bg-white/60 dark:bg-gray-800/60 rounded-xl border border-slate-200/50 dark:border-gray-700/50 p-6 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-4 shadow-lg">
+                        <Target className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-slate-900 dark:text-white text-lg">
+                          {scenario.title}
+                        </h3>
+                        <p className="text-slate-500 dark:text-gray-400 text-sm">
+                          {scenario.category} • {scenario.difficulty}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-slate-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                      {scenario.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                        <span className="text-sm text-slate-600 dark:text-gray-300">
+                          {scenario.is_public ? 'Public' : 'Privé'}
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSessionName(scenario.title);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Commencer
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {scenarios.length > 6 && (
+              <div className="mt-6 text-center">
+                <Button variant="ghost" className="text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white">
+                  Voir tous les scénarios ({scenarios.length})
+                </Button>
               </div>
             )}
           </div>

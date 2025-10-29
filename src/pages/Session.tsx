@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "@tanstack/react-router";
 import { VoiceChatInterface } from "../components/chat/VoiceChatInterface";
 import { sessionsService } from "../services/api/sessions";
 import { audioService } from "../services/audio/audioService";
@@ -65,8 +65,8 @@ interface ScenarioData {
 }
 
 const SessionPage: React.FC = () => {
-  const { sessionId } = useParams<{ sessionId: string }>();
-  const navigate = useNavigate();
+  const { sessionId } = useParams({ from: '/app/session/$sessionId' });
+  const navigate = useNavigate({ from: '/app/session/$sessionId' });
   const { settings } = useSettings();
   const { user } = useAuth();
 
@@ -376,7 +376,7 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
 
   const handleOpenSettings = () => {
     // Naviguer vers la page des paramètres ou ouvrir une modal
-    navigate("/settings");
+    navigate({ to: '/app/settings' });
   };
 
   // Récupérer les données des scénarios depuis Supabase
@@ -501,10 +501,10 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
       try {
         if (session.id.startsWith("demo-")) {
           // Pour les sessions de démonstration, simplement naviguer
-          navigate("/dashboard");
+          navigate({ to: '/app/dashboard' });
         } else {
           await sessionsService.endsession(session.id);
-          navigate("/dashboard");
+          navigate({ to: '/app/dashboard' });
         }
       } catch (error) {
         console.error("Error ending session:", error);
@@ -512,7 +512,7 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
       }
     } else {
       // Si pas de session ou session.id est undefined, naviguer quand même
-      navigate("/dashboard");
+      navigate({ to: '/app/dashboard' });
     }
   };
 
@@ -525,7 +525,7 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400 mb-4">{error || "session non trouvée"}</p>
-          <Button onClick={() => navigate("/dashboard")}>
+          <Button onClick={() => navigate({ to: '/app/dashboard' })}>
             Retour au tableau de bord
           </Button>
         </div>
