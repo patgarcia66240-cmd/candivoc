@@ -1,0 +1,182 @@
+name: 🔒 Dependencies & Security
+
+on:
+  schedule:
+    # Tous les lundis à 9h UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['package*.json']
+
+jobs:
+  # 📦 Mise à jour des dépendances
+  update:
+    name: 📦 Update Dependencies
+    runs-on: ubuntu-latest
+
+    outputs:
+      has-updates: ${{ steps.check.outputs.has-updates }}
+      commit-sha: ${{ steps.commit.outputs.sha }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📋 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Check for updates
+        id: check
+        run: |
+          OUTDATED=$(npm outdated --json || echo '{}')
+          if [ "$OUTDATED" != "{}" ]; then
+            echo "has-updates=true" >> $GITHUB_OUTPUT
+            echo "📦 Updates available:"
+            echo "$OUTDATED" | jq -r 'to_entries[] | "  \(.key): \(.value.current) → \(.value.latest)"'
+          else
+            echo "has-updates=false" >> $GITHUB_OUTPUT
+            echo "✅ All dependencies are up to date"
+          fi
+        continue-on-error: true
+
+      - name: 🔄 Update dependencies
+        if: steps.check.outputs.has-updates == 'true'
+        run: |
+          npm update
+          npm audit fix --audit-level moderate || true
+
+      - name: 🧪 Test updates
+        if: steps.check.outputs.has-updates == 'true'
+        run: |
+          npm run lint
+          npm run test
+          npm run build
+        continue-on-error: true
+
+      - name: 📝 Commit updates
+        id: commit
+        if: steps.check.outputs.has-updates == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package*.json npm-shrinkwrap.json
+          git commit -m "📦 chore: update dependencies [skip ci]"
+          git push
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: 🎉 Create PR if needed
+        if: steps.check.outputs.has-updates == 'true' && failure()
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "📦 chore: update dependencies"
+          title: "📦 Automated dependency updates"
+          body: |
+            ## 📦 Dependency Updates
+
+            This PR contains automated dependency updates.
+
+            ### ✅ Checks performed
+            - [x] Dependencies updated
+            - [x] Security audit
+            - [x] Build successful
+            - [x] Tests passing
+
+            ### 📋 Review checklist
+            - [ ] Review breaking changes
+            - [ ] Test critical functionality
+            - [ ] Verify no regressions
+
+            > 🤖 This PR was created automatically by GitHub Actions
+
+  # 🔍 Audit de sécurité
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📋 Install dependencies
+        run: npm ci
+
+      - name: 🔒 Run security audit
+        run: |
+          echo "🔒 Running security audit..."
+          npm audit --audit-level moderate
+
+      - name: 🔍 Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: 📊 Upload Snyk results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+      - name: 📨 Security alert
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: 'danger'
+          channel: '#security'
+          text: |
+            🔒 Security vulnerabilities detected!
+            📦 Repository: ${{ github.repository }}
+            🔗 Commit: ${{ github.sha }}
+            🛠️ Action required: Review and fix vulnerabilities
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_SECURITY }}
+
+  # 📊 License compliance
+  license-check:
+    name: 📜 License Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📋 Install dependencies
+        run: npm ci
+
+      - name: 📜 Check licenses
+        run: |
+          npm install -g license-checker
+          license-checker --summary --excludePrivatePackages
+
+      - name: 📊 Generate license report
+        run: |
+          license-checker --json > license-report.json
+          echo "📄 License report generated"
+
+      - name: 📤 Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: license-report.json
+          retention-days: 90

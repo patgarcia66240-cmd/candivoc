@@ -1,0 +1,256 @@
+export default {
+  title: 'Design System/Tokens',
+  parameters: {
+    layout: 'centered',
+  },
+};
+
+# 🎨 Design Tokens
+
+Les design tokens sont les atomes fondamentaux du design system CandiVoc. Ils garantissent la cohérence visuelle à travers toute l'application.
+
+## 🎯 Couleurs
+
+### Couleurs Primaires
+Les couleurs primaires sont utilisées pour les éléments interactifs principaux et les actions importantes.
+
+<div className="grid grid-cols-10 gap-2 mb-8">
+  {Array.from({length: 10}, (_, i) => (
+    <div key={i} className="text-center">
+      <div
+        className="h-12 rounded border border-gray-300 mb-2"
+        style={{backgroundColor: `var(--color-primary-${50 + i * 100})`}}
+      />
+      <div className="text-xs">{50 + i * 100}</div>
+    </div>
+  ))}
+</div>
+
+### Couleurs Secondaires
+Utilisées pour les éléments secondaires et l'interface générale.
+
+<div className="grid grid-cols-10 gap-2 mb-8">
+  {Array.from({length: 10}, (_, i) => (
+    <div key={i} className="text-center">
+      <div
+        className="h-12 rounded border border-gray-300 mb-2"
+        style={{backgroundColor: `var(--color-secondary-${50 + i * 100})`}}
+      />
+      <div className="text-xs">{50 + i * 100}</div>
+    </div>
+  ))}
+</div>
+
+### Couleurs Sémantiques
+Couleurs avec signification spécifique pour les états et les feedbacks.
+
+- **Success**: `--color-success-500` (#22c55e) - Actions réussies, confirmations
+- **Warning**: `--color-warning-500` (#f59e0b) - Avertissements, attention requise
+- **Error**: `--color-error-500` (#ef4444) - Erreurs, actions destructives
+
+## 📏 Espacement
+
+Le système d'espacement est basé sur une échelle de `rem` cohérente.
+
+<div className="space-y-4 mb-8">
+  {[
+    { name: 'xs', value: 'var(--spacing-xs)', size: '0.25rem' },
+    { name: 'sm', value: 'var(--spacing-sm)', size: '0.5rem' },
+    { name: 'md', value: 'var(--spacing-md)', size: '1rem' },
+    { name: 'lg', value: 'var(--spacing-lg)', size: '1.5rem' },
+    { name: 'xl', value: 'var(--spacing-xl)', size: '2rem' },
+    { name: '2xl', value: 'var(--spacing-2xl)', size: '3rem' },
+    { name: '3xl', value: 'var(--spacing-3xl)', size: '4rem' }
+  ].map(spacing => (
+    <div key={spacing.name} className="flex items-center gap-4">
+      <div className="w-16 text-sm font-mono">{spacing.name}</div>
+      <div
+        className="bg-primary-500 h-4"
+        style={{width: spacing.size}}
+      />
+      <div className="text-sm text-gray-600">{spacing.size}</div>
+    </div>
+  ))}
+</div>
+
+## 🎭 Typographie
+
+### Polices
+- **Sans-serif**: `var(--font-sans)` - Inter, system-ui, sans-serif
+- **Serif**: `var(--font-serif)` - Georgia, serif
+- **Monospace**: `var(--font-mono)` - JetBrains Mono, Consolas, monospace
+
+### Tailles
+Le système typographique utilise une échelle modulaire harmonieuse.
+
+<div className="space-y-3 mb-8">
+  {[
+    { name: 'text-xs', size: '0.75rem', lineHeight: '1rem', sample: 'Petit texte' },
+    { name: 'text-sm', size: '0.875rem', lineHeight: '1.25rem', sample: 'Texte petit' },
+    { name: 'text-base', size: '1rem', lineHeight: '1.5rem', sample: 'Texte normal' },
+    { name: 'text-lg', size: '1.125rem', lineHeight: '1.75rem', sample: 'Texte grand' },
+    { name: 'text-xl', size: '1.25rem', lineHeight: '1.75rem', sample: 'Texte très grand' },
+    { name: 'text-2xl', size: '1.5rem', lineHeight: '2rem', sample: 'Titre petit' },
+    { name: 'text-3xl', size: '1.875rem', lineHeight: '2.25rem', sample: 'Titre moyen' },
+    { name: 'text-4xl', size: '2.25rem', lineHeight: '2.5rem', sample: 'Titre grand' }
+  ].map(text => (
+    <div key={text.name} className="flex items-center gap-4">
+      <div className="w-24 text-xs font-mono">{text.name}</div>
+      <div className={text.name}>{text.sample}</div>
+      <div className="text-xs text-gray-500">{text.size}</div>
+    </div>
+  ))}
+</div>
+
+## 🔄 Bordures et Rayons
+
+### Rayons
+<div className="flex items-center gap-4 mb-8">
+  {[
+    { name: 'none', value: 'var(--border-radius-none)', size: '0px' },
+    { name: 'sm', value: 'var(--border-radius-sm)', size: '2px' },
+    { name: 'md', value: 'var(--border-radius-md)', size: '6px' },
+    { name: 'lg', value: 'var(--border-radius-lg)', size: '8px' },
+    { name: 'xl', value: 'var(--border-radius-xl)', size: '12px' },
+    { name: '2xl', value: 'var(--border-radius-2xl)', size: '16px' },
+    { name: 'full', value: 'var(--border-radius-full)', size: '9999px' }
+  ].map(radius => (
+    <div key={radius.name} className="text-center">
+      <div
+        className="w-12 h-12 bg-primary-500 mb-2"
+        style={{borderRadius: radius.value}}
+      />
+      <div className="text-xs">{radius.name}</div>
+    </div>
+  ))}
+</div>
+
+## 🎨 Ombres
+
+<div className="grid grid-cols-3 gap-4 mb-8">
+  {[
+    { name: 'xs', value: 'var(--shadow-xs)' },
+    { name: 'sm', value: 'var(--shadow-sm)' },
+    { name: 'base', value: 'var(--shadow-base)' },
+    { name: 'md', value: 'var(--shadow-md)' },
+    { name: 'lg', value: 'var(--shadow-lg)' },
+    { name: 'xl', value: 'var(--shadow-xl)' }
+  ].map(shadow => (
+    <div key={shadow.name} className="text-center">
+      <div
+        className="w-full h-20 bg-white rounded border border-gray-200"
+        style={{boxShadow: shadow.value}}
+      />
+      <div className="text-xs mt-2">{shadow.name}</div>
+    </div>
+  ))}
+</div>
+
+## ⚡ Animations
+
+### Durées
+- **Fast**: `var(--animation-fast)` - 150ms - Interactions rapides
+- **Normal**: `var(--animation-normal)` - 300ms - Transitions standards
+- **Slow**: `var(--animation-slow)` - 500ms - Animations complexes
+
+### Fonctions de temporisation
+Toutes les animations utilisent `cubic-bezier(0.4, 0, 0.2, 1)` pour une sensation naturelle.
+
+### Animations prédéfinies
+<div className="grid grid-cols-2 gap-4 mb-8">
+  {[
+    { name: 'spin', class: 'animate-spin', description: 'Rotation continue' },
+    { name: 'pulse', class: 'animate-pulse', description: 'Pulsation douce' },
+    { name: 'bounce', class: 'animate-bounce', description: 'Rebond' },
+    { name: 'fade-in', class: 'animate-fadeIn', description: 'Apparition en fondu' },
+    { name: 'slide-in', class: 'animate-slideIn', description: 'Glissement horizontal' },
+    { name: 'wiggle', class: 'animate-wiggle', description: 'Mouvement de gauche à droite' }
+  ].map(animation => (
+    <div key={animation.name} className="text-center">
+      <div className={`h-16 bg-primary-500 rounded mb-2 ${animation.class}`} />
+      <div className="text-xs font-mono">{animation.name}</div>
+      <div className="text-xs text-gray-500">{animation.description}</div>
+    </div>
+  ))}
+</div>
+
+## 🎨 Gradients
+
+<div className="grid grid-cols-2 gap-4 mb-8">
+  {[
+    { name: 'primary', class: 'gradient-primary' },
+    { name: 'secondary', class: 'gradient-secondary' },
+    { name: 'success', class: 'gradient-success' },
+    { name: 'warning', class: 'gradient-warning' },
+    { name: 'error', class: 'gradient-error' },
+    { name: 'dark', class: 'gradient-dark' }
+  ].map(gradient => (
+    <div key={gradient.name} className="text-center">
+      <div className={`h-16 rounded ${gradient.class}`} />
+      <div className="text-xs mt-2 font-mono">{gradient.name}</div>
+    </div>
+  ))}
+</div>
+
+## 📐 Z-index
+
+Le système z-index garantit un empilement cohérent des éléments.
+
+<div className="space-y-2">
+  {[
+    { name: 'hide', value: '-1', description: 'Caché sous le contenu' },
+    { name: 'base', value: '0', description: 'Niveau de base' },
+    { name: 'dropdown', value: '1000', description: 'Menus déroulants' },
+    { name: 'sticky', value: '1100', description: 'Éléments fixes' },
+    { name: 'modal', value: '1400', description: 'Modales et popups' },
+    { name: 'tooltip', value: '1800', description: 'Info-bulles' }
+  ].map(z => (
+    <div key={z.name} className="flex justify-between text-sm">
+      <span className="font-mono">{z.name}</span>
+      <span className="text-gray-600">{z.value} - {z.description}</span>
+    </div>
+  ))}
+</div>
+
+## 🎯 Utilisation
+
+### Dans le CSS
+```css
+.mon-element {
+  background-color: var(--color-primary-500);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+}
+```
+
+### Dans les composants React
+```jsx
+const MonComposant = () => (
+  <div className="bg-primary-500 p-md rounded-lg shadow-md">
+    Contenu avec design tokens
+  </div>
+)
+```
+
+### Dans TypeScript
+```typescript
+import { designTokens } from '@/tokens/designTokens'
+
+const maCouleur = designTokens.colors.primary[500]
+const monEspacement = designTokens.spacing.md
+```
+
+## 🔄 Thématisation
+
+Les tokens supportent les thèmes light et dark automatiquement via les variables CSS.
+
+```css
+.theme-transitioning * {
+  transition: all var(--animation-normal) !important;
+}
+```
+
+---
+
+Ces tokens constituent la fondation visuelle de CandiVoc et garantissent une expérience utilisateur cohérente et accessible.

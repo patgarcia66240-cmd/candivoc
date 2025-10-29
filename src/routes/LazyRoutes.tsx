@@ -125,13 +125,7 @@ export const WaveformVisualizer = lazy(() =>
   }))
 ) as unknown as LazyComponentType
 
-// 💳 Composants tarifs (280 lignes)
-export const PricingSection = lazy(() =>
-  import('../components/pricing/PricingSection').then(module => ({
-    default: module.PricingSection
-  }))
-) as unknown as LazyComponentType
-
+// 💳 Composants tarifs
 export const PricingCard = lazy(() =>
   import('../components/ui/PricingCard').then(module => ({
     default: module.PricingCard

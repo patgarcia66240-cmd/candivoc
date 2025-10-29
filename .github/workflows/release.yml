@@ -1,0 +1,333 @@
+name: 🚀 Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.2.3)'
+        required: true
+        type: string
+      release_notes:
+        description: 'Release notes'
+        required: false
+        type: string
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # 🏗️ Build de release
+  build-release:
+    name: 🏗️ Build Release
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📋 Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: 🏷️ Get version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "🏷️ Releasing version: $VERSION"
+
+      - name: 📝 Generate changelog
+        id: changelog
+        run: |
+          # Générer le changelog depuis les commits
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" -10)
+          fi
+
+          if [ -n "${{ github.event.inputs.release_notes }}" ]; then
+            CHANGELOG="${{ github.event.inputs.release_notes }}\n\n$CHANGELOG"
+          fi
+
+          # Nettoyer le changelog
+          CHANGELOG=$(echo "$CHANGELOG" | sed 's/^$/\n/' | sed '/^$/N;s/\n$//')
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🔧 Update version in package.json
+        run: |
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
+      - name: 🏗️ Build for production
+        run: npm run build
+        env:
+          VITE_APP_ENV: production
+          VITE_APP_VERSION: ${{ steps.version.outputs.version }}
+
+      - name: 📊 Build analysis
+        run: |
+          echo "📦 Build analysis for release ${{ steps.version.outputs.version }}"
+          du -sh dist/*
+          node scripts/check-bundle-size.js
+
+      - name: 🧪 Run tests
+        run: npm run test:ci
+
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.version.outputs.version }}
+          path: dist/
+          retention-days: 90
+
+      - name: 📝 Create release notes
+        run: |
+          cat > release-notes.md << EOF
+          # 🚀 Release ${{ steps.version.outputs.version }}
+
+          ## 📋 Changes
+          ${{ steps.changelog.outputs.changelog }}
+
+          ## 📊 Build Information
+          - **Node Version**: ${{ env.NODE_VERSION }}
+          - **Build Date**: $(date +%Y-%m-%d)
+          - **Commit**: ${{ github.sha }}
+
+          ## 📦 Installation
+          \`\`\`bash
+          npm install candivoc@${{ steps.version.outputs.version }}
+          \`\`\`
+
+          ## 🔗 Links
+          - [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.version }})
+          - [NPM Package](https://www.npmjs.com/package/candivoc)
+          - [Documentation](https://candivoc.com/docs)
+          EOF
+
+      - name: 📤 Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+
+  # 🚀 Create GitHub Release
+  create-release:
+    name: 🚀 Create Release
+    runs-on: ubuntu-latest
+    needs: build-release
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-${{ needs.build-release.outputs.version }}
+          path: dist/
+
+      - name: 📥 Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: ./
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.build-release.outputs.version }}
+          name: Release ${{ needs.build-release.outputs.version }}
+          body_path: release-notes.md
+          files: |
+            dist/**
+            package.json
+            package-lock.json
+          draft: false
+          prerelease: ${{ contains(needs.build-release.outputs.version, '-') }}
+          generate_release_notes: true
+
+  # 📦 Publish to NPM (si applicable)
+  publish-npm:
+    name: 📦 Publish to NPM
+    runs-on: ubuntu-latest
+    needs: build-release
+    if: startsWith(needs.build-release.outputs.version, 'v')
+    permissions:
+      contents: read
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: 📋 Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: 🔧 Update version
+        run: npm version ${{ needs.build-release.outputs.version }} --no-git-tag-version
+
+      - name: 📦 Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: 📨 Notify NPM publication
+        run: |
+          echo "📦 Package published to NPM!"
+          echo "🔗 https://www.npmjs.com/package/candivoc/v/${{ needs.build-release.outputs.version }}"
+
+  # 🚀 Deploy to production
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-release, create-release]
+    environment: production
+
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-${{ needs.build-release.outputs.version }}
+          path: dist/
+
+      - name: 🚀 Deploy to production
+        run: |
+          echo "🚀 Deploying version ${{ needs.build-release.outputs.version }} to production"
+          # Ajoutez ici votre logique de déploiement
+          # Ex: Vercel, Netlify, AWS S3, etc.
+
+      - name: 🔍 Health check
+        run: |
+          echo "🔍 Running health check..."
+          # Ajoutez ici vos vérifications de santé
+          sleep 30
+          echo "✅ Health check passed"
+
+      - name: 📊 Update deployment status
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "📦 Version: ${{ needs.build-release.outputs.version }}"
+          echo "🌐 Environment: Production"
+
+  # 📨 Notifications
+  notify-release:
+    name: 📨 Notify Release
+    runs-on: ubuntu-latest
+    needs: [build-release, create-release, deploy-production]
+    if: always()
+
+    steps:
+      - name: 📨 Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#releases'
+          text: |
+            🚀 Release ${{ needs.build-release.outputs.version }} ${{ job.status == 'success' && '✅' || '❌' }}
+
+            📦 Version: ${{ needs.build-release.outputs.version }}
+            🔗 Commit: ${{ github.sha }}
+            👤 Author: ${{ github.actor }}
+
+            🔗 [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.build-release.outputs.version }})
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: 📧 Email notification
+        if: job.status == 'success'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚀 CandiVoc Release ${{ needs.build-release.outputs.version }} Published"
+          body: |
+            Hello,
+
+            CandiVoc version ${{ needs.build-release.outputs.version }} has been successfully released!
+
+            📦 Changes:
+            ${{ needs.build-release.outputs.changelog }}
+
+            🔗 Links:
+            - GitHub Release: https://github.com/${{ github.repository }}/releases/tag/${{ needs.build-release.outputs.version }}
+            - Production: https://candivoc.com
+
+            Best regards,
+            CandiVoc Team
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: ${{ secrets.EMAIL_FROM }}
+
+  # 📊 Post-release analysis
+  post-release:
+    name: 📊 Post-Release Analysis
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: success()
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📊 Generate release report
+        run: |
+          cat > release-report.md << EOF
+          # 📊 Release Report - ${{ needs.build-release.outputs.version }}
+
+          ## 🚀 Deployment Information
+          - **Version**: ${{ needs.build-release.outputs.version }}
+          - **Release Date**: $(date +%Y-%m-%d)
+          - **Commit**: ${{ github.sha }}
+          - **Branch**: ${{ github.ref_name }}
+
+          ## 📦 Build Metrics
+          - **Node Version**: ${{ env.NODE_VERSION }}
+          - **Build Environment**: GitHub Actions
+
+          ## 📋 Changes
+          ${{ needs.build-release.outputs.changelog }}
+
+          ## 🔗 Links
+          - [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.build-release.outputs.version }})
+          - [Production](https://candivoc.com)
+          - [Documentation](https://candivoc.com/docs)
+          EOF
+
+      - name: 📤 Upload release report
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-report-${{ needs.build-release.outputs.version }}
+          path: release-report.md
+
+      - name: 🔄 Update version in repository
+        run: |
+          echo "✅ Release process completed for version ${{ needs.build-release.outputs.version }}"

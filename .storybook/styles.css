@@ -1,0 +1,4 @@
+/* Basic styles for Storybook */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
