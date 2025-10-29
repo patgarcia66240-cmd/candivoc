@@ -4,8 +4,8 @@ import { Button } from '../ui/Button';
 import { audioService } from '../../services/audio/audioService';
 
 interface AudioSettingsProps {
-  settings: any;
-  updateSetting: (key: string, value: any) => void;
+  settings: Record<string, unknown>;
+  updateSetting: (key: string, value: unknown) => void;
 }
 
 export const AudioSettings: React.FC<AudioSettingsProps> = ({

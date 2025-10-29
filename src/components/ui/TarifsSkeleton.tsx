@@ -1,128 +1,121 @@
 import React from 'react';
 
+// 🎨 Skeleton Tarifs CandiVoc - Fidèle et professionnel avec dégradés gris
 export const TarifsSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-linear-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-900">
-    {/* Header skeleton */}
-    <div className="bg-white dark:bg-gray-800 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
-        </div>
-      </div>
-    </div>
+  <div className="min-h-screen bg-linear-to-br from-slate-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6 transition-colors animate-pulse">
+    <div className="max-w-7xl mx-auto">
 
-    {/* Hero section skeleton */}
-    <div className="relative bg-linear-to-br from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-900 py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="space-y-6">
-          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-96 mx-auto animate-pulse"></div>
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mx-auto animate-pulse"></div>
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto animate-pulse"></div>
-        </div>
-      </div>
-    </div>
-
-    {/* Pricing cards skeleton */}
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Free plan skeleton */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-8">
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
-              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse"></div>
-            </div>
-
-            <div className="mt-8 space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center space-x-3">
-                  <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse"></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-          </div>
-        </div>
-
-        {/* Pro plan skeleton (featured) */}
-        <div className="bg-linear-to-br from-orange-500 to-amber-500 rounded-2xl shadow-xl border-2 border-orange-200 overflow-hidden transform scale-105">
-          <div className="p-8">
-            <div className="space-y-4">
-              <div className="h-8 bg-white/30 rounded w-32 animate-pulse"></div>
-              <div className="h-12 bg-white/30 rounded w-24 animate-pulse"></div>
-              <div className="h-4 bg-white/30 rounded w-40 animate-pulse"></div>
-            </div>
-
-            <div className="mt-8 space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center space-x-3">
-                  <div className="w-5 h-5 bg-white/30 rounded animate-pulse"></div>
-                  <div className="h-4 bg-white/30 rounded w-full animate-pulse"></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 h-12 bg-white/30 rounded-lg animate-pulse"></div>
-          </div>
-        </div>
-
-        {/* Enterprise plan skeleton */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-8">
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse"></div>
-              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36 animate-pulse"></div>
-            </div>
-
-            <div className="mt-8 space-y-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="flex items-center space-x-3">
-                  <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse"></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* FAQ section skeleton */}
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* En-tête - Exactement comme dans Tarifs.tsx (seulement 2 lignes) */}
       <div className="text-center mb-12">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 mx-auto animate-pulse"></div>
+        <div className="h-10 bg-linear-to-r from-gray-200 to-gray-300 rounded-lg w-96 mx-auto mb-4"></div>
+        <div className="h-6 bg-linear-to-r from-gray-200 to-gray-300 rounded w-1/2 mx-auto mb-2"></div>
+        <div className="h-6 bg-linear-to-r from-gray-200 to-gray-300 rounded w-1/2 mx-auto"></div>
       </div>
 
-      <div className="space-y-6">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <div className="space-y-3">
-              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 animate-pulse"></div>
-              </div>
+      {/* Cartes de tarifs - Exactement comme PricingCard.tsx mais en skeleton gris */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 items-stretch">
+
+        {/* Carte Essai Gratuit - Plus petite et compacte */}
+        <div className="bg-linear-to-br from-slate-100 to-slate-200 rounded-2xl shadow-xl border border-slate-600/50 p-6 hover:shadow-2xl hover:border-slate-400/70 transition-all duration-300 backdrop-blur-sm flex flex-col h-full relative">
+          {/* En-tête avec icône - Plus compact */}
+          <div className="text-center mb-4 shrink-0 relative">
+            <div className="w-12 h-12 bg-slate-700/90 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg backdrop-blur-sm">
+              <div className="w-6 h-6 bg-linear-to-r from-slate-400 to-slate-500 rounded-lg"></div>
             </div>
+            <div className="h-6 bg-linear-to-r from-gray-300 to-gray-400 rounded w-28 mx-auto mb-1"></div>
+            <div className="h-4 bg-linear-to-r from-gray-200 to-gray-300 rounded w-32 mx-auto"></div>
           </div>
-        ))}
-      </div>
-    </div>
 
-    {/* CTA section skeleton */}
-    <div className="bg-linear-to-br from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-900 py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="space-y-6">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-80 mx-auto animate-pulse"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-96 mx-auto animate-pulse"></div>
-          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg w-48 mx-auto animate-pulse"></div>
+          {/* Prix - Plus petit */}
+          <div className="text-center mb-4 shrink-0">
+            <div className="h-8 bg-linear-to-r from-gray-400 to-gray-500 rounded w-16 mx-auto mb-1"></div>
+            <div className="h-4 bg-linear-to-r from-gray-200 to-gray-300 rounded w-12 mx-auto"></div>
+          </div>
+
+          {/* Liste des fonctionnalités - Plus espacé */}
+          <ul className="space-y-4 mb-8 grow">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <li key={i} className="flex items-start min-h-[28px]">
+                <div className="w-4 h-4 bg-linear-to-r from-gray-400 to-gray-500 rounded-full mr-3 mt-0.5 shrink-0"></div>
+                <div className="h-3 bg-linear-to-r from-gray-300 to-gray-400 rounded flex-1 mt-0.5"></div>
+              </li>
+            ))}
+          </ul>
+
+          {/* Bouton - Plus petit */}
+          <div className="mt-auto shrink-0">
+            <div className="w-full h-10 bg-linear-to-r from-slate-400 to-slate-600 text-white py-2 px-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:opacity-90"></div>
+          </div>
+        </div>
+
+        {/* Carte Professionnel - Sans badge mais stylisée */}
+        <div className="bg-linear-to-br from-slate-500 to-slate-700 rounded-2xl shadow-xl border border-slate-600/50 p-6 hover:shadow-2xl transition-all duration-300 flex flex-col h-full relative">
+          {/* En-tête avec icône - Taille standard */}
+          <div className="text-center mb-4 shrink-0 relative">
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg backdrop-blur-sm">
+              <div className="w-6 h-6 bg-linear-to-r from-slate-600 to-slate-700 rounded-lg"></div>
+            </div>
+            <div className="h-6 bg-linear-to-r from-white/40 to-white/30 rounded w-32 mx-auto mb-1"></div>
+            <div className="h-4 bg-linear-to-r from-white/30 to-white/20 rounded w-36 mx-auto"></div>
+          </div>
+
+          {/* Prix - Taille standard */}
+          <div className="text-center mb-4 shrink-0">
+            <div className="h-8 bg-linear-to-r from-white/40 to-white/30 rounded w-20 mx-auto mb-1"></div>
+            <div className="h-4 bg-linear-to-r from-white/30 to-white/20 rounded w-12 mx-auto"></div>
+          </div>
+
+          {/* Liste des fonctionnalités - Taille standard */}
+          <ul className="space-y-4 mb-6 grow">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <li key={i} className="flex items-start min-h-[24px]">
+                <div className="w-4 h-4 bg-linear-to-r from-white/40 to-white/30 rounded-full mr-3 mt-0.5 shrink-0"></div>
+                <div className="h-3 bg-linear-to-r from-white/30 to-white/20 rounded flex-1 mt-0.5"></div>
+              </li>
+            ))}
+          </ul>
+
+          {/* Bouton - Taille standard */}
+          <div className="mt-auto shrink-0">
+            <div className="w-full h-10 bg-gradient-to-r from-slate-400 to-slate-600 text-white py-2 px-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:opacity-90"></div>
+          </div>
+        </div>
+
+        {/* Carte Enterprise - Plus petite et compacte */}
+        <div className="bg-linear-to-br from-slate-800 to-slate-900 rounded-2xl shadow-xl border border-slate-600/50 p-6 hover:shadow-2xl hover:border-slate-400/70 transition-all duration-300 backdrop-blur-sm flex flex-col h-full relative">
+          {/* En-tête avec icône - Plus compact */}
+          <div className="text-center mb-4 shrink-0 relative">
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg backdrop-blur-sm">
+              <div className="w-6 h-6 bg-linear-to-r from-slate-700 to-slate-800 rounded-lg"></div>
+            </div>
+            <div className="h-6 bg-linear-to-r from-white/40 to-white/30 rounded w-28 mx-auto mb-1"></div>
+            <div className="h-4 bg-linear-to-r from-white/30 to-white/20 rounded w-24 mx-auto"></div>
+          </div>
+
+          {/* Prix - Plus petit */}
+          <div className="text-center mb-4 shrink-0">
+            <div className="h-8 bg-linear-to-r from-white/40 to-white/30 rounded w-16 mx-auto mb-1"></div>
+            <div className="h-4 bg-linear-to-r from-white/30 to-white/20 rounded w-12 mx-auto"></div>
+          </div>
+
+          {/* Liste des fonctionnalités - Plus espacé */}
+          <ul className="space-y-4 mb-8 grow">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <li key={i} className="flex items-start min-h-[28px]">
+                <div className="w-4 h-4 bg-linear-to-r from-white/40 to-white/30 rounded-full mr-3 mt-0.5 shrink-0"></div>
+                <div className="h-3 bg-linear-to-r from-white/30 to-white/20 rounded flex-1 mt-0.5"></div>
+              </li>
+            ))}
+          </ul>
+
+          {/* Bouton - Plus petit */}
+          <div className="mt-auto shrink-0">
+            <div className="w-full h-10 bg-linear-to-r from-slate-600 to-slate-700 text-white py-2 px-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:opacity-90"></div>
+          </div>
         </div>
       </div>
+
+      
     </div>
   </div>
 );

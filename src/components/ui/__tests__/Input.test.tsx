@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
+import '@testing-library/jest-dom/vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Input } from '../Input'
@@ -121,7 +122,6 @@ describe('Input', () => {
 
   it('devrait gérer les événements clavier', async () => {
     const mockOnKeyDown = vi.fn()
-    const user = userEvent.setup()
 
     render(<Input value="" onChange={mockOnChange} onKeyDown={mockOnKeyDown} />)
 

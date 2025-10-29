@@ -7,31 +7,96 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [
     react(),
-    VitePWA({
+    // 🚫 Désactiver PWA pour Storybook pour éviter les erreurs de build
+    ...(process.env.NODE_ENV !== 'storybook' ? [
+      VitePWA({
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,woff2,woff,ttf,eot}',
+          '**/*.{json,webmanifest}',
+          'assets/**/*',
+          'images/**/*'
+        ],
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
+          // 🧠 API OpenAI - NetworkFirst avec fallback
           {
             urlPattern: /^https:\/\/api\.openai\.com\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'openai-cache',
+              cacheName: 'openai-api-cache',
+              networkTimeoutSeconds: 10,
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 12 // 12 hours
               }
             }
           },
+          // 🗄️ API Supabase - NetworkFirst avec fallback hors ligne
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'supabase-cache',
+              cacheName: 'supabase-api-cache',
+              networkTimeoutSeconds: 8,
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 30 // 30 minutes
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // 🎨 Assets statiques - CacheFirst avec longue durée
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-images-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 // 1 hour
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              }
+            }
+          },
+          // 📄 Fonts - CacheFirst permanente
+          {
+            urlPattern: /\.(?:woff2|woff|ttf|eot)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-fonts-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
+          },
+          // 🎭 CSS et JS - StaleWhileRevalidate
+          {
+            urlPattern: /\.(?:js|css)$/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-resources-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              }
+            }
+          },
+          // 📊 Fichiers JSON et données - NetworkFirst
+          {
+            urlPattern: /\.(?:json)$/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'json-data-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 2 // 2 hours
               }
             }
           }
@@ -68,6 +133,7 @@ export default defineConfig({
         ]
       }
     })
+    ] : []),
   ],
 
   // 🔥 Optimisations build avancées
@@ -236,18 +302,63 @@ export default defineConfig({
     ]
   },
 
-  // 🎯 Préchargement intelligent
+  // 🎯 Configuration serveur développement avec sécurité
   server: {
     port: 3000,
     open: true,
     cors: true,
-    preTransformRequests: true
+    preTransformRequests: true,
+    headers: {
+      // 🔐 Headers de sécurité pour le développement
+      'Content-Security-Policy': [
+        "default-src 'self';",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com;",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+        "font-src 'self' https://fonts.gstatic.com data:;",
+        "img-src 'self' data: https:;",
+        "connect-src 'self' https://api.stripe.com https://*.supabase.co wss://*.supabase.co ws://localhost:* ws://127.0.0.1:*;",
+        "media-src 'self' blob:;",
+        "object-src 'none';",
+        "base-uri 'self';",
+        "form-action 'self';",
+        "frame-ancestors 'none';"
+      ].join(' '),
+
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+      'Referrer-Policy': 'strict-origin-when-cross-origin'
+    }
   },
 
-  // 📊 Configuration preview
+  // 📊 Configuration preview avec sécurité
   preview: {
     port: 4173,
-    open: true
+    open: true,
+    headers: {
+      'Content-Security-Policy': [
+        // 🔒 Politique CSP restrictive pour production
+        "default-src 'self';",
+        "script-src 'self' 'unsafe-inline' https://js.stripe.com https://checkout.stripe.com;",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+        "font-src 'self' https://fonts.gstatic.com data:;",
+        "img-src 'self' data: https: https://avatars.githubusercontent.com;",
+        "connect-src 'self' https://api.stripe.com https://*.supabase.co wss://*.supabase.co;",
+        "media-src 'self' blob:;",
+        "object-src 'none';",
+        "base-uri 'self';",
+        "form-action 'self';",
+        "frame-ancestors 'none';",
+        "upgrade-insecure-requests;"
+      ].join(' '),
+
+      // 🛡️ Autres headers de sécurité
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+    }
   },
 
   // 🎨 CSS optimisé

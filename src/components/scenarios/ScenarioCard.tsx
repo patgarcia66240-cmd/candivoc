@@ -98,10 +98,9 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
         disabled={disabled}
         className="w-full"
       >
-        <Play className="w-4 h-4 mr-2" />
+        <Play className="w-4 h-4 mr-2 self-center" />
         Commencer la session
       </Button>
     </div>
   );
 };
-

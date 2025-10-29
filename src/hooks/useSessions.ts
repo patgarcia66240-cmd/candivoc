@@ -81,8 +81,8 @@ export function useSession(id: string) {
     enabled: !!id,
     select: (response) => response.data,
     // 🔄 Revalidation automatique pour les sessions actives
-    refetchInterval: (data) => {
-      return data?.status === 'active' ? 10000 : false // 10 secondes si active
+    refetchInterval: (response) => {
+      return response.data?.status === 'active' ? 10000 : false // 10 secondes si active
     }
   })
 }

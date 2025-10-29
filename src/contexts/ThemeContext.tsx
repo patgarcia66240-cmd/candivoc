@@ -1,11 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
-  resolvedTheme: 'light' | 'dark';
-  setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
 
@@ -13,7 +11,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
@@ -24,91 +22,49 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Récupérer le thème depuis localStorage ou utiliser system
+  const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('theme') as Theme;
-    if (saved && ['light', 'dark', 'system'].includes(saved)) {
-      return saved;
-    }
-    return 'system';
+    return saved || 'light';
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
-
-  // Appliquer le thème au document et détecter le thème système
-  useEffect(() => {
-    const updateTheme = () => {
-      let actualTheme: 'light' | 'dark';
-
-      if (theme === 'system') {
-        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      } else {
-        actualTheme = theme as 'light' | 'dark';
-      }
-
-      setResolvedTheme(actualTheme);
-
-      // Appliquer les classes avec transition fluide
-      const root = document.documentElement;
-      const body = document.body;
-
-      // Ajouter une classe de transition temporaire
-      root.style.transition = 'background-color 0.3s ease, color 0.3s ease';
-
-      // Appliquer les classes
-      root.classList.remove('light', 'dark');
-      root.classList.add(actualTheme);
-
-      if (body) {
-        body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
-        body.classList.remove('light', 'dark');
-        body.classList.add(actualTheme);
-      }
-    
-      // Mettre à jour les meta tags pour le thème
-      const metaTheme = document.querySelector('meta[name="theme-color"]');
-      if (metaTheme) {
-        metaTheme.setAttribute('content', actualTheme === 'dark' ? '#1f2937' : '#ffffff');
-      } else {
-        const newMeta = document.createElement('meta');
-        newMeta.name = 'theme-color';
-        newMeta.content = actualTheme === 'dark' ? '#1f2937' : '#ffffff';
-        document.head.appendChild(newMeta);
-      }
-
-
-      // Forcer un re-render des composants qui utilisent les classes dark:
-      const event = new CustomEvent('themechange', { detail: { theme: actualTheme } });
-      window.dispatchEvent(event);
-    };
-
-    updateTheme();
-
-    // Écouter les changements de préférence système
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => updateTheme();
-
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-  }, [theme]);
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   };
 
-  const toggleTheme = () => {
-    const newTheme: Theme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-  };
+  useEffect(() => {
+    const root = document.documentElement;
+
+    // Appliquer le thème avec CSS pur et simple
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.style.setProperty('--bg-primary', '#1a1a1a');
+      root.style.setProperty('--bg-secondary', '#2a2a2a');
+      root.style.setProperty('--text-primary', '#ffffff');
+      root.style.setProperty('--text-secondary', '#a0a0a0');
+      root.style.setProperty('--border-color', '#404040');
+      root.style.setProperty('--hover-bg', 'rgba(255, 255, 255, 0.05)');
+      root.style.setProperty('--hover-border', 'rgba(255, 255, 255, 0.1)');
+      root.style.setProperty('--hover-color', 'var(--text-primary)');
+    } else {
+      root.classList.remove('dark');
+      root.style.setProperty('--bg-primary', '#ffffff');
+      root.style.setProperty('--bg-secondary', '#f5f5f5');
+      root.style.setProperty('--text-primary', '#000000');
+      root.style.setProperty('--text-secondary', '#666666');
+      root.style.setProperty('--border-color', '#e0e0e0');
+      root.style.setProperty('--hover-bg', 'rgba(251, 146, 60, 0.1)');
+      root.style.setProperty('--hover-border', 'rgba(251, 146, 60, 0.3)');
+      root.style.setProperty('--hover-color', '#ea580c');
+    }
+
+    console.log(`🎨 Thème appliqué: ${theme}`);
+  }, [theme]);
 
   const value: ThemeContextType = {
     theme,
-    resolvedTheme,
-    setTheme,
-    toggleTheme
+    toggleTheme,
   };
 
   return (
@@ -117,5 +73,3 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     </ThemeContext.Provider>
   );
 };
-
-export default ThemeProvider;

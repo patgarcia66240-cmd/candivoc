@@ -9,7 +9,11 @@
       "Bash(where code)",
       "Bash(git commit:*)",
       "Bash(npm run lint)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(dir:*)",
+      "Bash(npx storybook@latest init:*)",
+      "Bash(npm run storybook)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

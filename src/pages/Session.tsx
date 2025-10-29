@@ -29,6 +29,14 @@ interface Message {
   };
 }
 
+interface SessionEvaluation {
+  score?: number;
+  feedback?: string;
+  strengths?: string[];
+  improvements?: string[];
+  overall_rating?: "excellent" | "good" | "average" | "needs_improvement";
+}
+
 interface Session {
   id: string;
   userId: string;
@@ -39,27 +47,11 @@ interface Session {
   duration?: number;
   audioRecordingUrl?: string;
   transcript: Message[];
-  evaluation?: sessionEvaluation;
+  evaluation?: SessionEvaluation;
   createdAt: Date;
 }
 
-interface SessionEvaluation {
-  id: string;
-  sessionId: string;
-  overallScore: number;
-  criteriaScores: CriteriaScore[];
-  strengths: string[];
-  improvements: string[];
-  suggestions: string[];
-  feedback: string;
-  createdAt: Date;
-}
 
-interface CriteriaScore {
-  criteriaId: string;
-  score: number;
-  details: string;
-}
 
 interface ScenarioData {
   id: string;
@@ -72,7 +64,7 @@ interface ScenarioData {
   dureeEstimee: string;
 }
 
-export const sessionPage: React.FC = () => {
+const SessionPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { settings } = useSettings();
@@ -136,7 +128,7 @@ export const sessionPage: React.FC = () => {
       const scenarioId = demoId.replace("demo-", "");
 
       // Créer une session de démonstration
-      const demoSession: session = {
+      const demoSession: Session = {
         id: demoId,
         userId: "demo-user",
         scenarioId: `Scénario ${scenarioId}`,
@@ -171,7 +163,7 @@ export const sessionPage: React.FC = () => {
 
   const fetchsession = async (id: string) => {
     try {
-      const response = await sessionsService.getsessionById(id);
+      const response = await sessionsService.getSessionById(id);
       if (response.success && response.data) {
         setSession(response.data);
         setMessages(response.data.transcript || []);
@@ -694,3 +686,5 @@ IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la 
     </>
   );
 };
+
+export default SessionPage;

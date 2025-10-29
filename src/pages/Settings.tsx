@@ -255,9 +255,9 @@ export const Settings: React.FC = () => {
 
   const getVolumeIcon = () => {
     const volume = settings.aiVoiceVolume ?? 0.9;
-    if (volume === 0) return <VolumeX className="w-5 h-5" />;
-    if (volume < 0.5) return <Volume1 className="w-5 h-5" />;
-    return <Volume2 className="w-5 h-5" />;
+    if (volume === 0) return <VolumeX className="w-5 h-5 self-center" />;
+    if (volume < 0.5) return <Volume1 className="w-5 h-5 self-center" />;
+    return <Volume2 className="w-5 h-5 self-center" />;
   };
 
   const getVolumeColor = () => {
@@ -878,4 +878,3 @@ export const Settings: React.FC = () => {
     </>
   );
 };
-

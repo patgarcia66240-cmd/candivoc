@@ -1,12 +1,8 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 import { scenariosService } from '@/services/api/scenarios'
 import type {
-  Scenario,
-  ScenarioWithCriteria,
   CreateScenarioInput,
-  UpdateScenarioInput,
-  ScenarioCategory,
-  ScenarioDifficulty
+  UpdateScenarioInput
 } from '@/types/scenarios'
 
 // 📊 Cache keys constants

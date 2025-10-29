@@ -11,7 +11,7 @@ interface User {
 }
 
 interface MonitoringContext {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export class MonitoringService {
@@ -176,16 +176,14 @@ export class MonitoringService {
     )
   }
 
-  // 🪝 Hook pour tracking des transactions
-  static useTransaction(name: string, operation: string) {
-    return React.useMemo(() => {
-      if (!this.isInitialized) return null
+  // 📊 Méthode pour tracking des transactions
+  static getTransaction(name: string) {
+    if (!this.isInitialized) return null
 
       return {
         start: () => console.log(`🎯 Transaction started: ${name}`),
         finish: () => console.log(`✅ Transaction finished: ${name}`),
       }
-    }, [name, operation])
   }
 }
 

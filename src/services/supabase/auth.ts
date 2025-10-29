@@ -27,7 +27,7 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!!.auth.signUp({
+    const { data, error } = await supabase!.auth.signUp({
       email,
       password,
       options: {
@@ -41,7 +41,7 @@ export class SupabaseAuth {
 
     if (!error && data.user) {
       // Créer le profil utilisateur dans la table public.profiles
-      const { error: profileError } = await supabase!!
+      const { error: profileError } = await supabase!
         .from('profiles')
         .insert({
           id: data.user.id,
@@ -54,7 +54,7 @@ export class SupabaseAuth {
       if (profileError) {
         console.error('Profile creation error:', profileError);
         // Tenter de supprimer l'utilisateur auth créé si le profil échoue
-        await supabase!!.auth.admin.deleteUser(data.user.id);
+        await supabase!.auth.admin.deleteUser(data.user.id);
         return { data: null, error: profileError };
       }
     }
@@ -71,7 +71,7 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!!.auth.signInWithPassword({
+    const { data, error } = await supabase!.auth.signInWithPassword({
       email,
       password,
     });
@@ -84,7 +84,7 @@ export class SupabaseAuth {
       return { error: new Error('Service d\'authentification indisponible.') };
     }
 
-    const { error } = await supabase!!.auth.signOut();
+    const { error } = await supabase!.auth.signOut();
     return { error: error as Error | null };
   }
 
@@ -97,14 +97,14 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!!.auth.getUser();
+    const { data, error } = await supabase!.auth.getUser();
 
     if (error || !data.user) {
       return { user: null, error };
     }
 
     // Récupérer le profil utilisateur
-    const { data: profile, error: profileError } = await supabase!!
+    const { data: profile, error: profileError } = await supabase!
       .from('profiles')
       .select('*')
       .eq('id', data.user.id)
@@ -160,7 +160,7 @@ export class SupabaseAuth {
       };
     }
 
-    const { data, error } = await supabase!!.auth.getSession();
+    const { data, error } = await supabase!.auth.getSession();
     return { session: data.session, error };
   }
 
@@ -183,7 +183,7 @@ export class SupabaseAuth {
   // Mettre à jour le dernier login
   static async updateLastLogin(userId: string): Promise<{ error: Error | null }> {
     try {
-      const { error } = await supabase!!
+      const { error } = await supabase!
         .from('profiles')
         .update({ last_login: new Date().toISOString() })
         .eq('id', userId);

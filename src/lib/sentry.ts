@@ -76,12 +76,12 @@ export function setSentryTags(tags: Record<string, string>) {
 }
 
 // 📥 Enrichir le contexte Sentry
-export function setSentryContext(key: string, context: any) {
+export function setSentryContext(key: string, context: Record<string, unknown>) {
   Sentry.setContext(key, context)
 }
 
 // 📤 Capturer les erreurs manuellement
-export function captureException(error: Error, context?: Record<string, any>) {
+export function captureException(error: Error, context?: Record<string, unknown>) {
   console.error('🚨 Sentry Error:', error)
 
   if (context) {
@@ -110,11 +110,15 @@ export function SentryErrorBoundary({
 }) {
   // Use React.createElement to avoid requiring .tsx and to bypass strict fallback typing
   return React.createElement(
-    Sentry.ErrorBoundary as any,
+    Sentry.ErrorBoundary as React.ComponentType<React.PropsWithChildren<{
+      fallback?: React.ReactNode | (({error, reset}: {error: Error, reset: () => void}) => React.ReactNode);
+      showDialog?: boolean;
+      onError?: (error: Error, errorInfo: Record<string, unknown>) => void;
+    }>>,
     {
-      fallback: fallback as unknown as any,
+      fallback: ({error, reset}: {error: Error, reset: () => void}) => React.createElement(fallback, {error, reset}),
       showDialog: import.meta.env.DEV,
-      onError: (error: Error, errorInfo: any) => {
+      onError: (error: Error, errorInfo: Record<string, unknown>) => {
         console.error('🚨 Sentry Error Boundary:', error, errorInfo)
       },
     },
@@ -123,13 +127,13 @@ export function SentryErrorBoundary({
 }
 
 // 🔥 Hook pour tracking des transactions (monitoring local uniquement)
-export function useSentryTransaction(name: string, operation: string) {
+export function useSentryTransaction(name: string) {
   return React.useMemo(() => {
     return {
       start: () => console.log(`🎯 Transaction started: ${name}`),
       finish: () => console.log(`✅ Transaction finished: ${name}`),
     }
-  }, [name, operation])
+  }, [name])
 }
 
 export default initSentry

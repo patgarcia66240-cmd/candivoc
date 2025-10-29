@@ -1,16 +1,6 @@
 import React, { lazy, Suspense, useState, useEffect } from 'react'
 import { PageSkeleton } from '../components/ui/PageSkeleton'
-
-declare global {
-  interface Window {
-    gtag: (...args: any[]) => void;
-  }
-}
-
-// 🎯 Type pour composants lazy compatibles JSX
-type LazyComponentType = React.ComponentType<any> & {
-  preload?: () => Promise<void>;
-}
+import { LazyComponentType } from './lazyRouteUtils'
 
 // 🚀 Composant de chargement optimisé
 interface LazyWrapperProps {
@@ -71,7 +61,7 @@ export const Chat = lazy(() =>
 
 export const Session = lazy(() =>
   import('../pages/Session').then(module => ({
-    default: module.sessionPage
+    default: module.default
   }))
 ) as LazyComponentType
 
@@ -112,106 +102,44 @@ export const VoiceChatInterface = lazy(() =>
   import('../components/chat/VoiceChatInterface').then(module => ({
     default: module.VoiceChatInterface
   }))
-) as LazyComponentType
+) as unknown as LazyComponentType
 
 // 🎙️ Enregistreur audio (85 lignes)
 export const AudioRecorder = lazy(() =>
   import('../components/chat/AudioRecorder').then(module => ({
     default: module.AudioRecorder
   }))
-) as LazyComponentType
+) as unknown as LazyComponentType
 
 // 📝 Transcription temps réel (140 lignes)
 export const LiveTranscription = lazy(() =>
   import('../components/chat/LiveTranscription').then(module => ({
     default: module.LiveTranscription
   }))
-) as LazyComponentType
+) as unknown as LazyComponentType
 
 // 📊 Visualisation audio (79 lignes)
 export const WaveformVisualizer = lazy(() =>
   import('../components/chat/WaveformVisualizer').then(module => ({
     default: module.WaveformVisualizer
   }))
-) as LazyComponentType
+) as unknown as LazyComponentType
 
 // 💳 Composants tarifs (280 lignes)
 export const PricingSection = lazy(() =>
   import('../components/pricing/PricingSection').then(module => ({
     default: module.PricingSection
   }))
-) as LazyComponentType
+) as unknown as LazyComponentType
 
 export const PricingCard = lazy(() =>
   import('../components/ui/PricingCard').then(module => ({
     default: module.PricingCard
   }))
-) as LazyComponentType
+) as unknown as LazyComponentType
 
-// 🔥 Stratégie de préchargement intelligent
+// 🔥 Les utilitaires de préchargement ont été déplacés vers lazyRouteUtils.ts
 
-// 🎯 Précharger les pages critiques au hover
-export const preloadOnHover = (lazyComponent: LazyComponentType) => {
-  return () => {
-    return lazyComponent
-  }
-}
-
-// 📦 Précharger les chunks basés sur le comportement utilisateur
-export const prefetchChunks = {
-  // Précharger dashboard quand utilisateur est sur landing > 10s
-  dashboard: () => {
-    if (typeof window !== 'undefined') {
-      setTimeout(() => {
-        Dashboard.preload?.()
-      }, 10000)
-    }
-  },
-
-  // Précharger settings quand utilisateur clique sur profil
-  settings: () => {
-    Settings.preload?.()
-  },
-
-  // Précharger chat quand utilisateur est sur dashboard > 5s
-  chat: () => {
-    if (typeof window !== 'undefined') {
-      setTimeout(() => {
-        Chat.preload?.()
-        VoiceChatInterface.preload?.()
-      }, 5000)
-    }
-  },
-
-  // Précharger pricing quand utilisateur visite tarifs
-  pricing: () => {
-    Pricing.preload?.()
-    PricingSection.preload?.()
-  }
-}
-
-// 📊 Hook de préchargement intelligent
-export const usePrefetching = () => {
-  useEffect(() => {
-    // 🎯 Analyser le comportement utilisateur
-    const handleUserInteraction = () => {
-      // Précharger dashboard après première interaction
-      if (!localStorage.getItem('dashboard_prefetched')) {
-        prefetchChunks.dashboard()
-        localStorage.setItem('dashboard_prefetched', 'true')
-      }
-    }
-
-    // 🖱️ Écouter les interactions utilisateur
-    document.addEventListener('click', handleUserInteraction)
-    document.addEventListener('scroll', handleUserInteraction)
-
-    return () => {
-      document.removeEventListener('click', handleUserInteraction)
-      document.removeEventListener('scroll', handleUserInteraction)
-    }
-  }, [])
-}
 
 // 🎨 Wrapper de route avec préchargement
 interface RouteWithPrefetchProps {
@@ -239,65 +167,3 @@ export const RouteWithPrefetch: React.FC<RouteWithPrefetchProps> = ({
     </div>
   )
 }
-
-// 📊 Statistiques de chargement (pour monitoring)
-export const trackChunkLoading = (chunkName: string, loadTime: number) => {
-  if (typeof window !== 'undefined' && 'gtag' in window) {
-    window.gtag('event', {
-      event_category: 'chunk_loading',
-      event_label: chunkName,
-      value: loadTime,
-      timestamp: Date.now()
-    })
-  }
-}
-
-// 🚀 Export du routeur optimisé
-export const createOptimizedRoutes = () => {
-
-  return [
-    {
-      path: '/',
-      element: (
-        <RouteWithPrefetch prefetch={prefetchChunks.dashboard}>
-          <Landing />
-        </RouteWithPrefetch>
-      )
-    },
-    {
-      path: '/dashboard',
-      element: (
-        <RouteWithPrefetch prefetch={prefetchChunks.chat}>
-          <Dashboard />
-        </RouteWithPrefetch>
-      )
-    },
-    {
-      path: '/settings',
-      element: (
-        <RouteWithPrefetch>
-          <Settings />
-        </RouteWithPrefetch>
-      )
-    },
-    {
-      path: '/chat/:sessionId',
-      element: (
-        <RouteWithPrefetch>
-          <Chat />
-        </RouteWithPrefetch>
-      )
-    },
-    {
-      path: '/pricing',
-      element: (
-        <RouteWithPrefetch prefetch={prefetchChunks.pricing}>
-          <Pricing />
-        </RouteWithPrefetch>
-      )
-    },
-    // ... autres routes
-  ]
-}
-
-export default createOptimizedRoutes

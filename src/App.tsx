@@ -13,6 +13,7 @@ import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
 import { PWAStatus } from './components/pwa/PWAStatus';
 import { Layout } from './components/ui/Layout';
 import { PageSkeleton } from './components/ui/PageSkeleton';
+import { TarifsSkeleton } from './components/ui/TarifsSkeleton';
 import { queryClient } from './lib/react-query';
 
 // Lightweight placeholder hook for prefetching to avoid a missing-module error.
@@ -27,34 +28,34 @@ const usePrefetching = (): void => {
 // Ensure the dynamic import always returns an object with a `default` component so React.lazy's typing is satisfied.
 // This handles modules that export the component as a named export or a default export.
 const Landing = React.lazy(() =>
-  import('./pages/Landing').then((m) => ({ default: (m as any).default ?? (m as any).Landing }))
+  import('./pages/Landing').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Landing }))
 );
 const ConfigErrorSimple = React.lazy(() =>
-  import('./pages/ConfigErrorSimple').then((m) => ({ default: (m as any).default ?? (m as any).ConfigErrorSimple }))
+  import('./pages/ConfigErrorSimple').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).ConfigErrorSimple }))
 );
 const Dashboard = React.lazy(() =>
-  import('./pages/Dashboard').then((m) => ({ default: (m as any).default ?? (m as any).Dashboard }))
+  import('./pages/Dashboard').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Dashboard }))
 );
 const Scenarios = React.lazy(() =>
-  import('./pages/Scenarios').then((m) => ({ default: (m as any).default ?? (m as any).Scenarios }))
+  import('./pages/Scenarios').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Scenarios }))
 );
 const Sessions = React.lazy(() =>
-  import('./pages/Sessions').then((m) => ({ default: (m as any).default ?? (m as any).Sessions }))
+  import('./pages/Sessions').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Sessions }))
 );
 const Settings = React.lazy(() =>
-  import('./pages/Settings').then((m) => ({ default: (m as any).default ?? (m as any).Settings }))
+  import('./pages/Settings').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Settings }))
 );
 const Pricing = React.lazy(() =>
-  import('./pages/Pricing').then((m) => ({ default: (m as any).default ?? (m as any).Pricing }))
+  import('./pages/Pricing').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Pricing }))
 );
 const Chat = React.lazy(() =>
-  import('./pages/Chat').then((m) => ({ default: (m as any).default ?? (m as any).Chat }))
+  import('./pages/Chat').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Chat }))
 );
 const Session = React.lazy(() =>
-  import('./pages/Session').then((m) => ({ default: (m as any).default ?? (m as any).Session }))
+  import('./pages/Session').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).Session }))
 );
 const PaymentSuccess = React.lazy(() =>
-  import('./pages/PaymentSuccess').then((m) => ({ default: (m as any).default ?? (m as any).PaymentSuccess }))
+  import('./pages/PaymentSuccess').then((m: Record<string, unknown>) => ({ default: (m as Record<string, unknown>).default ?? (m as Record<string, unknown>).PaymentSuccess }))
 );
 
 // 🎯 Initialisation des services de monitoring
@@ -170,7 +171,7 @@ const AppRoutes: React.FC = () => {
         path="/pricing"
         element={
           <PrivateRoute>
-            <React.Suspense fallback={<PageSkeleton />}>
+            <React.Suspense fallback={<TarifsSkeleton />}>
               <Pricing />
             </React.Suspense>
           </PrivateRoute>

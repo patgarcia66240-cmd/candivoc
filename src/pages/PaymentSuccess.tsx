@@ -3,10 +3,18 @@ import { CheckCircle, Home, CreditCard } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../services/supabase/client';
 
+interface Subscription {
+  planName: string;
+  status: string;
+  priceId?: string;
+  customerEmail?: string;
+  sessionId?: string;
+}
+
 export const PaymentSuccess: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [subscription, setSubscription] = useState<any>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -94,8 +102,8 @@ export const PaymentSuccess: React.FC = () => {
 
       // Déterminer le statut basé sur le nom du plan
       
-      const updates: any = {
-        subscription_status: planName,
+      const updates: Record<string, string | null> = {
+        subscription_status: planName || null,
         updated_at: new Date().toISOString()
       };
 
@@ -175,7 +183,7 @@ export const PaymentSuccess: React.FC = () => {
 
         <p className="text-gray-600 mb-6">
           Votre abonnement <span className="font-semibold text-green-600">
-            {subscription?.planName || 'Professionnel'}
+            {String(subscription?.planName || 'Professionnel')}
           </span> est maintenant actif.
         </p>
 
@@ -187,7 +195,7 @@ export const PaymentSuccess: React.FC = () => {
 
         {subscription?.customerEmail && (
           <p className="text-sm text-gray-500 mb-6">
-            Un email de confirmation a été envoyé à {subscription.customerEmail}
+            Un email de confirmation a été envoyé à {String(subscription.customerEmail)}
           </p>
         )}
 

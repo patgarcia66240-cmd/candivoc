@@ -55,7 +55,7 @@ export class PerformanceService {
         this.observePerformanceEntry('first-input', (entries) => {
           const firstInput = entries[0]
           if (firstInput && 'startTime' in firstInput) {
-            const fid = (firstInput as any).processingStart - firstInput.startTime
+            const fid = (firstInput as PerformanceEventTiming & { processingStart: number }).processingStart - firstInput.startTime
             this.metrics.fid = fid
             this.reportMetric('fid', this.metrics.fid, 'ms')
           }
@@ -65,7 +65,7 @@ export class PerformanceService {
       // Cumulative Layout Shift (CLS)
       this.observePerformanceEntry('layout-shift', (entries) => {
         let clsValue = 0
-        entries.forEach((entry: any) => {
+        entries.forEach((entry: PerformanceEntry & { hadRecentInput?: boolean; value?: number }) => {
           if (!entry.hadRecentInput) {
             clsValue += entry.value
           }
@@ -186,8 +186,8 @@ export class PerformanceService {
   // 📡 Détails de navigation
   private static reportNavigationDetails(nav: NavigationTiming) {
     const details = {
-      connection_type: (navigator as any).connection?.effectiveType || 'unknown',
-      device_memory: (navigator as any).deviceMemory || 0,
+      connection_type: (navigator as Navigator & { connection?: { effectiveType: string } }).connection?.effectiveType || 'unknown',
+      device_memory: (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 0,
       hardware_concurrency: navigator.hardwareConcurrency || 1,
       service_worker: 'serviceWorker' in navigator,
       https: location.protocol === 'https:',
@@ -213,7 +213,7 @@ export class PerformanceService {
   }
 
   // 📝 Signaler un contexte
-  private static reportContext(key: string, context: any) {
+  private static reportContext(key: string, context: Record<string, unknown>) {
     if (window.analytics) {
       window.analytics.setUserProperties({ [key]: context })
     }
@@ -270,7 +270,7 @@ export class PerformanceService {
   // 🔧 Mesurer le temps de chargement d'un composant
   static measureComponentRender(componentName: string) {
     return (WrappedComponent: React.ComponentType) => {
-      return (props: any) => {
+      return (props: Record<string, unknown>) => {
         React.useEffect(() => {
           const startTime = performance.now()
 
@@ -327,8 +327,13 @@ export class PerformanceService {
 // 🔧 Extensions TypeScript pour window
 declare global {
   interface Window {
-    analytics?: any
-    performanceService?: any
+    analytics?: {
+      setUserProperties: (properties: Record<string, unknown>) => void;
+      logEvent: (eventName: string, parameters?: Record<string, unknown>) => void;
+    }
+    performanceService?: {
+      captureMetric: (name: string, value: number, unit?: string) => void;
+    }
   }
 }
 

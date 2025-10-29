@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { vi, afterEach } from 'vitest'
 
 // 🎭 Mocks globaux pour les tests
 
@@ -43,7 +43,7 @@ global.AudioContext = vi.fn().mockImplementation(() => ({
   sampleRate: 44100,
 }))
 
-// 🎤 Mock MediaRecorder
+
 global.MediaRecorder = vi.fn().mockImplementation(() => ({
   start: vi.fn(),
   stop: vi.fn(),
@@ -51,7 +51,7 @@ global.MediaRecorder = vi.fn().mockImplementation(() => ({
   resume: vi.fn(),
   state: 'inactive',
   stream: new MediaStream(),
-})) as any
+})) as unknown as typeof MediaRecorder
 
 // 🎤 Mock navigator.mediaDevices
 Object.defineProperty(navigator, 'mediaDevices', {
@@ -65,8 +65,20 @@ Object.defineProperty(navigator, 'mediaDevices', {
   },
 })
 
-// 🔊 Mock SpeechRecognition
-global.SpeechRecognition = vi.fn().mockImplementation(() => ({
+
+// 🎤 Mock SpeechRecognition API
+interface MockSpeechRecognition {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  start: () => void
+  stop: () => void
+  onresult: ((event: SpeechRecognitionResultList) => void) | null
+  onerror: ((event: { error: string; message: string }) => void) | null
+  onend: ((event: Event) => void) | null
+}
+
+(global as Record<string, unknown>).SpeechRecognition = vi.fn().mockImplementation((): MockSpeechRecognition => ({
   continuous: true,
   interimResults: true,
   lang: 'fr-FR',
@@ -75,19 +87,22 @@ global.SpeechRecognition = vi.fn().mockImplementation(() => ({
   onresult: null,
   onerror: null,
   onend: null,
-})) as any
+}))
 
 // 📊 Mock Service Worker
-global.navigator.serviceWorker = {
-  register: vi.fn().mockResolvedValue({
-    installing: null,
-    waiting: null,
-    active: null,
-  }),
-  ready: Promise.resolve({
-    addEventListener: vi.fn(),
-  }),
-}
+Object.defineProperty(global.navigator, 'serviceWorker', {
+  value: {
+    register: vi.fn().mockResolvedValue({
+      installing: null,
+      waiting: null,
+      active: null,
+    }),
+    ready: Promise.resolve({
+      addEventListener: vi.fn(),
+    }),
+  },
+  writable: true,
+})
 
 // 🗄️ Mock Supabase
 vi.mock('@/services/supabase/client', () => ({
@@ -135,11 +150,11 @@ vi.mock('@/services/stripe', () => ({
   },
 }))
 
-// 🔔 Mock Notifications API
+
 global.Notification = vi.fn().mockImplementation(() => ({
   permission: 'granted',
   requestPermission: vi.fn().mockResolvedValue('granted'),
-})) as any
+})) as unknown as typeof Notification
 
 Object.defineProperty(global, 'Notification', {
   writable: true,

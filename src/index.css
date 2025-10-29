@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "./styles/theme.css";
 
 body {
   margin: 0;
@@ -73,29 +73,7 @@ html.dark body {
   --tw-ring-color: rgb(34 197 94 / var(--tw-ring-opacity));
 }
 
-/* Animation classes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
+/* Animation classes utilisant les keyframes de Tailwind */
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out;
 }

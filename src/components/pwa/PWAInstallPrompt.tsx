@@ -20,7 +20,7 @@ export const PWAInstallPrompt: React.FC = () => {
     const checkIfInstalled = () => {
       const isInStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone ||
+        (window.navigator as Record<string, unknown>).standalone ||
         document.referrer.includes('android-app://');
 
       setIsInstalled(isInStandaloneMode);
@@ -72,7 +72,8 @@ export const PWAInstallPrompt: React.FC = () => {
       if (outcome === 'accepted') {
         setDeferredPrompt(null);
       }
-    } catch (error) {
+    } catch {
+      // Silently handle install errors
     }
   };
 

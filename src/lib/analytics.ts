@@ -2,7 +2,7 @@
 
 interface AnalyticsEvent {
   event: string
-  properties?: Record<string, any>
+  properties?: Record<string, unknown>
   userId?: string
   value?: number
   timestamp?: number
@@ -15,7 +15,7 @@ interface PageView {
 }
 
 interface UserProperties {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export class AnalyticsService {
@@ -54,7 +54,7 @@ export class AnalyticsService {
     // Initialiser gtag global
     window.dataLayer = window.dataLayer || []
     window.gtag = function(...args) {
-      window.dataLayer.push(args)
+      window.dataLayer.push(args as Record<string, unknown>)
     }
 
     script.onload = () => {
@@ -78,12 +78,11 @@ export class AnalyticsService {
     if (!import.meta.env.VITE_GA_ID) {
       // Mode local pour développement
       console.log('📊 Analytics local mode activé')
-      window.gtag = (action: string, config: any) => {
-        console.log('📊 Analytics Event:', action, config)
+      window.gtag = (...args) => {
+        console.log('📊 Analytics Event:', args)
         const events = JSON.parse(localStorage.getItem('candivoc_analytics') || '[]')
         events.push({
-          action,
-          config,
+          args,
           timestamp: Date.now(),
           url: window.location.href,
         })
@@ -271,7 +270,7 @@ export class AnalyticsService {
         // Créer un CSV
         interface LocalAnalyticsEvent {
           action: string
-          config: Record<string, any>
+          config: Record<string, unknown>
           timestamp: number
           url: string
         }
@@ -303,8 +302,8 @@ export class AnalyticsService {
 // 🔧 Extensions TypeScript pour window
 declare global {
   interface Window {
-    dataLayer: any[]
-    gtag: (...args: any[]) => void
+    dataLayer: Record<string, unknown>[]
+    gtag: (...args: unknown[]) => void
   }
 }
 

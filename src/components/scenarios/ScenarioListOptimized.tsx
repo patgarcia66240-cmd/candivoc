@@ -3,7 +3,7 @@ import { Search, Filter, AlertCircle } from 'lucide-react';
 import { ScenarioCard } from './ScenarioCard';
 import { Input } from '../ui/Input';
 import { CustomSelect } from '../ui/CustomSelect';
-import { useScenarios, useCreateScenario } from '@/hooks/useScenarios';
+import { useScenarios } from '@/hooks/useScenarios';
 import type { Scenario } from '../../types/scenarios';
 
 interface ScenarioListOptimizedProps {
@@ -29,9 +29,7 @@ export const ScenarioListOptimized: React.FC<ScenarioListOptimizedProps> = ({
     is_public: true
   });
 
-  // 🔄 Mutation pour créer un scénario (exemple)
-  const createScenarioMutation = useCreateScenario();
-
+  
   const categories = ['all', 'technical', 'commercial', 'presentation', 'problem-solving', 'communication'];
   const difficulties = ['all', 'beginner', 'intermediate', 'advanced'];
 
