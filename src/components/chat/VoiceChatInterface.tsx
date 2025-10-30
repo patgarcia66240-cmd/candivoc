@@ -3,6 +3,7 @@ import { AudioRecorder } from './AudioRecorder';
 import { WaveformVisualizer } from './WaveformVisualizer';
 import { ChatInterface } from './ChatInterface';
 import { LiveTranscription } from './LiveTranscription';
+import { KaraokeTranscript } from './KaraokeTranscript';
 import { audioService } from '../../services/audio/audioService';
 import { Volume2, MicOff } from 'lucide-react';
 
@@ -50,8 +51,14 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({
 
   // Gérer les mises à jour de transcription avec traitement plus rapide
   const handleTranscriptUpdate = useCallback((transcript: string, isFinal: boolean) => {
-    // Si on détecte du texte (même non final) et que l'IA parle, l'arrêter
-    if (transcript.trim() && audioService.isSpeaking()) {
+    // Vérifier si la transcription est significative avant d'interrompre l'IA
+    const isSignificantSpeech = isFinal &&
+      transcript.trim().length > 2 && // Au moins 3 caractères
+      !transcript.trim().match(/^(euh|ah|m|h|hum|hein|donc|ben|alors)$/i) && // Exclure les mots de remplissage
+      transcript.trim().split(/\s+/).length >= 1; // Au moins un mot valide
+
+    // Si on détecte une parole significative et que l'IA parle, l'arrêter
+    if (isSignificantSpeech && audioService.isSpeaking()) {
       const result = audioService.stopAIVoice();
       if (result.stopped) {
         setIsAISpeaking(false);
@@ -75,19 +82,29 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({
       return;
     }
 
-    setCurrentTranscript(transcript);
+    // N'afficher que les transcriptions significatives comme texte courant
+    if (!isAISpeaking) {
+      setCurrentTranscript(transcript);
+    }
 
-    if (isFinal && transcript.trim()) {
-      const newEntry = {
-        text: transcript,
-        timestamp: new Date(),
-        isFinal: true
-      };
-      setTranscriptHistory(prev => [...prev, newEntry]);
-      setCurrentTranscript('');
+    if (isFinal && transcript.trim() && transcript.trim().length > 2) {
+      // Filtrer les mots de remplissage et les transcriptions trop courtes
+      const cleanedTranscript = transcript.trim()
+        .replace(/^(euh|ah|m|h|hum|hein|donc|ben|alors)\s+/gi, '') // Retirer les mots de remplissage au début
+        .replace(/\s+(euh|ah|m|h|hum|hein|donc|ben|alors)$/gi, ''); // Retirer à la fin
 
-      // Envoyer le message final au chat immédiatement pour une réponse plus rapide
-      onSendMessage(transcript);
+      if (cleanedTranscript.length > 2) {
+        const newEntry = {
+          text: cleanedTranscript,
+          timestamp: new Date(),
+          isFinal: true
+        };
+        setTranscriptHistory(prev => [...prev, newEntry]);
+        setCurrentTranscript('');
+
+        // Envoyer le message final au chat immédiatement pour une réponse plus rapide
+        onSendMessage(cleanedTranscript);
+      }
     }
 
     // Notifier le parent
@@ -98,22 +115,84 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({
 
   // Wrapper pour démarrer l'enregistrement avec reconnaissance vocale
   const handleStartRecordingWithTranscription = useCallback(async () => {
+    console.log("🎤 Starting recording with speech recognition...");
+
+    // Réinitialiser le transcript courant
+    setCurrentTranscript('');
+
     try {
       await onStartRecording();
+      console.log("✅ Audio recording started, starting speech recognition...");
 
-      // Démarrer la reconnaissance vocale pour la transcription
-      await audioService.startSpeechRecognition(handleTranscriptUpdate);
+      // Vérifier que l'IA ne parle pas avant de démarrer la reconnaissance
+      if (!isAISpeaking) {
+        // Démarrer la reconnaissance vocale pour la transcription
+        await audioService.startSpeechRecognition(handleTranscriptUpdate);
+        console.log("✅ Speech recognition started successfully");
+      } else {
+        console.log("⚠️ AI is speaking, skipping speech recognition start");
+      }
     } catch (error) {
-      console.error('Error starting recording with transcription:', error);
+      console.error('❌ Error starting recording with transcription:', error);
     }
-  }, [onStartRecording, handleTranscriptUpdate]);
+  }, [onStartRecording, handleTranscriptUpdate, isAISpeaking]);
+
+  // Wrapper pour arrêter l'enregistrement de manière plus robuste
+  const handleStopRecordingWrapper = useCallback(async () => {
+    console.log("🛑 VoiceChatInterface - Stop recording requested");
+
+    // Forcer l'arrêt de tout immédiatement
+    audioService.stopSpeechRecognition();
+    audioService.abortSpeechRecognition();
+
+    // Appeler la fonction parent immédiatement (sans await pour éviter les blocages)
+    try {
+      onStopRecording();
+    } catch (error) {
+      console.error("❌ Error in onStopRecording:", error);
+    }
+
+    console.log("✅ Recording stop sequence completed");
+  }, [onStopRecording]);
 
   // Nettoyer la reconnaissance vocale à l'arrêt
   useEffect(() => {
     if (!isRecording) {
+      console.log("🛑 Recording stopped, cleaning up speech recognition");
       audioService.stopSpeechRecognition();
+      audioService.abortSpeechRecognition(); // Forcer l'arrêt complet
     }
   }, [isRecording]);
+
+  // Gestionnaire d'événements clavier pour l'arrêt d'urgence
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Barre d'espace pour arrêter d'urgence (quand l'utilisateur parle)
+      if (event.code === 'Space' && isRecording) {
+        // Ne pas intercepter si on est dans un champ de texte
+        const activeElement = document.activeElement;
+        if (activeElement && (
+          activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.getAttribute('contenteditable') === 'true'
+        )) {
+          return; // Laisser la barre d'espace fonctionner normalement dans les champs de texte
+        }
+
+        event.preventDefault(); // Empêcher le scroll de la page
+        console.log("🚨 Emergency stop triggered by spacebar");
+
+        // Forcer l'arrêt immédiat
+        handleStopRecordingWrapper();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isRecording, handleStopRecordingWrapper]);
 
   // Contrôler la reconnaissance vocale quand l'IA parle
   useEffect(() => {
@@ -121,16 +200,30 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({
       // Mettre en pause la reconnaissance vocale quand l'IA parle
       console.log('🔇 Stopping speech recognition - AI is speaking');
       audioService.stopSpeechRecognition();
-    } else if (!isAISpeaking && isRecording && !audioService.isSpeechRecognitionActive()) {
-      // Reprendre la reconnaissance vocale après que l'IA a fini de parler
-      console.log('🎤 Restarting speech recognition - AI finished speaking');
-      setTimeout(() => {
-        if (!isAISpeaking && isRecording) {
-          audioService.startSpeechRecognition(handleTranscriptUpdate).catch(error => {
-            console.error('Failed to restart speech recognition:', error);
-          });
+    }
+  }, [isAISpeaking]);
+
+  // Redémarrer la reconnaissance vocale quand l'IA arrête de parler
+  useEffect(() => {
+    if (!isAISpeaking && isRecording && !audioService.isSpeechRecognitionActive()) {
+      // Redémarrer la reconnaissance quand l'IA termine de parler
+      console.log('🔊 Restarting speech recognition - AI stopped speaking');
+
+      // Utiliser un délai plus long pour éviter les interférences
+      const restartDelay = setTimeout(() => {
+        if (isRecording && !isAISpeaking && !audioService.isSpeechRecognitionActive()) {
+          console.log('🎤 Actually restarting speech recognition now...');
+          audioService.startSpeechRecognition(handleTranscriptUpdate)
+            .then(() => {
+              console.log('✅ Speech recognition restarted successfully');
+            })
+            .catch((error) => {
+              console.error('❌ Failed to restart speech recognition:', error);
+            });
         }
-      }, 1000); // Augmenté le délai pour éviter les interférences
+      }, 1000); // Délai de 1 seconde pour s'assurer que l'IA a bien terminé
+
+      return () => clearTimeout(restartDelay);
     }
   }, [isAISpeaking, isRecording, handleTranscriptUpdate]);
 
@@ -145,6 +238,10 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({
       }
     }
   }, [messages]);
+
+  // Debug: logger l'état d'enregistrement
+  const actualIsDisabled = disabled || (isAISpeaking && !isRecording);
+  console.log("🔍 VoiceChatInterface render - isRecording:", isRecording, "isAISpeaking:", isAISpeaking, "actualIsDisabled:", actualIsDisabled);
 
   return (
     <div className="flex flex-col h-full space-y-4">
@@ -219,12 +316,23 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({
         )}
 
         {activeTab === 'voice' ? (
-          <div className="flex flex-col items-center justify-center space-y-6 py-8">
+          <div className="flex flex-col items-center justify-center space-y-6 py-4">
+            {/* Composant Karaoké pour transcription en temps réel */}
+            <div className="w-full max-w-2xl">
+              <KaraokeTranscript
+                transcript={currentTranscript}
+                isRecording={isRecording && !isAISpeaking}
+                isFinal={false}
+                isAISpeaking={isAISpeaking}
+                aiText={isAISpeaking && messages.length > 0 ? messages[messages.length - 1]?.content || '' : ''}
+              />
+            </div>
+
             <WaveformVisualizer isRecording={isRecording && !isAISpeaking} />
             <AudioRecorder
               isRecording={isRecording && !isAISpeaking}
               onStartRecording={handleStartRecordingWithTranscription}
-              onStopRecording={onStopRecording}
+              onStopRecording={handleStopRecordingWrapper}
               isDisabled={disabled || isAISpeaking}
             />
           </div>

@@ -308,7 +308,7 @@ const SessionPage: React.FC = () => {
       // Appeler le service IA
       const aiResponse = await aiService.generateResponse(conversationHistory, {
         temperature: 0.7,
-        maxTokens: 500,
+        maxTokens: 1000, // Augmenté de 500 à 1000 tokens pour des réponses plus complètes
         systemPrompt: `Tu es un coach d'entretien professionnel. Tu aides les candidats à améliorer leurs compétences en simulation d'entretien. Sois encourageant, donne des feedbacks constructifs et pose des questions de suivi pertinentes. Tu simules un recruteur ou un manager qui évalue le candidat. Réponds en français.
 
 IMPORTANT : Ne mentionne jamais la difficulté (facile, moyen, difficile) ni la durée estimée de l'entretien dans tes réponses. Concentre-toi uniquement sur le contenu, les compétences et les feedbacks pertinents.`,

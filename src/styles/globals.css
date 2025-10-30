@@ -325,8 +325,8 @@ body {
 
 /* 🎨 Transitions de thème */
 .theme-transitioning * {
-  transition: background-color var(--animation-normal) !important,
-              color var(--animation-normal) !important,
+  transition: background-color var(--animation-normal),
+              color var(--animation-normal),
               border-color var(--animation-normal) !important;
 }
 
@@ -353,6 +353,16 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-secondary-600);
+}
+
+/* 🔧 Utility classes */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 /* 🎯 Text selection */

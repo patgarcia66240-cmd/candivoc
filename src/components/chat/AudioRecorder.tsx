@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Mic, Square } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { audioService } from '../../services/audio/audioService';
 
 interface AudioRecorderProps {
   isRecording: boolean;
@@ -18,12 +19,31 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const [isHovered, setIsHovered] = useState(false);
 
   const handleToggleRecording = useCallback(() => {
+    console.log("🔘 AudioRecorder clicked - isRecording:", isRecording, "isDisabled:", isDisabled);
+
     if (isRecording) {
-      onStopRecording();
-    } else {
+      console.log("🚨 Emergency stop via click!");
+      // Forcer l'arrêt même si le bouton est désactivé
+      try {
+        onStopRecording();
+      } catch (error) {
+        console.error("❌ Error in normal onStopRecording, forcing emergency stop:", error);
+        // En cas d'erreur, forcer quand même l'arrêt des services audio
+        try {
+          // Forcer l'arrêt des services audio
+        audioService.stopSpeechRecognition();
+        audioService.abortSpeechRecognition();
+        } catch (e) {
+          console.error("Emergency stop failed completely:", e);
+        }
+      }
+    } else if (!isDisabled) {
+      console.log("▶️ Calling onStartRecording...");
       onStartRecording();
+    } else {
+      console.log("⚠️ Button is disabled, ignoring click");
     }
-  }, [isRecording, onStartRecording, onStopRecording]);
+  }, [isRecording, isDisabled, onStartRecording, onStopRecording]);
 
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -36,13 +56,13 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
       >
         <Button
           onClick={handleToggleRecording}
-          disabled={isDisabled}
+          disabled={isDisabled && !isRecording} // Toujours cliquable pendant l'enregistrement
           variant={isRecording ? 'secondary' : 'primary'}
           size="lg"
           className={`
             w-16 h-16 rounded-full flex items-center justify-center
             ${isRecording
-              ? 'bg-gray-500 hover:bg-slate-600 animate-pulse'
+              ? 'bg-red-500 hover:bg-red-600 animate-pulse cursor-pointer' // Rouge pour l'arrêt d'urgence
               : 'bg-slate-500 hover:bg-slate-600'
             }
           `}
@@ -61,22 +81,20 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
       <div className="text-center">
         <p className="text-sm font-medium text-gray-700">
-          {isDisabled && !isRecording ? (
-            'Veuillez patienter...'
-          ) : isRecording ? (
+          {isRecording ? (
             'Enregistrement en cours...'
           ) : (
             'Cliquez pour parler'
           )}
         </p>
-        {isDisabled && !isRecording && (
-          <p className="text-xs text-gray-500 mt-1">
-            L'IA est en train de parler
+        {isRecording && (
+          <p className="text-xs text-red-600 mt-1 font-medium">
+            🚨 Cliquez pour arrêter
           </p>
         )}
-        {isRecording && !isDisabled && (
-          <p className="text-xs text-gray-500 mt-1">
-            Appuyez pour arrêter l'enregistrement
+        {isRecording && (
+          <p className="text-xs text-blue-600 mt-1 font-medium">
+            💡 Barre d'espace : arrêt d'urgence
           </p>
         )}
       </div>

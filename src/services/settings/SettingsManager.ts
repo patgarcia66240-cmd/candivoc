@@ -19,6 +19,7 @@ export interface AppSettings {
 
   // Paramètres audio
   aiVoiceVolume: number; // Volume de la voix de l'IA (0.0 à 1.0)
+  aiVoiceName?: string; // Nom de la voix TTS à utiliser
 
   // Métadonnées
   lastUpdated?: string;
@@ -38,6 +39,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   sessionTimeout: 30,
   autoBackup: true,
   aiVoiceVolume: 0.9, // Volume par défaut à 90% (recommandé pour une voix naturelle)
+  aiVoiceName: 'Google français', // Voix TTS française par défaut
   lastUpdated: new Date().toISOString(),
   version: '1.0.0'
 };
@@ -225,6 +227,13 @@ export class SettingsManager {
       // AI Voice Volume (number between 0 and 1)
       if (typeof settingsObj.aiVoiceVolume === 'number') {
         corrected.aiVoiceVolume = Math.max(0, Math.min(1, settingsObj.aiVoiceVolume));
+      }
+
+      // AI Voice Name (string optionnelle)
+      if (settingsObj.aiVoiceName !== undefined) {
+        corrected.aiVoiceName = typeof settingsObj.aiVoiceName === 'string'
+          ? settingsObj.aiVoiceName
+          : DEFAULT_SETTINGS.aiVoiceName;
       }
 
       // Version (string)

@@ -143,9 +143,11 @@ export class AudioService {
   }
 
   async stopRecording(): Promise<Blob> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (!this.mediaRecorder) {
-        reject(new Error("No active recording"));
+        // Si pas d'enregistrement actif, retourner un blob vide plutôt que rejeter
+        const emptyBlob = new Blob([], { type: "audio/webm;codecs=opus" });
+        resolve(emptyBlob);
         return;
       }
 
@@ -154,7 +156,10 @@ export class AudioService {
         this.mediaRecorder.state !== "recording" &&
         this.mediaRecorder.state !== "paused"
       ) {
-        reject(new Error("No active recording"));
+        // Si pas dans le bon état, nettoyer et retourner un blob vide
+        this.cleanup();
+        const emptyBlob = new Blob([], { type: "audio/webm;codecs=opus" });
+        resolve(emptyBlob);
         return;
       }
 
@@ -162,14 +167,6 @@ export class AudioService {
       if (this.mediaRecorder.state === "paused") {
         this.mediaRecorder.resume();
       }
-
-      this.mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(this.audioChunks, {
-          type: "audio/webm;codecs=opus",
-        });
-        this.cleanup();
-        resolve(audioBlob);
-      };
 
       // Force stop after timeout if onstop doesn't fire
       const timeoutId = setTimeout(() => {
@@ -181,6 +178,7 @@ export class AudioService {
         resolve(audioBlob);
       }, 2000);
 
+      // Un seul handler onstop pour éviter les conflits
       this.mediaRecorder.onstop = () => {
         clearTimeout(timeoutId);
         const audioBlob = new Blob(this.audioChunks, {
@@ -277,12 +275,15 @@ export class AudioService {
 
         // Nettoyer toute instance précédente
         if (this.recognition) {
+          console.log("🔄 Cleaning up previous recognition instance");
           this.recognition.abort();
           this.recognition = null;
         }
 
+        // Reset listening state
+        this.isListening = false;
+
         this.recognition = new SpeechRecognitionAPI();
-        this.isListening = true;
 
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
@@ -291,6 +292,7 @@ export class AudioService {
 
         this.recognition.onstart = () => {
           console.log("🎤 Speech recognition started successfully");
+          this.isListening = true;
           resolve();
         };
 
@@ -320,16 +322,20 @@ export class AudioService {
         };
 
         this.recognition.onerror = (event) => {
-          console.error(
-            "❌ Speech recognition error:",
+          console.warn(
+            "⚠️ Speech recognition error:",
             event.error,
             event.message
           );
           this.isListening = false;
 
-          // Ne pas rejeter la promesse pour les erreurs "aborted" normales
-          if (event.error !== "aborted") {
+          // Ne pas rejeter la promesse pour les erreurs normales
+          if (event.error !== "aborted" && event.error !== "no-speech") {
+            console.error("Critical speech recognition error:", event.error);
             reject(new Error(`Speech recognition error: ${event.error}`));
+          } else {
+            // Pour les erreurs normales, juste nettoyer et continuer
+            console.log("Normal speech recognition error, cleaning up");
           }
         };
 
@@ -349,9 +355,10 @@ export class AudioService {
 
   stopSpeechRecognition(): void {
     if (this.recognition && this.isListening) {
+      console.log("🔇 Stopping speech recognition...");
       this.recognition.stop();
       this.isListening = false;
-      this.recognition = null; // Clear the reference
+      // Ne pas détruire l'instance pour permettre le redémarrage
     }
   }
 
@@ -450,13 +457,15 @@ export class AudioService {
     // Create new utterance
     this.currentUtterance = new SpeechSynthesisUtterance(cleanedText);
 
-    // Try to find the best French voice (priority order)
+    // Try to find the best French voice (priority order - meilleures voix en premier)
     const selectedVoice = voices.find(voice =>
-      voice.name.includes("Google français") ||
-      voice.name.includes("French") ||
-      voice.name.includes("fr-FR")
+      voice.name.includes("Google français") && !voice.name.includes("Compact")
     ) || voices.find(voice =>
-      voice.lang.startsWith("fr") && voice.localService
+      voice.name.includes("Microsoft Hortence") || // Voix Microsoft française de haute qualité
+      voice.name.includes("Microsoft Paul") ||
+      voice.name.includes("French") && !voice.name.includes("Compact")
+    ) || voices.find(voice =>
+      voice.lang.startsWith("fr") && voice.localService && !voice.name.includes("Compact")
     ) || voices.find(voice =>
       voice.lang.startsWith("fr")
     );
@@ -487,13 +496,16 @@ export class AudioService {
       this.currentUtterance.lang = "fr-FR";
     }
 
-    // Add small pauses for more natural speech (using SSML-like pauses)
+    // Add pauses and improve prosody for more natural speech
     const enhancedText = cleanedText
-      .replace(/\./g, ". ")
-      .replace(/,/g, ", ")
-      .replace(/\?/g, "? ")
-      .replace(/!/g, "! ")
+      .replace(/\./g, ". ... ") // Pause plus longue après les points
+      .replace(/,/g, ", ") // Pause moyenne après les virgules
+      .replace(/\?/g, "? ... ") // Pause après les questions
+      .replace(/!/g, "! ... ") // Pause après les exclamations
+      .replace(/;/g, " ; ... ") // Pause longue après les points-virgules
       .replace(/\s+/g, " ")
+      .replace(/\b(\w+)\b \1/gi, "$1") // Éviter les répétitions
+      .replace(/(\w{3,})\1+/gi, "$1") // Nettoyer les bégaiements
       .trim();
 
     this.currentUtterance.text = enhancedText;

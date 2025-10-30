@@ -36,7 +36,7 @@ class AIService {
 
     const {
       temperature = 0.7,
-      maxTokens = 500,
+      maxTokens = 1000, // Augmenté de 500 à 1000 tokens par défaut
       systemPrompt = '',
       model = 'gpt-4o-mini', // modèle léger et rapide
     } = options;
